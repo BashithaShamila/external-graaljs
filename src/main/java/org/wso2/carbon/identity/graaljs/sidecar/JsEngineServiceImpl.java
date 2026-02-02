@@ -71,10 +71,18 @@ public class JsEngineServiceImpl {
 
         HostCallbackClient callbackClient = null;
         try {
-            // Create callback client if callback socket is provided
+            // Create callback client using factory (auto-detects transport type from address)
             if (request.getCallbackSocketPath() != null && !request.getCallbackSocketPath().isEmpty()) {
-                log.info("[Sidecar] Creating HostCallbackClient to: {}", request.getCallbackSocketPath());
+                log.info("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
+                // Use factory to create appropriate callback client based on address format
+                // For now, this will create UDS client (current working implementation)
+                // Future: Will auto-detect and create gRPC/HTTP/WebSocket clients
                 callbackClient = new HostCallbackClient(request.getCallbackSocketPath(), request.getSessionId());
+                // TODO: Replace with factory when other transports are ready:
+                // CallbackClient client = CallbackClientFactory.createClient(
+                //     request.getCallbackSocketPath(), request.getSessionId());
+                // client.connect();
+                // callbackClient = adaptToHostCallbackClient(client);
             } else {
                 log.warn("[Sidecar] No callback socket path provided!");
             }
@@ -105,7 +113,15 @@ public class JsEngineServiceImpl {
                 }
 
                 // Evaluate the script
+                System.out.println("[DEBUG-SIDECAR] About to evaluate script...");
+                System.out.flush();
+                log.info("[Sidecar] Starting script evaluation...");
+
                 Value result = context.eval(JS_LANG, request.getScript());
+
+                System.out.println("[DEBUG-SIDECAR] Script evaluation completed successfully");
+                System.out.flush();
+                log.info("[Sidecar] Script evaluation completed successfully");
 
                 // Extract updated bindings
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
@@ -117,33 +133,64 @@ public class JsEngineServiceImpl {
                 }
 
                 long elapsed = System.currentTimeMillis() - startTime;
+                System.out.println("[DEBUG-SIDECAR] Building success response, elapsed: " + elapsed + "ms");
+                System.out.flush();
 
-                return EvaluateResponse.newBuilder()
+                byte[] responseBytes = EvaluateResponse.newBuilder()
                         .setSuccess(true)
                         .setElapsedMs(elapsed)
                         .setResult(serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
+
+                System.out.println("[DEBUG-SIDECAR] Success response built, size: " + responseBytes.length + " bytes");
+                System.out.flush();
+                log.info("[Sidecar] Success response built, returning {} bytes", responseBytes.length);
+
+                return responseBytes;
             }
 
         } catch (PolyglotException e) {
+            System.err.println("[ERROR-SIDECAR] PolyglotException during evaluation: " + e.getMessage());
+            e.printStackTrace(System.err);
+            System.err.flush();
             log.error("PolyglotException during evaluation", e);
-            return EvaluateResponse.newBuilder()
+
+            byte[] errorResponse = EvaluateResponse.newBuilder()
                     .setSuccess(false)
                     .setErrorMessage(e.getMessage())
                     .setErrorType("PolyglotException")
                     .setElapsedMs(System.currentTimeMillis() - startTime)
                     .build()
                     .toByteArray();
-        } catch (Exception e) {
-            log.error("Error during evaluation", e);
-            return EvaluateResponse.newBuilder()
+
+            System.err.println("[ERROR-SIDECAR] Built error response: " + errorResponse.length + " bytes");
+            System.err.flush();
+            return errorResponse;
+
+        } catch (Throwable t) {
+            // CRITICAL: Catch ALL throwables including OutOfMemoryError, StackOverflowError, etc.
+            System.err.println("[FATAL-SIDECAR] Throwable during evaluation: " + t.getClass().getName());
+            System.err.println("[FATAL-SIDECAR] Error message: " + t.getMessage());
+            t.printStackTrace(System.err);
+            System.err.flush();
+            log.error("FATAL: Throwable during evaluation", t);
+
+            String errorMessage = t.getClass().getName() + ": " +
+                    (t.getMessage() != null ? t.getMessage() : "No error message");
+
+            byte[] errorResponse = EvaluateResponse.newBuilder()
                     .setSuccess(false)
-                    .setErrorMessage(e.getMessage())
+                    .setErrorMessage(errorMessage)
+                    .setErrorType(t.getClass().getName())
                     .setElapsedMs(System.currentTimeMillis() - startTime)
                     .build()
                     .toByteArray();
+
+            System.err.println("[FATAL-SIDECAR] Built error response: " + errorResponse.length + " bytes");
+            System.err.flush();
+            return errorResponse;
         } finally {
             if (callbackClient != null) {
                 try {
@@ -173,10 +220,18 @@ public class JsEngineServiceImpl {
 
         HostCallbackClient callbackClient = null;
         try {
-            // Create callback client if callback socket is provided
+            // Create callback client using factory (auto-detects transport type from address)
             if (request.getCallbackSocketPath() != null && !request.getCallbackSocketPath().isEmpty()) {
-                log.info("[Sidecar] Creating HostCallbackClient to: {}", request.getCallbackSocketPath());
+                log.info("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
+                // Use factory to create appropriate callback client based on address format
+                // For now, this will create UDS client (current working implementation)
+                // Future: Will auto-detect and create gRPC/HTTP/WebSocket clients
                 callbackClient = new HostCallbackClient(request.getCallbackSocketPath(), request.getSessionId());
+                // TODO: Replace with factory when other transports are ready:
+                // CallbackClient client = CallbackClientFactory.createClient(
+                //     request.getCallbackSocketPath(), request.getSessionId());
+                // client.connect();
+                // callbackClient = adaptToHostCallbackClient(client);
             } else {
                 log.warn("[Sidecar] No callback socket path provided for executeCallback!");
             }
@@ -272,14 +327,44 @@ public class JsEngineServiceImpl {
                         .toByteArray();
             }
 
-        } catch (Exception e) {
-            log.error("Error during callback execution", e);
-            return ExecuteCallbackResponse.newBuilder()
+        } catch (PolyglotException e) {
+            System.err.println("[ERROR-SIDECAR] PolyglotException during callback: " + e.getMessage());
+            e.printStackTrace(System.err);
+            System.err.flush();
+            log.error("PolyglotException during callback execution", e);
+
+            byte[] errorResponse = ExecuteCallbackResponse.newBuilder()
                     .setSuccess(false)
                     .setErrorMessage(e.getMessage())
                     .setElapsedMs(System.currentTimeMillis() - startTime)
                     .build()
                     .toByteArray();
+
+            System.err.println("[ERROR-SIDECAR] Built callback error response: " + errorResponse.length + " bytes");
+            System.err.flush();
+            return errorResponse;
+
+        } catch (Throwable t) {
+            // CRITICAL: Catch ALL throwables including OutOfMemoryError, StackOverflowError, etc.
+            System.err.println("[FATAL-SIDECAR] Throwable during callback: " + t.getClass().getName());
+            System.err.println("[FATAL-SIDECAR] Error message: " + t.getMessage());
+            t.printStackTrace(System.err);
+            System.err.flush();
+            log.error("FATAL: Throwable during callback execution", t);
+
+            String errorMessage = t.getClass().getName() + ": " +
+                    (t.getMessage() != null ? t.getMessage() : "No error message");
+
+            byte[] errorResponse = ExecuteCallbackResponse.newBuilder()
+                    .setSuccess(false)
+                    .setErrorMessage(errorMessage)
+                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                    .build()
+                    .toByteArray();
+
+            System.err.println("[FATAL-SIDECAR] Built callback error response: " + errorResponse.length + " bytes");
+            System.err.flush();
+            return errorResponse;
         } finally {
             if (callbackClient != null) {
                 try {
