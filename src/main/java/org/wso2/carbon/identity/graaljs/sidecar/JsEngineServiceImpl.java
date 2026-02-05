@@ -775,7 +775,7 @@ public class JsEngineServiceImpl {
             try {
                 // Build the full property path
                 String propertyPath = basePath.isEmpty() ? key : basePath + "." + key;
-                log.debug("[DynamicContextProxy] getMember '{}', full path: {}", key, propertyPath);
+                log.info("[DynamicContextProxy] getMember '{}', full path: {}", key, propertyPath);
 
                 // Call back to IS for property value
                 ContextPropertyResponse response = callbackClient.getContextProperty(propertyPath, proxyType);
@@ -796,7 +796,7 @@ public class JsEngineServiceImpl {
                 } else {
                     // Deserialize the value
                     value = deserializeValue(response.getValue());
-                    log.debug("[DynamicContextProxy] Deserialized '{}' = {}", key,
+                    log.info("[DynamicContextProxy] Deserialized '{}' = {}", key,
                             value != null ? value.getClass().getSimpleName() : "null");
                 }
 
@@ -812,6 +812,8 @@ public class JsEngineServiceImpl {
 
         @Override
         public Object getMemberKeys() {
+            log.info("[DynamicContextProxy] getMemberKeys() called for path: {}", basePath);
+
             if (memberKeys != null) {
                 return memberKeys;
             }
@@ -823,6 +825,8 @@ public class JsEngineServiceImpl {
 
                 if (response.getSuccess() && response.getMemberKeysCount() > 0) {
                     memberKeys = response.getMemberKeysList().toArray(new String[0]);
+                    log.info("[DynamicContextProxy] Retrieved {} member keys: {}", memberKeys.length,
+                            java.util.Arrays.toString(memberKeys));
                     return memberKeys;
                 }
             } catch (java.io.IOException e) {
@@ -958,5 +962,71 @@ public class JsEngineServiceImpl {
                     return null;
             }
         }
+    }
+
+    /**
+     * Handle a host function request (placeholder implementation).
+     * These requests are typically handled by the callback mechanism.
+     *
+     * @param requestBytes Protobuf-encoded HostFunctionRequest.
+     * @return Protobuf-encoded HostFunctionResponse.
+     */
+    public byte[] handleHostFunction(byte[] requestBytes) throws java.io.IOException {
+        HostFunctionRequest request = HostFunctionRequest.parseFrom(requestBytes);
+        log.info("[Sidecar] handleHostFunction - session: {}, function: {}, args: {}",
+                request.getSessionId(), request.getFunctionName(), request.getArgumentsCount());
+        
+        // This is typically handled via callback mechanism during script execution
+        // This direct handler is mainly for logging purposes
+        HostFunctionResponse response = HostFunctionResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage("Host function calls should be handled via callback mechanism during script execution")
+                .build();
+        
+        return response.toByteArray();
+    }
+
+    /**
+     * Handle a context property request (placeholder implementation).
+     * These requests are typically handled by the proxy mechanism during script execution.
+     *
+     * @param requestBytes Protobuf-encoded ContextPropertyRequest.
+     * @return Protobuf-encoded ContextPropertyResponse.
+     */
+    public byte[] handleContextProperty(byte[] requestBytes) throws java.io.IOException {
+        ContextPropertyRequest request = ContextPropertyRequest.parseFrom(requestBytes);
+        log.info("[Sidecar] handleContextProperty - session: {}, property: {}, proxyType: {}",
+                request.getSessionId(), request.getPropertyPath(), request.getProxyType());
+        
+        // This is typically handled via proxy mechanism during script execution
+        // This direct handler is mainly for logging purposes
+        ContextPropertyResponse response = ContextPropertyResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage("Context property access should be handled via proxy mechanism during script execution")
+                .build();
+        
+        return response.toByteArray();
+    }
+
+    /**
+     * Handle a context property set request (placeholder implementation).
+     * These requests are typically handled by the proxy mechanism during script execution.
+     *
+     * @param requestBytes Protobuf-encoded ContextPropertySetRequest.
+     * @return Protobuf-encoded ContextPropertySetResponse.
+     */
+    public byte[] handleContextPropertySet(byte[] requestBytes) throws java.io.IOException {
+        ContextPropertySetRequest request = ContextPropertySetRequest.parseFrom(requestBytes);
+        log.info("[Sidecar] handleContextPropertySet - session: {}, property: {}, value: {}",
+                request.getSessionId(), request.getPropertyPath(), request.getValue());
+        
+        // This is typically handled via proxy mechanism during script execution  
+        // This direct handler is mainly for logging purposes
+        ContextPropertySetResponse response = ContextPropertySetResponse.newBuilder()
+                .setSuccess(false)
+                .setErrorMessage("Context property setting should be handled via proxy mechanism during script execution")
+                .build();
+        
+        return response.toByteArray();
     }
 }

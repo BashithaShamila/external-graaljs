@@ -1,0 +1,14 @@
+[main] INFO org.wso2.carbon.identity.graaljs.sidecar.Main - [Main] Starting sidecar in UDS mode
+[SIDECAR-STARTUP] Starting GraalJS Sidecar in UDS mode
+[SIDECAR-STARTUP] Socket path: /tmp/graaljs-sidecar.sock
+[SIDECAR-STARTUP] Statement limit: 5000, Thread pool size: 10
+[UDS-Server-Accept] INFO org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport - [UDS-Server] Accepting connections...
+[main] INFO org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport - [UDS-Server] Started on socket: /tmp/graaljs-sidecar.sock
+[main] INFO org.wso2.carbon.identity.graaljs.sidecar.Main - [Main] Sidecar started on: /tmp/graaljs-sidecar.sock
+[SIDECAR-STARTUP] Sidecar listening on: /tmp/graaljs-sidecar.sock
+[Thread-0] INFO org.wso2.carbon.identity.graaljs.sidecar.Main - [Main] Shutting down GraalJS Sidecar...
+[SIDECAR-SHUTDOWN] Shutting down GraalJS Sidecar...
+[Thread-0] INFO org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport - [UDS-Server] Stopping server...
+[UDS-Server-Accept] INFO org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport - [UDS-Server] Stopped accepting connections
+[Thread-0] INFO org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport - [UDS-Server] Stopped
+[Thread-0] INFO org.wso2.carbon.identity.graaljs.sidecar.Main - [Main] GraalJS Sidecar stopped

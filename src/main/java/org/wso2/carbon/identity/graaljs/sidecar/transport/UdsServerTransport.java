@@ -27,6 +27,12 @@ import org.wso2.carbon.identity.graaljs.proto.EvaluateRequest;
 import org.wso2.carbon.identity.graaljs.proto.EvaluateResponse;
 import org.wso2.carbon.identity.graaljs.proto.ExecuteCallbackRequest;
 import org.wso2.carbon.identity.graaljs.proto.ExecuteCallbackResponse;
+import org.wso2.carbon.identity.graaljs.proto.HostFunctionRequest;
+import org.wso2.carbon.identity.graaljs.proto.HostFunctionResponse;
+import org.wso2.carbon.identity.graaljs.proto.ContextPropertyRequest;
+import org.wso2.carbon.identity.graaljs.proto.ContextPropertyResponse;
+import org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest;
+import org.wso2.carbon.identity.graaljs.proto.ContextPropertySetResponse;
 import org.wso2.carbon.identity.graaljs.sidecar.JsEngineServiceImpl;
 
 import java.io.DataInputStream;
@@ -50,6 +56,12 @@ public class UdsServerTransport implements ServerTransport {
     private static final int EVALUATE_RESPONSE = 2;
     private static final int EXECUTE_CALLBACK_REQUEST = 3;
     private static final int EXECUTE_CALLBACK_RESPONSE = 4;
+    private static final int HOST_FUNCTION_REQUEST = 5;
+    private static final int HOST_FUNCTION_RESPONSE = 6;
+    private static final int CONTEXT_PROPERTY_REQUEST = 7;
+    private static final int CONTEXT_PROPERTY_RESPONSE = 8;
+    private static final int CONTEXT_PROPERTY_SET_REQUEST = 9;
+    private static final int CONTEXT_PROPERTY_SET_RESPONSE = 10;
 
     private final String socketPath;
     private final JsEngineServiceImpl engineService;
@@ -192,7 +204,10 @@ public class UdsServerTransport implements ServerTransport {
                         byte[] messageBytes = new byte[length];
                         input.readFully(messageBytes);
 
-                        log.debug("[UDS-Server] Received message type: " + messageType + ", length: " + length);
+                        log.info("[UDS-Server] Received message type: " + messageType + ", length: " + length);
+
+                        // Always log message details for testing
+                        logDecodedMessage(messageType, messageBytes, "[UDS-Server] Request");
 
                         // Process message
                         byte[] responseBytes;
@@ -206,6 +221,18 @@ public class UdsServerTransport implements ServerTransport {
                             responseBytes = engineService.handleExecuteCallback(messageBytes);
                             responseType = EXECUTE_CALLBACK_RESPONSE;
 
+                        } else if (messageType == HOST_FUNCTION_REQUEST) {
+                            responseBytes = engineService.handleHostFunction(messageBytes);
+                            responseType = HOST_FUNCTION_RESPONSE;
+                            
+                        } else if (messageType == CONTEXT_PROPERTY_REQUEST) {
+                            responseBytes = engineService.handleContextProperty(messageBytes);
+                            responseType = CONTEXT_PROPERTY_RESPONSE;
+                            
+                        } else if (messageType == CONTEXT_PROPERTY_SET_REQUEST) {
+                            responseBytes = engineService.handleContextPropertySet(messageBytes);
+                            responseType = CONTEXT_PROPERTY_SET_RESPONSE;
+                            
                         } else {
                             log.warn("[UDS-Server] Unknown message type: " + messageType);
                             continue;
@@ -217,7 +244,9 @@ public class UdsServerTransport implements ServerTransport {
                         output.write(responseBytes);
                         output.flush();
 
-                        log.debug("[UDS-Server] Sent response type: " + responseType);
+                        // Always log response details for testing  
+                        logDecodedMessage(responseType, responseBytes, "[UDS-Server] Response");
+                        log.info("[UDS-Server] Sent response type: " + responseType);
 
                     } catch (java.io.EOFException e) {
                         log.debug("[UDS-Server] Client disconnected");
@@ -236,6 +265,58 @@ public class UdsServerTransport implements ServerTransport {
                 } catch (IOException e) {
                     log.debug("[UDS-Server] Error closing client socket", e);
                 }
+            }
+        }
+
+        private void logDecodedMessage(int messageType, byte[] messageBytes, String prefix) {
+            try {
+                switch (messageType) {
+                    case EVALUATE_REQUEST:
+                        EvaluateRequest evaluateRequest = EvaluateRequest.parseFrom(messageBytes);
+                        log.info("{} EVALUATE_REQUEST: {}", prefix, evaluateRequest);
+                        break;
+                    case EXECUTE_CALLBACK_REQUEST:
+                        ExecuteCallbackRequest executeCallbackRequest = ExecuteCallbackRequest.parseFrom(messageBytes);
+                        log.info("{} EXECUTE_CALLBACK_REQUEST: {}", prefix, executeCallbackRequest);
+                        break;
+                    case EVALUATE_RESPONSE:
+                        EvaluateResponse evaluateResponse = EvaluateResponse.parseFrom(messageBytes);
+                        log.info("{} EVALUATE_RESPONSE: {}", prefix, evaluateResponse);
+                        break;
+                    case EXECUTE_CALLBACK_RESPONSE:
+                        ExecuteCallbackResponse executeCallbackResponse = ExecuteCallbackResponse.parseFrom(messageBytes);
+                        log.info("{} EXECUTE_CALLBACK_RESPONSE: {}", prefix, executeCallbackResponse);
+                        break;
+                    case HOST_FUNCTION_REQUEST:
+                        HostFunctionRequest hostFunctionRequest = HostFunctionRequest.parseFrom(messageBytes);
+                        log.info("{} HOST_FUNCTION_REQUEST: {}", prefix, hostFunctionRequest);
+                        break;
+                    case HOST_FUNCTION_RESPONSE:
+                        HostFunctionResponse hostFunctionResponse = HostFunctionResponse.parseFrom(messageBytes);
+                        log.info("{} HOST_FUNCTION_RESPONSE: {}", prefix, hostFunctionResponse);
+                        break;
+                    case CONTEXT_PROPERTY_REQUEST:
+                        ContextPropertyRequest contextPropertyRequest = ContextPropertyRequest.parseFrom(messageBytes);
+                        log.info("{} CONTEXT_PROPERTY_REQUEST: {}", prefix, contextPropertyRequest);
+                        break;
+                    case CONTEXT_PROPERTY_RESPONSE:
+                        ContextPropertyResponse contextPropertyResponse = ContextPropertyResponse.parseFrom(messageBytes);
+                        log.info("{} CONTEXT_PROPERTY_RESPONSE: {}", prefix, contextPropertyResponse);
+                        break;
+                    case CONTEXT_PROPERTY_SET_REQUEST:
+                        ContextPropertySetRequest contextPropertySetRequest = ContextPropertySetRequest.parseFrom(messageBytes);
+                        log.info("{} CONTEXT_PROPERTY_SET_REQUEST: {}", prefix, contextPropertySetRequest);
+                        break;
+                    case CONTEXT_PROPERTY_SET_RESPONSE:
+                        ContextPropertySetResponse contextPropertySetResponse = ContextPropertySetResponse.parseFrom(messageBytes);
+                        log.info("{} CONTEXT_PROPERTY_SET_RESPONSE: {}", prefix, contextPropertySetResponse);
+                        break;
+                    default:
+                        log.info("{} Unknown message type: {}", prefix, messageType);
+                        break;
+                }
+            } catch (Exception e) {
+                log.debug("{} Failed to decode message type: {}", prefix, messageType, e);
             }
         }
     }

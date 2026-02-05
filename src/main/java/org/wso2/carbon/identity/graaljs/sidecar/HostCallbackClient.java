@@ -123,8 +123,13 @@ public class HostCallbackClient implements Closeable {
             requestBuilder.addArguments(serializeValue(arguments[i]));
         }
 
+        HostFunctionRequest request = requestBuilder.build();
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] HostFunctionRequest: {}", request);
+        }
+
         // Send request
-        byte[] requestBytes = requestBuilder.build().toByteArray();
+        byte[] requestBytes = request.toByteArray();
         log.info("[HostCallbackClient] Sending request: {} bytes", requestBytes.length);
         output.writeByte(HOST_FUNCTION_REQUEST);
         output.writeInt(requestBytes.length);
@@ -145,6 +150,9 @@ public class HostCallbackClient implements Closeable {
         input.readFully(responseBytes);
 
         HostFunctionResponse response = HostFunctionResponse.parseFrom(responseBytes);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] HostFunctionResponse: {}", response);
+        }
         log.info("[HostCallbackClient] Response parsed - success: {}", response.getSuccess());
 
         if (!response.getSuccess()) {
@@ -168,7 +176,7 @@ public class HostCallbackClient implements Closeable {
      * @throws IOException If communication fails.
      */
     public ContextPropertyResponse getContextProperty(String propertyPath, String proxyType) throws IOException {
-        log.debug("[HostCallbackClient] getContextProperty '{}' (type: {}), session: {}",
+        log.info("[HostCallbackClient] getContextProperty '{}' (type: {}), session: {}",
                 propertyPath, proxyType, sessionId);
         ensureConnected();
 
@@ -178,6 +186,9 @@ public class HostCallbackClient implements Closeable {
                 .setPropertyPath(propertyPath)
                 .setProxyType(proxyType)
                 .build();
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] ContextPropertyRequest: {}", request);
+        }
 
         // Send request
         byte[] requestBytes = request.toByteArray();
@@ -199,8 +210,11 @@ public class HostCallbackClient implements Closeable {
         input.readFully(responseBytes);
 
         ContextPropertyResponse response = ContextPropertyResponse.parseFrom(responseBytes);
-        log.debug("[HostCallbackClient] Context property response - success: {}, isProxy: {}",
-                response.getSuccess(), response.getIsProxy());
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] ContextPropertyResponse: {}", response);
+        }
+        log.info("[HostCallbackClient] Context property '{}' fetched - success: {}, isProxy: {}",
+                propertyPath, response.getSuccess(), response.getIsProxy());
 
         return response;
     }
@@ -228,6 +242,9 @@ public class HostCallbackClient implements Closeable {
                 .setPropertyPath(propertyPath)
                 .setValue(value)
                 .build();
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] ContextPropertySetRequest: {}", request);
+        }
 
         // Send request
         byte[] requestBytes = request.toByteArray();
@@ -249,6 +266,9 @@ public class HostCallbackClient implements Closeable {
         input.readFully(responseBytes);
 
         ContextPropertySetResponse response = ContextPropertySetResponse.parseFrom(responseBytes);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] ContextPropertySetResponse: {}", response);
+        }
         log.info("[HostCallbackClient] Context property SET response - success: {}",
                 response.getSuccess());
 
