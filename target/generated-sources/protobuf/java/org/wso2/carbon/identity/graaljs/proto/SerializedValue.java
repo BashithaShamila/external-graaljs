@@ -4,11 +4,11 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 /**
- * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.SerializedValue}
+ * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue}
  */
 public final class SerializedValue extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.proto.SerializedValue)
+    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue)
     SerializedValueOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use SerializedValue.newBuilder() to construct.
@@ -32,13 +32,13 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedValue_descriptor;
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedValue_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedValue_fieldAccessorTable
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedValue_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.wso2.carbon.identity.graaljs.proto.SerializedValue.class, org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder.class);
   }
@@ -236,7 +236,7 @@ private static final long serialVersionUID = 0L;
 
   public static final int MAP_VALUE_FIELD_NUMBER = 6;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
    * @return Whether the mapValue field is set.
    */
   @java.lang.Override
@@ -244,7 +244,7 @@ private static final long serialVersionUID = 0L;
     return valueCase_ == 6;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
    * @return The mapValue.
    */
   @java.lang.Override
@@ -255,7 +255,7 @@ private static final long serialVersionUID = 0L;
     return org.wso2.carbon.identity.graaljs.proto.SerializedMap.getDefaultInstance();
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedMapOrBuilder getMapValueOrBuilder() {
@@ -267,7 +267,7 @@ private static final long serialVersionUID = 0L;
 
   public static final int ARRAY_VALUE_FIELD_NUMBER = 7;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
    * @return Whether the arrayValue field is set.
    */
   @java.lang.Override
@@ -275,7 +275,7 @@ private static final long serialVersionUID = 0L;
     return valueCase_ == 7;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
    * @return The arrayValue.
    */
   @java.lang.Override
@@ -286,7 +286,7 @@ private static final long serialVersionUID = 0L;
     return org.wso2.carbon.identity.graaljs.proto.SerializedArray.getDefaultInstance();
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedArrayOrBuilder getArrayValueOrBuilder() {
@@ -298,7 +298,7 @@ private static final long serialVersionUID = 0L;
 
   public static final int FUNCTION_VALUE_FIELD_NUMBER = 8;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
    * @return Whether the functionValue field is set.
    */
   @java.lang.Override
@@ -306,7 +306,7 @@ private static final long serialVersionUID = 0L;
     return valueCase_ == 8;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
    * @return The functionValue.
    */
   @java.lang.Override
@@ -317,7 +317,7 @@ private static final long serialVersionUID = 0L;
     return org.wso2.carbon.identity.graaljs.proto.SerializedFunction.getDefaultInstance();
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedFunctionOrBuilder getFunctionValueOrBuilder() {
@@ -329,7 +329,7 @@ private static final long serialVersionUID = 0L;
 
   public static final int PROXY_OBJECT_FIELD_NUMBER = 9;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
    * @return Whether the proxyObject field is set.
    */
   @java.lang.Override
@@ -337,7 +337,7 @@ private static final long serialVersionUID = 0L;
     return valueCase_ == 9;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
    * @return The proxyObject.
    */
   @java.lang.Override
@@ -348,7 +348,7 @@ private static final long serialVersionUID = 0L;
     return org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.getDefaultInstance();
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedProxyObjectOrBuilder getProxyObjectOrBuilder() {
@@ -658,21 +658,21 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.SerializedValue}
+   * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.proto.SerializedValue)
+      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue)
       org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedValue_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedValue_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedValue_fieldAccessorTable
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedValue_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.wso2.carbon.identity.graaljs.proto.SerializedValue.class, org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder.class);
     }
@@ -711,7 +711,7 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedValue_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedValue_descriptor;
     }
 
     @java.lang.Override
@@ -1225,7 +1225,7 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedMap, org.wso2.carbon.identity.graaljs.proto.SerializedMap.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedMapOrBuilder> mapValueBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      * @return Whether the mapValue field is set.
      */
     @java.lang.Override
@@ -1233,7 +1233,7 @@ private static final long serialVersionUID = 0L;
       return valueCase_ == 6;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      * @return The mapValue.
      */
     @java.lang.Override
@@ -1251,7 +1251,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     public Builder setMapValue(org.wso2.carbon.identity.graaljs.proto.SerializedMap value) {
       if (mapValueBuilder_ == null) {
@@ -1267,7 +1267,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     public Builder setMapValue(
         org.wso2.carbon.identity.graaljs.proto.SerializedMap.Builder builderForValue) {
@@ -1281,7 +1281,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     public Builder mergeMapValue(org.wso2.carbon.identity.graaljs.proto.SerializedMap value) {
       if (mapValueBuilder_ == null) {
@@ -1304,7 +1304,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     public Builder clearMapValue() {
       if (mapValueBuilder_ == null) {
@@ -1323,13 +1323,13 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedMap.Builder getMapValueBuilder() {
       return getMapValueFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedMapOrBuilder getMapValueOrBuilder() {
@@ -1343,7 +1343,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedMap, org.wso2.carbon.identity.graaljs.proto.SerializedMap.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedMapOrBuilder> 
@@ -1367,7 +1367,7 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedArray, org.wso2.carbon.identity.graaljs.proto.SerializedArray.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedArrayOrBuilder> arrayValueBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      * @return Whether the arrayValue field is set.
      */
     @java.lang.Override
@@ -1375,7 +1375,7 @@ private static final long serialVersionUID = 0L;
       return valueCase_ == 7;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      * @return The arrayValue.
      */
     @java.lang.Override
@@ -1393,7 +1393,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     public Builder setArrayValue(org.wso2.carbon.identity.graaljs.proto.SerializedArray value) {
       if (arrayValueBuilder_ == null) {
@@ -1409,7 +1409,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     public Builder setArrayValue(
         org.wso2.carbon.identity.graaljs.proto.SerializedArray.Builder builderForValue) {
@@ -1423,7 +1423,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     public Builder mergeArrayValue(org.wso2.carbon.identity.graaljs.proto.SerializedArray value) {
       if (arrayValueBuilder_ == null) {
@@ -1446,7 +1446,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     public Builder clearArrayValue() {
       if (arrayValueBuilder_ == null) {
@@ -1465,13 +1465,13 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedArray.Builder getArrayValueBuilder() {
       return getArrayValueFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedArrayOrBuilder getArrayValueOrBuilder() {
@@ -1485,7 +1485,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedArray, org.wso2.carbon.identity.graaljs.proto.SerializedArray.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedArrayOrBuilder> 
@@ -1509,7 +1509,7 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedFunction, org.wso2.carbon.identity.graaljs.proto.SerializedFunction.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedFunctionOrBuilder> functionValueBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      * @return Whether the functionValue field is set.
      */
     @java.lang.Override
@@ -1517,7 +1517,7 @@ private static final long serialVersionUID = 0L;
       return valueCase_ == 8;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      * @return The functionValue.
      */
     @java.lang.Override
@@ -1535,7 +1535,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     public Builder setFunctionValue(org.wso2.carbon.identity.graaljs.proto.SerializedFunction value) {
       if (functionValueBuilder_ == null) {
@@ -1551,7 +1551,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     public Builder setFunctionValue(
         org.wso2.carbon.identity.graaljs.proto.SerializedFunction.Builder builderForValue) {
@@ -1565,7 +1565,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     public Builder mergeFunctionValue(org.wso2.carbon.identity.graaljs.proto.SerializedFunction value) {
       if (functionValueBuilder_ == null) {
@@ -1588,7 +1588,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     public Builder clearFunctionValue() {
       if (functionValueBuilder_ == null) {
@@ -1607,13 +1607,13 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedFunction.Builder getFunctionValueBuilder() {
       return getFunctionValueFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedFunctionOrBuilder getFunctionValueOrBuilder() {
@@ -1627,7 +1627,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedFunction, org.wso2.carbon.identity.graaljs.proto.SerializedFunction.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedFunctionOrBuilder> 
@@ -1651,7 +1651,7 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject, org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedProxyObjectOrBuilder> proxyObjectBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      * @return Whether the proxyObject field is set.
      */
     @java.lang.Override
@@ -1659,7 +1659,7 @@ private static final long serialVersionUID = 0L;
       return valueCase_ == 9;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      * @return The proxyObject.
      */
     @java.lang.Override
@@ -1677,7 +1677,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     public Builder setProxyObject(org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject value) {
       if (proxyObjectBuilder_ == null) {
@@ -1693,7 +1693,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     public Builder setProxyObject(
         org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.Builder builderForValue) {
@@ -1707,7 +1707,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     public Builder mergeProxyObject(org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject value) {
       if (proxyObjectBuilder_ == null) {
@@ -1730,7 +1730,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     public Builder clearProxyObject() {
       if (proxyObjectBuilder_ == null) {
@@ -1749,13 +1749,13 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.Builder getProxyObjectBuilder() {
       return getProxyObjectFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedProxyObjectOrBuilder getProxyObjectOrBuilder() {
@@ -1769,7 +1769,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject, org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedProxyObjectOrBuilder> 
@@ -1802,10 +1802,10 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.proto.SerializedValue)
+    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue)
   }
 
-  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.proto.SerializedValue)
+  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue)
   private static final org.wso2.carbon.identity.graaljs.proto.SerializedValue DEFAULT_INSTANCE;
   static {
     DEFAULT_INSTANCE = new org.wso2.carbon.identity.graaljs.proto.SerializedValue();

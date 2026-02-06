@@ -23,30 +23,32 @@ public final class JsEngineGrpcProtos {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\024js_engine_grpc.proto\022&org.wso2.carbon." +
-      "identity.graaljs.proto\032\017js_engine.proto2" +
-      "\251\002\n\017JsEngineService\022\177\n\010Evaluate\0227.org.ws" +
-      "o2.carbon.identity.graaljs.proto.Evaluat" +
-      "eRequest\0328.org.wso2.carbon.identity.graa" +
-      "ljs.proto.EvaluateResponse\"\000\022\224\001\n\017Execute" +
-      "Callback\022>.org.wso2.carbon.identity.graa" +
-      "ljs.proto.ExecuteCallbackRequest\032?.org.w" +
-      "so2.carbon.identity.graaljs.proto.Execut" +
-      "eCallbackResponse\"\0002\343\003\n\023HostCallbackServ" +
-      "ice\022\221\001\n\022InvokeHostFunction\022;.org.wso2.ca" +
-      "rbon.identity.graaljs.proto.HostFunction" +
-      "Request\032<.org.wso2.carbon.identity.graal" +
-      "js.proto.HostFunctionResponse\"\000\022\227\001\n\022GetC" +
-      "ontextProperty\022>.org.wso2.carbon.identit" +
-      "y.graaljs.proto.ContextPropertyRequest\032?" +
-      ".org.wso2.carbon.identity.graaljs.proto." +
-      "ContextPropertyResponse\"\000\022\235\001\n\022SetContext" +
-      "Property\022A.org.wso2.carbon.identity.graa" +
-      "ljs.proto.ContextPropertySetRequest\032B.or" +
-      "g.wso2.carbon.identity.graaljs.proto.Con" +
-      "textPropertySetResponse\"\000BC\n+org.wso2.ca" +
-      "rbon.identity.graaljs.proto.grpcB\022JsEngi" +
-      "neGrpcProtosP\001b\006proto3"
+      "\n\024js_engine_grpc.proto\022-org.wso2.carbon." +
+      "identity.graaljs.engine.proto\032\017js_engine" +
+      ".proto2\306\002\n\017JsEngineService\022\215\001\n\010Evaluate\022" +
+      ">.org.wso2.carbon.identity.graaljs.engin" +
+      "e.proto.EvaluateRequest\032?.org.wso2.carbo" +
+      "n.identity.graaljs.engine.proto.Evaluate" +
+      "Response\"\000\022\242\001\n\017ExecuteCallback\022E.org.wso" +
+      "2.carbon.identity.graaljs.engine.proto.E" +
+      "xecuteCallbackRequest\032F.org.wso2.carbon." +
+      "identity.graaljs.engine.proto.ExecuteCal" +
+      "lbackResponse\"\0002\215\004\n\023HostCallbackService\022" +
+      "\237\001\n\022InvokeHostFunction\022B.org.wso2.carbon" +
+      ".identity.graaljs.engine.proto.HostFunct" +
+      "ionRequest\032C.org.wso2.carbon.identity.gr" +
+      "aaljs.engine.proto.HostFunctionResponse\"" +
+      "\000\022\245\001\n\022GetContextProperty\022E.org.wso2.carb" +
+      "on.identity.graaljs.engine.proto.Context" +
+      "PropertyRequest\032F.org.wso2.carbon.identi" +
+      "ty.graaljs.engine.proto.ContextPropertyR" +
+      "esponse\"\000\022\253\001\n\022SetContextProperty\022H.org.w" +
+      "so2.carbon.identity.graaljs.engine.proto" +
+      ".ContextPropertySetRequest\032I.org.wso2.ca" +
+      "rbon.identity.graaljs.engine.proto.Conte" +
+      "xtPropertySetResponse\"\000BC\n+org.wso2.carb" +
+      "on.identity.graaljs.proto.grpcB\022JsEngine" +
+      "GrpcProtosP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

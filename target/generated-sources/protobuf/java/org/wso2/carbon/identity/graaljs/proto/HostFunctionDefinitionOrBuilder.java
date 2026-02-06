@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface HostFunctionDefinitionOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition)
     com.google.protobuf.MessageOrBuilder {
 
   /**

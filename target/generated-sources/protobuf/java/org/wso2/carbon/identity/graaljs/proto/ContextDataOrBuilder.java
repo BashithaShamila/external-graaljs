@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface ContextDataOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.ContextData)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.ContextData)
     com.google.protobuf.MessageOrBuilder {
 
   /**

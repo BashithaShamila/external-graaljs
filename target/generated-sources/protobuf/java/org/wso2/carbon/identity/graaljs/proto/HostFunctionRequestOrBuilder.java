@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface HostFunctionRequestOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.HostFunctionRequest)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionRequest)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -32,25 +32,25 @@ public interface HostFunctionRequestOrBuilder extends
       getFunctionNameBytes();
 
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   java.util.List<org.wso2.carbon.identity.graaljs.proto.SerializedValue> 
       getArgumentsList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getArguments(int index);
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   int getArgumentsCount();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   java.util.List<? extends org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> 
       getArgumentsOrBuilderList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getArgumentsOrBuilder(
       int index);

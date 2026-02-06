@@ -4,11 +4,11 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 /**
- * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.EvaluateRequest}
+ * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest}
  */
 public final class EvaluateRequest extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.proto.EvaluateRequest)
+    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest)
     EvaluateRequestOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use EvaluateRequest.newBuilder() to construct.
@@ -37,7 +37,7 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateRequest_descriptor;
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_descriptor;
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -55,7 +55,7 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateRequest_fieldAccessorTable
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.wso2.carbon.identity.graaljs.proto.EvaluateRequest.class, org.wso2.carbon.identity.graaljs.proto.EvaluateRequest.Builder.class);
   }
@@ -194,7 +194,7 @@ private static final long serialVersionUID = 0L;
         java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> defaultEntry =
             com.google.protobuf.MapEntry
             .<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>newDefaultInstance(
-                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateRequest_BindingsEntry_descriptor, 
+                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_BindingsEntry_descriptor, 
                 com.google.protobuf.WireFormat.FieldType.STRING,
                 "",
                 com.google.protobuf.WireFormat.FieldType.MESSAGE,
@@ -215,7 +215,7 @@ private static final long serialVersionUID = 0L;
     return internalGetBindings().getMap().size();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
    */
   @java.lang.Override
   public boolean containsBindings(
@@ -232,14 +232,14 @@ private static final long serialVersionUID = 0L;
     return getBindingsMap();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
    */
   @java.lang.Override
   public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getBindingsMap() {
     return internalGetBindings().getMap();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
    */
   @java.lang.Override
   public /* nullable */
@@ -253,7 +253,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return map.containsKey(key) ? map.get(key) : defaultValue;
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedValue getBindingsOrThrow(
@@ -271,14 +271,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
   @SuppressWarnings("serial")
   private java.util.List<org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition> hostFunctions_;
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
    */
   @java.lang.Override
   public java.util.List<org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition> getHostFunctionsList() {
     return hostFunctions_;
   }
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
    */
   @java.lang.Override
   public java.util.List<? extends org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder> 
@@ -286,21 +286,21 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return hostFunctions_;
   }
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
    */
   @java.lang.Override
   public int getHostFunctionsCount() {
     return hostFunctions_.size();
   }
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition getHostFunctions(int index) {
     return hostFunctions_.get(index);
   }
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder getHostFunctionsOrBuilder(
@@ -350,7 +350,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
   public static final int CONTEXT_DATA_FIELD_NUMBER = 8;
   private org.wso2.carbon.identity.graaljs.proto.ContextData contextData_;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
    * @return Whether the contextData field is set.
    */
   @java.lang.Override
@@ -358,7 +358,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return contextData_ != null;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
    * @return The contextData.
    */
   @java.lang.Override
@@ -366,7 +366,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return contextData_ == null ? org.wso2.carbon.identity.graaljs.proto.ContextData.getDefaultInstance() : contextData_;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder getContextDataOrBuilder() {
@@ -620,15 +620,15 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return builder;
   }
   /**
-   * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.EvaluateRequest}
+   * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.proto.EvaluateRequest)
+      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest)
       org.wso2.carbon.identity.graaljs.proto.EvaluateRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateRequest_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -656,7 +656,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateRequest_fieldAccessorTable
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.wso2.carbon.identity.graaljs.proto.EvaluateRequest.class, org.wso2.carbon.identity.graaljs.proto.EvaluateRequest.Builder.class);
     }
@@ -699,7 +699,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateRequest_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_descriptor;
     }
 
     @java.lang.Override
@@ -1236,7 +1236,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return internalGetBindings().getMap().size();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     @java.lang.Override
     public boolean containsBindings(
@@ -1253,14 +1253,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return getBindingsMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     @java.lang.Override
     public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getBindingsMap() {
       return internalGetBindings().getMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     @java.lang.Override
     public /* nullable */
@@ -1274,7 +1274,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return map.containsKey(key) ? map.get(key) : defaultValue;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue getBindingsOrThrow(
@@ -1294,7 +1294,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     public Builder removeBindings(
         java.lang.String key) {
@@ -1313,7 +1313,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return internalGetMutableBindings().getMutableMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     public Builder putBindings(
         java.lang.String key,
@@ -1326,7 +1326,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 5;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 5;</code>
      */
     public Builder putAllBindings(
         java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> values) {
@@ -1349,7 +1349,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder> hostFunctionsBuilder_;
 
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public java.util.List<org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition> getHostFunctionsList() {
       if (hostFunctionsBuilder_ == null) {
@@ -1359,7 +1359,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public int getHostFunctionsCount() {
       if (hostFunctionsBuilder_ == null) {
@@ -1369,7 +1369,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition getHostFunctions(int index) {
       if (hostFunctionsBuilder_ == null) {
@@ -1379,7 +1379,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder setHostFunctions(
         int index, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition value) {
@@ -1396,7 +1396,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder setHostFunctions(
         int index, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder builderForValue) {
@@ -1410,7 +1410,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder addHostFunctions(org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition value) {
       if (hostFunctionsBuilder_ == null) {
@@ -1426,7 +1426,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder addHostFunctions(
         int index, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition value) {
@@ -1443,7 +1443,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder addHostFunctions(
         org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder builderForValue) {
@@ -1457,7 +1457,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder addHostFunctions(
         int index, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder builderForValue) {
@@ -1471,7 +1471,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder addAllHostFunctions(
         java.lang.Iterable<? extends org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition> values) {
@@ -1486,7 +1486,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder clearHostFunctions() {
       if (hostFunctionsBuilder_ == null) {
@@ -1499,7 +1499,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public Builder removeHostFunctions(int index) {
       if (hostFunctionsBuilder_ == null) {
@@ -1512,14 +1512,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder getHostFunctionsBuilder(
         int index) {
       return getHostFunctionsFieldBuilder().getBuilder(index);
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder getHostFunctionsOrBuilder(
         int index) {
@@ -1529,7 +1529,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public java.util.List<? extends org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder> 
          getHostFunctionsOrBuilderList() {
@@ -1540,14 +1540,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder addHostFunctionsBuilder() {
       return getHostFunctionsFieldBuilder().addBuilder(
           org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.getDefaultInstance());
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder addHostFunctionsBuilder(
         int index) {
@@ -1555,7 +1555,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
           index, org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.getDefaultInstance());
     }
     /**
-     * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 6;</code>
+     * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 6;</code>
      */
     public java.util.List<org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition.Builder> 
          getHostFunctionsBuilderList() {
@@ -1652,14 +1652,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.ContextData, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder, org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder> contextDataBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      * @return Whether the contextData field is set.
      */
     public boolean hasContextData() {
       return ((bitField0_ & 0x00000080) != 0);
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      * @return The contextData.
      */
     public org.wso2.carbon.identity.graaljs.proto.ContextData getContextData() {
@@ -1670,7 +1670,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     public Builder setContextData(org.wso2.carbon.identity.graaljs.proto.ContextData value) {
       if (contextDataBuilder_ == null) {
@@ -1686,7 +1686,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     public Builder setContextData(
         org.wso2.carbon.identity.graaljs.proto.ContextData.Builder builderForValue) {
@@ -1700,7 +1700,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     public Builder mergeContextData(org.wso2.carbon.identity.graaljs.proto.ContextData value) {
       if (contextDataBuilder_ == null) {
@@ -1719,7 +1719,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     public Builder clearContextData() {
       bitField0_ = (bitField0_ & ~0x00000080);
@@ -1732,7 +1732,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.ContextData.Builder getContextDataBuilder() {
       bitField0_ |= 0x00000080;
@@ -1740,7 +1740,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return getContextDataFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder getContextDataOrBuilder() {
       if (contextDataBuilder_ != null) {
@@ -1751,7 +1751,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 8;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.ContextData, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder, org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder> 
@@ -1779,10 +1779,10 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     }
 
 
-    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.proto.EvaluateRequest)
+    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest)
   }
 
-  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.proto.EvaluateRequest)
+  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest)
   private static final org.wso2.carbon.identity.graaljs.proto.EvaluateRequest DEFAULT_INSTANCE;
   static {
     DEFAULT_INSTANCE = new org.wso2.carbon.identity.graaljs.proto.EvaluateRequest();

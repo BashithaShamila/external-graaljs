@@ -4,11 +4,11 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 /**
- * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.ContextData}
+ * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.ContextData}
  */
 public final class ContextData extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.proto.ContextData)
+    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.engine.proto.ContextData)
     ContextDataOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use ContextData.newBuilder() to construct.
@@ -37,7 +37,7 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextData_descriptor;
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor;
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -55,7 +55,7 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextData_fieldAccessorTable
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.wso2.carbon.identity.graaljs.proto.ContextData.class, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder.class);
   }
@@ -269,7 +269,7 @@ private static final long serialVersionUID = 0L;
         java.lang.String, java.lang.String> defaultEntry =
             com.google.protobuf.MapEntry
             .<java.lang.String, java.lang.String>newDefaultInstance(
-                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextData_ClaimsEntry_descriptor, 
+                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_descriptor, 
                 com.google.protobuf.WireFormat.FieldType.STRING,
                 "",
                 com.google.protobuf.WireFormat.FieldType.STRING,
@@ -577,15 +577,15 @@ java.lang.String defaultValue) {
     return builder;
   }
   /**
-   * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.ContextData}
+   * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.ContextData}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.proto.ContextData)
+      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.engine.proto.ContextData)
       org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextData_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -613,7 +613,7 @@ java.lang.String defaultValue) {
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextData_fieldAccessorTable
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.wso2.carbon.identity.graaljs.proto.ContextData.class, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder.class);
     }
@@ -646,7 +646,7 @@ java.lang.String defaultValue) {
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextData_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor;
     }
 
     @java.lang.Override
@@ -1429,10 +1429,10 @@ java.lang.String defaultValue) {
     }
 
 
-    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.proto.ContextData)
+    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.engine.proto.ContextData)
   }
 
-  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.proto.ContextData)
+  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.engine.proto.ContextData)
   private static final org.wso2.carbon.identity.graaljs.proto.ContextData DEFAULT_INSTANCE;
   static {
     DEFAULT_INSTANCE = new org.wso2.carbon.identity.graaljs.proto.ContextData();

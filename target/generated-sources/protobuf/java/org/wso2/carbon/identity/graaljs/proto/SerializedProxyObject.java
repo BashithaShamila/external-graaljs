@@ -8,11 +8,11 @@ package org.wso2.carbon.identity.graaljs.proto;
  * For proxy objects that need to call back to IS
  * </pre>
  *
- * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject}
+ * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject}
  */
 public final class SerializedProxyObject extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject)
+    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject)
     SerializedProxyObjectOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use SerializedProxyObject.newBuilder() to construct.
@@ -38,7 +38,7 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedProxyObject_descriptor;
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor;
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -56,7 +56,7 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedProxyObject_fieldAccessorTable
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.class, org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.Builder.class);
   }
@@ -145,7 +145,7 @@ private static final long serialVersionUID = 0L;
         java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> defaultEntry =
             com.google.protobuf.MapEntry
             .<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>newDefaultInstance(
-                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedProxyObject_CachedPropertiesEntry_descriptor, 
+                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_descriptor, 
                 com.google.protobuf.WireFormat.FieldType.STRING,
                 "",
                 com.google.protobuf.WireFormat.FieldType.MESSAGE,
@@ -166,7 +166,7 @@ private static final long serialVersionUID = 0L;
     return internalGetCachedProperties().getMap().size();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   @java.lang.Override
   public boolean containsCachedProperties(
@@ -183,14 +183,14 @@ private static final long serialVersionUID = 0L;
     return getCachedPropertiesMap();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   @java.lang.Override
   public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getCachedPropertiesMap() {
     return internalGetCachedProperties().getMap();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   @java.lang.Override
   public /* nullable */
@@ -204,7 +204,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return map.containsKey(key) ? map.get(key) : defaultValue;
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrThrow(
@@ -409,15 +409,15 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
    * For proxy objects that need to call back to IS
    * </pre>
    *
-   * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject}
+   * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject)
+      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject)
       org.wso2.carbon.identity.graaljs.proto.SerializedProxyObjectOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedProxyObject_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -445,7 +445,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedProxyObject_fieldAccessorTable
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.class, org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject.Builder.class);
     }
@@ -473,7 +473,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_SerializedProxyObject_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor;
     }
 
     @java.lang.Override
@@ -802,7 +802,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return internalGetCachedProperties().getMap().size();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     @java.lang.Override
     public boolean containsCachedProperties(
@@ -819,14 +819,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return getCachedPropertiesMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     @java.lang.Override
     public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getCachedPropertiesMap() {
       return internalGetCachedProperties().getMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     @java.lang.Override
     public /* nullable */
@@ -840,7 +840,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return map.containsKey(key) ? map.get(key) : defaultValue;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrThrow(
@@ -860,7 +860,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     public Builder removeCachedProperties(
         java.lang.String key) {
@@ -879,7 +879,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return internalGetMutableCachedProperties().getMutableMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     public Builder putCachedProperties(
         java.lang.String key,
@@ -892,7 +892,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
      */
     public Builder putAllCachedProperties(
         java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> values) {
@@ -914,10 +914,10 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     }
 
 
-    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject)
+    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject)
   }
 
-  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject)
+  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject)
   private static final org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject DEFAULT_INSTANCE;
   static {
     DEFAULT_INSTANCE = new org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject();

@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface SerializedValueOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.SerializedValue)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -69,62 +69,62 @@ public interface SerializedValueOrBuilder extends
   com.google.protobuf.ByteString getNullValue();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
    * @return Whether the mapValue field is set.
    */
   boolean hasMapValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
    * @return The mapValue.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedMap getMapValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedMap map_value = 6;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap map_value = 6;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedMapOrBuilder getMapValueOrBuilder();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
    * @return Whether the arrayValue field is set.
    */
   boolean hasArrayValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
    * @return The arrayValue.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedArray getArrayValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedArray array_value = 7;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray array_value = 7;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedArrayOrBuilder getArrayValueOrBuilder();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
    * @return Whether the functionValue field is set.
    */
   boolean hasFunctionValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
    * @return The functionValue.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedFunction getFunctionValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedFunction function_value = 8;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedFunction function_value = 8;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedFunctionOrBuilder getFunctionValueOrBuilder();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
    * @return Whether the proxyObject field is set.
    */
   boolean hasProxyObject();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
    * @return The proxyObject.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject getProxyObject();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxy_object = 9;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject proxy_object = 9;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedProxyObjectOrBuilder getProxyObjectOrBuilder();
 

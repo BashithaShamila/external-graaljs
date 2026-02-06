@@ -4,11 +4,11 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 /**
- * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest}
+ * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest}
  */
 public final class ContextPropertySetRequest extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest)
+    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest)
     ContextPropertySetRequestOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use ContextPropertySetRequest.newBuilder() to construct.
@@ -34,13 +34,13 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextPropertySetRequest_descriptor;
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertySetRequest_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextPropertySetRequest_fieldAccessorTable
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertySetRequest_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest.class, org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest.Builder.class);
   }
@@ -126,7 +126,7 @@ private static final long serialVersionUID = 0L;
   public static final int VALUE_FIELD_NUMBER = 3;
   private org.wso2.carbon.identity.graaljs.proto.SerializedValue value_;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
    * @return Whether the value field is set.
    */
   @java.lang.Override
@@ -134,7 +134,7 @@ private static final long serialVersionUID = 0L;
     return value_ != null;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
    * @return The value.
    */
   @java.lang.Override
@@ -142,7 +142,7 @@ private static final long serialVersionUID = 0L;
     return value_ == null ? org.wso2.carbon.identity.graaljs.proto.SerializedValue.getDefaultInstance() : value_;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getValueOrBuilder() {
@@ -330,21 +330,21 @@ private static final long serialVersionUID = 0L;
     return builder;
   }
   /**
-   * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest}
+   * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest)
+      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest)
       org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequestOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextPropertySetRequest_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertySetRequest_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextPropertySetRequest_fieldAccessorTable
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertySetRequest_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest.class, org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest.Builder.class);
     }
@@ -376,7 +376,7 @@ private static final long serialVersionUID = 0L;
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_ContextPropertySetRequest_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertySetRequest_descriptor;
     }
 
     @java.lang.Override
@@ -681,14 +681,14 @@ private static final long serialVersionUID = 0L;
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedValue, org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> valueBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      * @return Whether the value field is set.
      */
     public boolean hasValue() {
       return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      * @return The value.
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue getValue() {
@@ -699,7 +699,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     public Builder setValue(org.wso2.carbon.identity.graaljs.proto.SerializedValue value) {
       if (valueBuilder_ == null) {
@@ -715,7 +715,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     public Builder setValue(
         org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder builderForValue) {
@@ -729,7 +729,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     public Builder mergeValue(org.wso2.carbon.identity.graaljs.proto.SerializedValue value) {
       if (valueBuilder_ == null) {
@@ -748,7 +748,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     public Builder clearValue() {
       bitField0_ = (bitField0_ & ~0x00000004);
@@ -761,7 +761,7 @@ private static final long serialVersionUID = 0L;
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder getValueBuilder() {
       bitField0_ |= 0x00000004;
@@ -769,7 +769,7 @@ private static final long serialVersionUID = 0L;
       return getValueFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getValueOrBuilder() {
       if (valueBuilder_ != null) {
@@ -780,7 +780,7 @@ private static final long serialVersionUID = 0L;
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedValue, org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> 
@@ -808,10 +808,10 @@ private static final long serialVersionUID = 0L;
     }
 
 
-    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest)
+    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest)
   }
 
-  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest)
+  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest)
   private static final org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest DEFAULT_INSTANCE;
   static {
     DEFAULT_INSTANCE = new org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest();

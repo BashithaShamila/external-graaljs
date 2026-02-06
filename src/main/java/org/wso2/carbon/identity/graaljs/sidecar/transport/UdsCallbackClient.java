@@ -18,125 +18,203 @@
 
 package org.wso2.carbon.identity.graaljs.sidecar.transport;
 
+import org.newsclub.net.unix.AFUNIXSocket;
+import org.newsclub.net.unix.AFUNIXSocketAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.graaljs.proto.ContextPropertyRequest;
 import org.wso2.carbon.identity.graaljs.proto.ContextPropertyResponse;
 import org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest;
 import org.wso2.carbon.identity.graaljs.proto.ContextPropertySetResponse;
 import org.wso2.carbon.identity.graaljs.proto.HostFunctionRequest;
 import org.wso2.carbon.identity.graaljs.proto.HostFunctionResponse;
-import org.wso2.carbon.identity.graaljs.proto.SerializedValue;
-import org.wso2.carbon.identity.graaljs.sidecar.HostCallbackClient;
-import com.google.protobuf.ByteString;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * UDS wrapper implementation of CallbackClient interface.
- * Adapts the CallbackClient interface to the existing HostCallbackClient implementation.
+ * Pure Unix Domain Socket implementation of CallbackClient.
+ * Mirrors the IS framework pattern where UdsCallbackServerImpl wraps HostCallbackServer.
+ * <p>
+ * This implementation contains the actual UDS socket communication code,
+ * making it a clean, transport-specific implementation.
  */
 public class UdsCallbackClient implements CallbackClient {
 
-    private final HostCallbackClient delegate;
+    private static final Logger log = LoggerFactory.getLogger(UdsCallbackClient.class);
+
+    // Message type constants matching IS HostCallbackServer
+    private static final int HOST_FUNCTION_REQUEST = 5;
+    private static final int HOST_FUNCTION_RESPONSE = 6;
+    private static final int CONTEXT_PROPERTY_REQUEST = 7;
+    private static final int CONTEXT_PROPERTY_RESPONSE = 8;
+    private static final int CONTEXT_PROPERTY_SET_REQUEST = 9;
+    private static final int CONTEXT_PROPERTY_SET_RESPONSE = 10;
+
+    private final String sessionId;
+    private final String socketPath;
+    private AFUNIXSocket socket;
+    private DataInputStream input;
+    private DataOutputStream output;
+    private boolean connected = false;
 
     /**
      * Create a new UDS callback client.
      *
      * @param sessionId        Session identifier.
-     * @param callbackAddress  UDS socket path for callbacks.
+     * @param socketPath      UDS socket path for callbacks.
      */
-    public UdsCallbackClient(String sessionId, String callbackAddress) {
-        this.delegate = new HostCallbackClient(sessionId, callbackAddress);
-    }
-
-    @Override
-    public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
-        // Extract function name and arguments from request
-        String functionName = request.getFunctionName();
-
-        // Deserialize arguments
-        List<Object> args = new ArrayList<>();
-        for (SerializedValue sv : request.getArgumentsList()) {
-            Object arg = deserializeValue(sv);
-            args.add(arg);
-        }
-
-        // Call delegate
-        Object result = delegate.invokeHostFunction(functionName, args.toArray());
-
-        // Build response
-        return HostFunctionResponse.newBuilder()
-                .setSuccess(true)
-                .setResult(serializeValue(result))
-                .build();
-    }
-
-    @Override
-    public ContextPropertyResponse getContextProperty(ContextPropertyRequest request) throws IOException {
-        return delegate.getContextProperty(request.getPropertyPath(), request.getProxyType());
-    }
-
-    @Override
-    public ContextPropertySetResponse setContextProperty(ContextPropertySetRequest request) throws IOException {
-        return delegate.setContextProperty(request.getPropertyPath(), "", request.getValue());
+    public UdsCallbackClient(String sessionId, String socketPath) {
+        this.sessionId = sessionId;
+        this.socketPath = socketPath;
+        log.debug("[UdsCallbackClient] Created for session: {}, socket: {}", sessionId, socketPath);
     }
 
     @Override
     public void connect() throws IOException {
-        delegate.connect();
+        if (connected) {
+            log.debug("[UdsCallbackClient] Already connected to: {}", socketPath);
+            return;
+        }
+
+        File socketFile = new File(socketPath);
+        if (!socketFile.exists()) {
+            log.error("[UdsCallbackClient] Socket file does not exist: {}", socketPath);
+            throw new IOException("Socket file does not exist: " + socketPath);
+        }
+
+        AFUNIXSocketAddress address = AFUNIXSocketAddress.of(socketFile);
+        socket = AFUNIXSocket.newInstance();
+        socket.connect(address);
+        output = new DataOutputStream(socket.getOutputStream());
+        input = new DataInputStream(socket.getInputStream());
+        connected = true;
+        log.info("[UdsCallbackClient] Connected to UDS socket: {}", socketPath);
     }
 
     @Override
     public boolean isConnected() {
-        return delegate.isConnected();
+        return connected && socket != null && socket.isConnected();
+    }
+
+    @Override
+    public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
+        log.info("[UdsCallbackClient] invokeHostFunction: {}, session: {}",
+                request.getFunctionName(), request.getSessionId());
+        ensureConnected();
+
+        // Send request
+        byte[] requestBytes = request.toByteArray();
+        log.debug("[UdsCallbackClient] Sending request: {} bytes", requestBytes.length);
+        output.writeByte(HOST_FUNCTION_REQUEST);
+        output.writeInt(requestBytes.length);
+        output.write(requestBytes);
+        output.flush();
+
+        // Read response
+        int responseType = input.readByte();
+        if (responseType != HOST_FUNCTION_RESPONSE) {
+            throw new IOException("Unexpected response type: " + responseType +
+                    ", expected: " + HOST_FUNCTION_RESPONSE);
+        }
+
+        int length = input.readInt();
+        byte[] responseBytes = new byte[length];
+        input.readFully(responseBytes);
+
+        HostFunctionResponse response = HostFunctionResponse.parseFrom(responseBytes);
+        log.info("[UdsCallbackClient] Response received - success: {}", response.getSuccess());
+        return response;
+    }
+
+    @Override
+    public ContextPropertyResponse getContextProperty(ContextPropertyRequest request) throws IOException {
+        log.debug("[UdsCallbackClient] getContextProperty: {}, session: {}",
+                request.getPropertyPath(), request.getSessionId());
+        ensureConnected();
+
+        // Send request
+        byte[] requestBytes = request.toByteArray();
+        output.writeByte(CONTEXT_PROPERTY_REQUEST);
+        output.writeInt(requestBytes.length);
+        output.write(requestBytes);
+        output.flush();
+
+        // Read response
+        int responseType = input.readByte();
+        if (responseType != CONTEXT_PROPERTY_RESPONSE) {
+            throw new IOException("Unexpected response type: " + responseType +
+                    ", expected: " + CONTEXT_PROPERTY_RESPONSE);
+        }
+
+        int length = input.readInt();
+        byte[] responseBytes = new byte[length];
+        input.readFully(responseBytes);
+
+        ContextPropertyResponse response = ContextPropertyResponse.parseFrom(responseBytes);
+        log.debug("[UdsCallbackClient] ContextProperty response - success: {}, isProxy: {}",
+                response.getSuccess(), response.getIsProxy());
+        return response;
+    }
+
+    @Override
+    public ContextPropertySetResponse setContextProperty(ContextPropertySetRequest request) throws IOException {
+        log.info("[UdsCallbackClient] setContextProperty: {}, session: {}",
+                request.getPropertyPath(), request.getSessionId());
+        ensureConnected();
+
+        // Send request
+        byte[] requestBytes = request.toByteArray();
+        output.writeByte(CONTEXT_PROPERTY_SET_REQUEST);
+        output.writeInt(requestBytes.length);
+        output.write(requestBytes);
+        output.flush();
+
+        // Read response
+        int responseType = input.readByte();
+        if (responseType != CONTEXT_PROPERTY_SET_RESPONSE) {
+            throw new IOException("Unexpected response type: " + responseType +
+                    ", expected: " + CONTEXT_PROPERTY_SET_RESPONSE);
+        }
+
+        int length = input.readInt();
+        byte[] responseBytes = new byte[length];
+        input.readFully(responseBytes);
+
+        ContextPropertySetResponse response = ContextPropertySetResponse.parseFrom(responseBytes);
+        log.info("[UdsCallbackClient] SetProperty response - success: {}", response.getSuccess());
+        return response;
     }
 
     @Override
     public void close() throws IOException {
-        delegate.close();
+        connected = false;
+        if (output != null) {
+            try {
+                output.close();
+            } catch (IOException ignored) {
+            }
+        }
+        if (input != null) {
+            try {
+                input.close();
+            } catch (IOException ignored) {
+            }
+        }
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+            }
+        }
+        log.debug("[UdsCallbackClient] Closed connection to: {}", socketPath);
     }
 
-    /**
-     * Deserialize a protobuf value to Java object.
-     * Simplified version - proper implementation in JsEngineServiceImpl.
-     */
-    private Object deserializeValue(SerializedValue sv) {
-        switch (sv.getValueCase()) {
-            case STRING_VALUE:
-                return sv.getStringValue();
-            case INT_VALUE:
-                return sv.getIntValue();
-            case DOUBLE_VALUE:
-                return sv.getDoubleValue();
-            case BOOL_VALUE:
-                return sv.getBoolValue();
-            case NULL_VALUE:
-                return null;
-            default:
-                return null;
+    private void ensureConnected() throws IOException {
+        if (!isConnected()) {
+            connect();
         }
-    }
-
-    /**
-     * Serialize a Java object to protobuf value.
-     * Simplified version - proper implementation in JsEngineServiceImpl.
-     */
-    private SerializedValue serializeValue(Object value) {
-        SerializedValue.Builder builder = SerializedValue.newBuilder();
-        if (value == null) {
-            builder.setNullValue(ByteString.EMPTY);
-        } else if (value instanceof String) {
-            builder.setStringValue((String) value);
-        } else if (value instanceof Integer) {
-            builder.setIntValue((Integer) value);
-        } else if (value instanceof Double) {
-            builder.setDoubleValue((Double) value);
-        } else if (value instanceof Boolean) {
-            builder.setBoolValue((Boolean) value);
-        } else {
-            builder.setNullValue(ByteString.EMPTY);
-        }
-        return builder.build();
     }
 }

@@ -4,15 +4,15 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface SerializedMapOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.SerializedMap)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.SerializedMap)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; entries = 1;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; entries = 1;</code>
    */
   int getEntriesCount();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; entries = 1;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; entries = 1;</code>
    */
   boolean containsEntries(
       java.lang.String key);
@@ -23,12 +23,12 @@ public interface SerializedMapOrBuilder extends
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getEntries();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; entries = 1;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; entries = 1;</code>
    */
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getEntriesMap();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; entries = 1;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; entries = 1;</code>
    */
   /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue getEntriesOrDefault(
@@ -36,7 +36,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue getEntriesOrDefault(
       /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue);
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; entries = 1;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; entries = 1;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getEntriesOrThrow(
       java.lang.String key);

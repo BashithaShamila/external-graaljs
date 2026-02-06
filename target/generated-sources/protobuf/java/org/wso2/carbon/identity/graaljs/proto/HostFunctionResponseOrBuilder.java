@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface HostFunctionResponseOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.HostFunctionResponse)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -14,17 +14,17 @@ public interface HostFunctionResponseOrBuilder extends
   boolean getSuccess();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 2;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 2;</code>
    * @return Whether the result field is set.
    */
   boolean hasResult();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 2;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 2;</code>
    * @return The result.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getResult();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 2;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 2;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getResultOrBuilder();
 

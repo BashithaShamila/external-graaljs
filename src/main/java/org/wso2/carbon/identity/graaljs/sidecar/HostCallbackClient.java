@@ -19,89 +19,82 @@
 package org.wso2.carbon.identity.graaljs.sidecar;
 
 import org.graalvm.polyglot.Value;
-import org.newsclub.net.unix.AFUNIXSocket;
-import org.newsclub.net.unix.AFUNIXSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.graaljs.proto.*;
+import org.wso2.carbon.identity.graaljs.sidecar.transport.CallbackClient;
+import org.wso2.carbon.identity.graaljs.sidecar.transport.CallbackClientFactory;
 
 import java.io.Closeable;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Client for sending host function callbacks back to the Identity Server.
- * When JavaScript in the sidecar calls a host function (executeStep, sendError,
- * etc.),
- * this client sends the call back to IS for execution.
+ * Convenience wrapper for callback clients that provides a simple API.
+ * Mirrors the IS framework pattern where UdsCallbackServerImpl wraps HostCallbackServer.
+ * <p>
+ * This class uses CallbackClientFactory internally to create the appropriate transport
+ * implementation (UDS or gRPC), then adapts the CallbackClient interface to provide
+ * a simpler API for JsEngineServiceImpl.
+ * <p>
+ * Transport Selection:
+ * - Uses CallbackClientFactory to auto-detect transport type from address format
+ * - UDS: /path/to/socket or file:///path/to/socket
+ * - gRPC: localhost:port or grpc://localhost:port
+ * <p>
+ * This mirrors the IS pattern where UdsCallbackServerImpl adapts CallbackServer
+ * interface to the HostCallbackServer singleton implementation.
  */
 public class HostCallbackClient implements Closeable {
 
     private static final Logger log = LoggerFactory.getLogger(HostCallbackClient.class);
 
-    private static final int HOST_FUNCTION_REQUEST = 5;
-    private static final int HOST_FUNCTION_RESPONSE = 6;
-    private static final int CONTEXT_PROPERTY_REQUEST = 7;
-    private static final int CONTEXT_PROPERTY_RESPONSE = 8;
-    private static final int CONTEXT_PROPERTY_SET_REQUEST = 9;
-    private static final int CONTEXT_PROPERTY_SET_RESPONSE = 10;
-
-    private final String socketPath;
+    private final String callbackAddress;
     private final String sessionId;
-    private AFUNIXSocket socket;
-    private DataInputStream input;
-    private DataOutputStream output;
-    private boolean connected = false;
+    private final CallbackClient delegate;
 
-    public HostCallbackClient(String socketPath, String sessionId) {
-        this.socketPath = socketPath;
+    /**
+     * Create a new callback client using factory pattern.
+     *
+     * @param callbackAddress Address where IS callback server is listening (UDS path or gRPC address).
+     * @param sessionId Session identifier.
+     * @throws IOException if address format is invalid or transport is not supported.
+     */
+    public HostCallbackClient(String callbackAddress, String sessionId) throws IOException {
+        this.callbackAddress = callbackAddress;
         this.sessionId = sessionId;
+
+        // Use factory to create appropriate callback client based on address format
+        this.delegate = CallbackClientFactory.createClient(callbackAddress, sessionId);
+
+        log.info("[HostCallbackClient] Created callback client for address: {}, session: {}",
+                callbackAddress, sessionId);
     }
 
     /**
      * Connect to the IS callback server.
      */
     public void connect() throws IOException {
-        if (connected) {
-            log.info("[HostCallbackClient] Already connected to: {}", socketPath);
-            return;
-        }
-
-        log.info("[HostCallbackClient] Connecting to IS callback server at: {}", socketPath);
-        File socketFile = new File(socketPath);
-        if (!socketFile.exists()) {
-            log.error("[HostCallbackClient] Socket file does not exist: {}", socketPath);
-            throw new IOException("Socket file does not exist: " + socketPath);
-        }
-
-        AFUNIXSocketAddress address = AFUNIXSocketAddress.of(socketFile);
-        socket = AFUNIXSocket.newInstance();
-        socket.connect(address);
-        output = new DataOutputStream(socket.getOutputStream());
-        input = new DataInputStream(socket.getInputStream());
-        connected = true;
-
-        log.info("[HostCallbackClient] Connected to IS callback server at: {}", socketPath);
+        delegate.connect();
+        log.info("[HostCallbackClient] Connected to: {}", callbackAddress);
     }
 
     /**
      * Check if connected.
      */
     public boolean isConnected() {
-        return connected && socket != null && socket.isConnected();
+        return delegate.isConnected();
     }
 
     /**
      * Invoke a host function on the IS side.
+     * Convenience method that handles proto serialization.
      *
-     * @param functionName Name of the host function (e.g., "executeStep",
-     *                     "sendError").
+     * @param functionName Name of the host function (e.g., "executeStep", "sendError").
      * @param arguments    Arguments to pass.
      * @return Result from the host function.
      * @throws IOException If communication fails.
@@ -118,42 +111,15 @@ public class HostCallbackClient implements Closeable {
 
         // Serialize arguments
         for (int i = 0; i < arguments.length; i++) {
-            log.info("[HostCallbackClient] Serializing arg[{}]: {}", i,
+            log.debug("[HostCallbackClient] Serializing arg[{}]: {}", i,
                     arguments[i] != null ? arguments[i].getClass().getSimpleName() : "null");
             requestBuilder.addArguments(serializeValue(arguments[i]));
         }
 
         HostFunctionRequest request = requestBuilder.build();
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] HostFunctionRequest: {}", request);
-        }
 
-        // Send request
-        byte[] requestBytes = request.toByteArray();
-        log.info("[HostCallbackClient] Sending request: {} bytes", requestBytes.length);
-        output.writeByte(HOST_FUNCTION_REQUEST);
-        output.writeInt(requestBytes.length);
-        output.write(requestBytes);
-        output.flush();
-        log.info("[HostCallbackClient] Request sent, waiting for response...");
-
-        // Read response
-        int responseType = input.readByte();
-        log.info("[HostCallbackClient] Received response type: {}", responseType);
-        if (responseType != HOST_FUNCTION_RESPONSE) {
-            throw new IOException("Unexpected response type: " + responseType);
-        }
-
-        int length = input.readInt();
-        log.info("[HostCallbackClient] Reading {} bytes of response", length);
-        byte[] responseBytes = new byte[length];
-        input.readFully(responseBytes);
-
-        HostFunctionResponse response = HostFunctionResponse.parseFrom(responseBytes);
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] HostFunctionResponse: {}", response);
-        }
-        log.info("[HostCallbackClient] Response parsed - success: {}", response.getSuccess());
+        // Delegate to transport implementation
+        HostFunctionResponse response = delegate.invokeHostFunction(request);
 
         if (!response.getSuccess()) {
             log.error("[HostCallbackClient] Host function failed: {}", response.getErrorMessage());
@@ -168,7 +134,7 @@ public class HostCallbackClient implements Closeable {
 
     /**
      * Get a context property value from IS.
-     * This enables the dynamic context proxy to call back for any property access.
+     * Convenience method for dynamic context proxy.
      *
      * @param propertyPath Path to the property (e.g., "request", "request.params").
      * @param proxyType    Type of the proxy object.
@@ -176,7 +142,7 @@ public class HostCallbackClient implements Closeable {
      * @throws IOException If communication fails.
      */
     public ContextPropertyResponse getContextProperty(String propertyPath, String proxyType) throws IOException {
-        log.info("[HostCallbackClient] getContextProperty '{}' (type: {}), session: {}",
+        log.debug("[HostCallbackClient] getContextProperty '{}' (type: {}), session: {}",
                 propertyPath, proxyType, sessionId);
         ensureConnected();
 
@@ -186,45 +152,16 @@ public class HostCallbackClient implements Closeable {
                 .setPropertyPath(propertyPath)
                 .setProxyType(proxyType)
                 .build();
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] ContextPropertyRequest: {}", request);
-        }
 
-        // Send request
-        byte[] requestBytes = request.toByteArray();
-        log.debug("[HostCallbackClient] Sending context property request: {} bytes", requestBytes.length);
-        output.writeByte(CONTEXT_PROPERTY_REQUEST);
-        output.writeInt(requestBytes.length);
-        output.write(requestBytes);
-        output.flush();
-
-        // Read response
-        int responseType = input.readByte();
-        if (responseType != CONTEXT_PROPERTY_RESPONSE) {
-            throw new IOException(
-                    "Unexpected response type: " + responseType + ", expected: " + CONTEXT_PROPERTY_RESPONSE);
-        }
-
-        int length = input.readInt();
-        byte[] responseBytes = new byte[length];
-        input.readFully(responseBytes);
-
-        ContextPropertyResponse response = ContextPropertyResponse.parseFrom(responseBytes);
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] ContextPropertyResponse: {}", response);
-        }
-        log.info("[HostCallbackClient] Context property '{}' fetched - success: {}, isProxy: {}",
-                propertyPath, response.getSuccess(), response.getIsProxy());
-
-        return response;
+        // Delegate to transport implementation
+        return delegate.getContextProperty(request);
     }
 
     /**
      * Set a context property value on IS (write-back).
-     * This enables scripts to modify context properties like user.localClaims.
+     * Convenience method for script property modifications.
      *
-     * @param propertyPath Path to the property (e.g.,
-     *                     "currentKnownSubject.localClaims.email").
+     * @param propertyPath Path to the property.
      * @param proxyType    Type of the proxy object.
      * @param value        The value to set.
      * @return ContextPropertySetResponse containing success status.
@@ -242,60 +179,17 @@ public class HostCallbackClient implements Closeable {
                 .setPropertyPath(propertyPath)
                 .setValue(value)
                 .build();
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] ContextPropertySetRequest: {}", request);
-        }
 
-        // Send request
-        byte[] requestBytes = request.toByteArray();
-        log.info("[HostCallbackClient] Sending context property SET request: {} bytes", requestBytes.length);
-        output.writeByte(CONTEXT_PROPERTY_SET_REQUEST);
-        output.writeInt(requestBytes.length);
-        output.write(requestBytes);
-        output.flush();
-
-        // Read response
-        int responseType = input.readByte();
-        if (responseType != CONTEXT_PROPERTY_SET_RESPONSE) {
-            throw new IOException(
-                    "Unexpected response type: " + responseType + ", expected: " + CONTEXT_PROPERTY_SET_RESPONSE);
-        }
-
-        int length = input.readInt();
-        byte[] responseBytes = new byte[length];
-        input.readFully(responseBytes);
-
-        ContextPropertySetResponse response = ContextPropertySetResponse.parseFrom(responseBytes);
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] ContextPropertySetResponse: {}", response);
-        }
-        log.info("[HostCallbackClient] Context property SET response - success: {}",
-                response.getSuccess());
-
-        return response;
+        // Delegate to transport implementation
+        return delegate.setContextProperty(request);
     }
 
     @Override
     public void close() throws IOException {
-        connected = false;
-        if (output != null) {
-            try {
-                output.close();
-            } catch (IOException ignored) {
-            }
+        if (delegate != null) {
+            delegate.close();
         }
-        if (input != null) {
-            try {
-                input.close();
-            } catch (IOException ignored) {
-            }
-        }
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException ignored) {
-            }
-        }
+        log.debug("[HostCallbackClient] Closed");
     }
 
     private void ensureConnected() throws IOException {
@@ -401,32 +295,26 @@ public class HostCallbackClient implements Closeable {
                 if (val.getSourceLocation() != null &&
                         val.getSourceLocation().getCharacters() != null) {
                     source = val.getSourceLocation().getCharacters().toString();
-                    log.info("[HostCallbackClient] Extracted function source via getSourceLocation: {}...",
-                            source.substring(0, Math.min(60, source.length())));
+                    log.debug("[HostCallbackClient] Extracted function source via getSourceLocation");
                 }
             } catch (Exception e) {
                 log.debug("[HostCallbackClient] Could not get source location for function: {}", e.getMessage());
             }
-            // If getSourceLocation() failed, use toString() which calls
-            // Function.prototype.toString().
-            // For GraalJS, this returns the full function definition including body.
+            // If getSourceLocation() failed, use toString().
             if (source == null || source.isEmpty()) {
                 try {
                     source = val.toString();
-                    log.info("[HostCallbackClient] Using toString() for function, got: {}...",
-                            source.substring(0, Math.min(60, source.length())));
+                    log.debug("[HostCallbackClient] Using toString() for function");
                 } catch (Exception e) {
                     log.warn("[HostCallbackClient] Could not get function toString(): {}", e.getMessage());
                 }
             }
             if (source != null && !source.isEmpty() &&
                     (source.contains("function") || source.contains("=>"))) {
-                log.info("[HostCallbackClient] Serializing function with source: {}...",
-                        source.substring(0, Math.min(60, source.length())));
                 // Return function source as a string - the IS side expects this.
                 return SerializedValue.newBuilder().setStringValue(source).build();
             } else {
-                log.error("[HostCallbackClient] Could not extract valid function source. Got: {}", source);
+                log.error("[HostCallbackClient] Could not extract valid function source");
                 return SerializedValue.newBuilder().setStringValue(source != null ? source : "function(){}").build();
             }
         }
@@ -444,9 +332,6 @@ public class HostCallbackClient implements Closeable {
             SerializedMap.Builder mapBuilder = SerializedMap.newBuilder();
             for (String key : val.getMemberKeys()) {
                 Value memberVal = val.getMember(key);
-                log.debug("[HostCallbackClient] Serializing member '{}': {}", key,
-                        memberVal != null ? (memberVal.canExecute() ? "function" : memberVal.getClass().getSimpleName())
-                                : "null");
                 mapBuilder.putEntries(key, serializeGraalValue(memberVal));
             }
             return SerializedValue.newBuilder().setMapValue(mapBuilder.build()).build();

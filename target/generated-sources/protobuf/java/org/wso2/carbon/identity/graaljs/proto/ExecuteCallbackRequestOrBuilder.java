@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface ExecuteCallbackRequestOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.ExecuteCallbackRequest)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.ExecuteCallbackRequest)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -32,35 +32,35 @@ public interface ExecuteCallbackRequestOrBuilder extends
       getFunctionSourceBytes();
 
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   java.util.List<org.wso2.carbon.identity.graaljs.proto.SerializedValue> 
       getArgumentsList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getArguments(int index);
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   int getArgumentsCount();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   java.util.List<? extends org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> 
       getArgumentsOrBuilderList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue arguments = 3;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue arguments = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getArgumentsOrBuilder(
       int index);
 
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 4;</code>
    */
   int getBindingsCount();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 4;</code>
    */
   boolean containsBindings(
       java.lang.String key);
@@ -71,12 +71,12 @@ public interface ExecuteCallbackRequestOrBuilder extends
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getBindings();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 4;</code>
    */
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getBindingsMap();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 4;</code>
    */
   /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue getBindingsOrDefault(
@@ -84,23 +84,23 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue getBindingsOrDefault(
       /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue);
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; bindings = 4;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getBindingsOrThrow(
       java.lang.String key);
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 5;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 5;</code>
    * @return Whether the contextData field is set.
    */
   boolean hasContextData();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 5;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 5;</code>
    * @return The contextData.
    */
   org.wso2.carbon.identity.graaljs.proto.ContextData getContextData();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.ContextData context_data = 5;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 5;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder getContextDataOrBuilder();
 
@@ -117,25 +117,25 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue);
       getCallbackSocketPathBytes();
 
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 7;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 7;</code>
    */
   java.util.List<org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition> 
       getHostFunctionsList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 7;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 7;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition getHostFunctions(int index);
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 7;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 7;</code>
    */
   int getHostFunctionsCount();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 7;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 7;</code>
    */
   java.util.List<? extends org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder> 
       getHostFunctionsOrBuilderList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition host_functions = 7;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 7;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinitionOrBuilder getHostFunctionsOrBuilder(
       int index);

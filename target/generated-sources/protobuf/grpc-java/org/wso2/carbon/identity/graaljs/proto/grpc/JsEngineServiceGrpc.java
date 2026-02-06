@@ -17,7 +17,7 @@ public final class JsEngineServiceGrpc {
 
   private JsEngineServiceGrpc() {}
 
-  public static final String SERVICE_NAME = "org.wso2.carbon.identity.graaljs.proto.JsEngineService";
+  public static final String SERVICE_NAME = "org.wso2.carbon.identity.graaljs.engine.proto.JsEngineService";
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<org.wso2.carbon.identity.graaljs.proto.EvaluateRequest,

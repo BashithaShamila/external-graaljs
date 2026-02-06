@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface EvaluateResponseOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.EvaluateResponse)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -20,26 +20,26 @@ public interface EvaluateResponseOrBuilder extends
   long getElapsedMs();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
    * @return Whether the result field is set.
    */
   boolean hasResult();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
    * @return The result.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getResult();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getResultOrBuilder();
 
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   int getUpdatedBindingsCount();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   boolean containsUpdatedBindings(
       java.lang.String key);
@@ -50,12 +50,12 @@ public interface EvaluateResponseOrBuilder extends
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getUpdatedBindings();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getUpdatedBindingsMap();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue getUpdatedBindingsOrDefault(
@@ -63,7 +63,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue getUpdatedBindingsOrDefau
       /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue);
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getUpdatedBindingsOrThrow(
       java.lang.String key);

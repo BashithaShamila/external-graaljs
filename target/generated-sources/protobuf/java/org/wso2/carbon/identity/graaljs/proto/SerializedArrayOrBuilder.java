@@ -4,29 +4,29 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface SerializedArrayOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.SerializedArray)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.SerializedArray)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue elements = 1;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue elements = 1;</code>
    */
   java.util.List<org.wso2.carbon.identity.graaljs.proto.SerializedValue> 
       getElementsList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue elements = 1;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue elements = 1;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getElements(int index);
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue elements = 1;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue elements = 1;</code>
    */
   int getElementsCount();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue elements = 1;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue elements = 1;</code>
    */
   java.util.List<? extends org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> 
       getElementsOrBuilderList();
   /**
-   * <code>repeated .org.wso2.carbon.identity.graaljs.proto.SerializedValue elements = 1;</code>
+   * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue elements = 1;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getElementsOrBuilder(
       int index);

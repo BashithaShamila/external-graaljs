@@ -4,11 +4,11 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 /**
- * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.EvaluateResponse}
+ * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse}
  */
 public final class EvaluateResponse extends
     com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.proto.EvaluateResponse)
+    // @@protoc_insertion_point(message_implements:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse)
     EvaluateResponseOrBuilder {
 private static final long serialVersionUID = 0L;
   // Use EvaluateResponse.newBuilder() to construct.
@@ -34,7 +34,7 @@ private static final long serialVersionUID = 0L;
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateResponse_descriptor;
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateResponse_descriptor;
   }
 
   @SuppressWarnings({"rawtypes"})
@@ -52,7 +52,7 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateResponse_fieldAccessorTable
+    return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateResponse_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.wso2.carbon.identity.graaljs.proto.EvaluateResponse.class, org.wso2.carbon.identity.graaljs.proto.EvaluateResponse.Builder.class);
   }
@@ -82,7 +82,7 @@ private static final long serialVersionUID = 0L;
   public static final int RESULT_FIELD_NUMBER = 3;
   private org.wso2.carbon.identity.graaljs.proto.SerializedValue result_;
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
    * @return Whether the result field is set.
    */
   @java.lang.Override
@@ -90,7 +90,7 @@ private static final long serialVersionUID = 0L;
     return result_ != null;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
    * @return The result.
    */
   @java.lang.Override
@@ -98,7 +98,7 @@ private static final long serialVersionUID = 0L;
     return result_ == null ? org.wso2.carbon.identity.graaljs.proto.SerializedValue.getDefaultInstance() : result_;
   }
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getResultOrBuilder() {
@@ -111,7 +111,7 @@ private static final long serialVersionUID = 0L;
         java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> defaultEntry =
             com.google.protobuf.MapEntry
             .<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>newDefaultInstance(
-                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateResponse_UpdatedBindingsEntry_descriptor, 
+                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateResponse_UpdatedBindingsEntry_descriptor, 
                 com.google.protobuf.WireFormat.FieldType.STRING,
                 "",
                 com.google.protobuf.WireFormat.FieldType.MESSAGE,
@@ -132,7 +132,7 @@ private static final long serialVersionUID = 0L;
     return internalGetUpdatedBindings().getMap().size();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   @java.lang.Override
   public boolean containsUpdatedBindings(
@@ -149,14 +149,14 @@ private static final long serialVersionUID = 0L;
     return getUpdatedBindingsMap();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   @java.lang.Override
   public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getUpdatedBindingsMap() {
     return internalGetUpdatedBindings().getMap();
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   @java.lang.Override
   public /* nullable */
@@ -170,7 +170,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return map.containsKey(key) ? map.get(key) : defaultValue;
   }
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
    */
   @java.lang.Override
   public org.wso2.carbon.identity.graaljs.proto.SerializedValue getUpdatedBindingsOrThrow(
@@ -489,15 +489,15 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return builder;
   }
   /**
-   * Protobuf type {@code org.wso2.carbon.identity.graaljs.proto.EvaluateResponse}
+   * Protobuf type {@code org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse}
    */
   public static final class Builder extends
       com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.proto.EvaluateResponse)
+      // @@protoc_insertion_point(builder_implements:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse)
       org.wso2.carbon.identity.graaljs.proto.EvaluateResponseOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateResponse_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateResponse_descriptor;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -525,7 +525,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateResponse_fieldAccessorTable
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.wso2.carbon.identity.graaljs.proto.EvaluateResponse.class, org.wso2.carbon.identity.graaljs.proto.EvaluateResponse.Builder.class);
     }
@@ -560,7 +560,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_proto_EvaluateResponse_descriptor;
+      return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateResponse_descriptor;
     }
 
     @java.lang.Override
@@ -823,14 +823,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedValue, org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> resultBuilder_;
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      * @return Whether the result field is set.
      */
     public boolean hasResult() {
       return ((bitField0_ & 0x00000004) != 0);
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      * @return The result.
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue getResult() {
@@ -841,7 +841,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     public Builder setResult(org.wso2.carbon.identity.graaljs.proto.SerializedValue value) {
       if (resultBuilder_ == null) {
@@ -857,7 +857,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     public Builder setResult(
         org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder builderForValue) {
@@ -871,7 +871,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     public Builder mergeResult(org.wso2.carbon.identity.graaljs.proto.SerializedValue value) {
       if (resultBuilder_ == null) {
@@ -890,7 +890,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     public Builder clearResult() {
       bitField0_ = (bitField0_ & ~0x00000004);
@@ -903,7 +903,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder getResultBuilder() {
       bitField0_ |= 0x00000004;
@@ -911,7 +911,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return getResultFieldBuilder().getBuilder();
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     public org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getResultOrBuilder() {
       if (resultBuilder_ != null) {
@@ -922,7 +922,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
     }
     /**
-     * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue result = 3;</code>
+     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue result = 3;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
         org.wso2.carbon.identity.graaljs.proto.SerializedValue, org.wso2.carbon.identity.graaljs.proto.SerializedValue.Builder, org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder> 
@@ -965,7 +965,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return internalGetUpdatedBindings().getMap().size();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     @java.lang.Override
     public boolean containsUpdatedBindings(
@@ -982,14 +982,14 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return getUpdatedBindingsMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     @java.lang.Override
     public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getUpdatedBindingsMap() {
       return internalGetUpdatedBindings().getMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     @java.lang.Override
     public /* nullable */
@@ -1003,7 +1003,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return map.containsKey(key) ? map.get(key) : defaultValue;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     @java.lang.Override
     public org.wso2.carbon.identity.graaljs.proto.SerializedValue getUpdatedBindingsOrThrow(
@@ -1023,7 +1023,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     public Builder removeUpdatedBindings(
         java.lang.String key) {
@@ -1042,7 +1042,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return internalGetMutableUpdatedBindings().getMutableMap();
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     public Builder putUpdatedBindings(
         java.lang.String key,
@@ -1055,7 +1055,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return this;
     }
     /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; updated_bindings = 4;</code>
+     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; updated_bindings = 4;</code>
      */
     public Builder putAllUpdatedBindings(
         java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> values) {
@@ -1221,10 +1221,10 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     }
 
 
-    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.proto.EvaluateResponse)
+    // @@protoc_insertion_point(builder_scope:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse)
   }
 
-  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.proto.EvaluateResponse)
+  // @@protoc_insertion_point(class_scope:org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse)
   private static final org.wso2.carbon.identity.graaljs.proto.EvaluateResponse DEFAULT_INSTANCE;
   static {
     DEFAULT_INSTANCE = new org.wso2.carbon.identity.graaljs.proto.EvaluateResponse();

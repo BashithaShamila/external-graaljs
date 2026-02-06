@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface SerializedProxyObjectOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.SerializedProxyObject)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -32,11 +32,11 @@ public interface SerializedProxyObjectOrBuilder extends
       getReferenceIdBytes();
 
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   int getCachedPropertiesCount();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   boolean containsCachedProperties(
       java.lang.String key);
@@ -47,12 +47,12 @@ public interface SerializedProxyObjectOrBuilder extends
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getCachedProperties();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
   getCachedPropertiesMap();
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrDefault(
@@ -60,7 +60,7 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrDefa
       /* nullable */
 org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue);
   /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.proto.SerializedValue&gt; cached_properties = 3;</code>
+   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrThrow(
       java.lang.String key);

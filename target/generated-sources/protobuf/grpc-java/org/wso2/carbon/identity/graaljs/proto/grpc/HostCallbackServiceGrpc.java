@@ -17,7 +17,7 @@ public final class HostCallbackServiceGrpc {
 
   private HostCallbackServiceGrpc() {}
 
-  public static final String SERVICE_NAME = "org.wso2.carbon.identity.graaljs.proto.HostCallbackService";
+  public static final String SERVICE_NAME = "org.wso2.carbon.identity.graaljs.engine.proto.HostCallbackService";
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<org.wso2.carbon.identity.graaljs.proto.HostFunctionRequest,

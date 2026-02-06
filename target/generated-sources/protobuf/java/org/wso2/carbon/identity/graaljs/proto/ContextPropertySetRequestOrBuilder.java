@@ -4,7 +4,7 @@
 package org.wso2.carbon.identity.graaljs.proto;
 
 public interface ContextPropertySetRequestOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest)
+    // @@protoc_insertion_point(interface_extends:org.wso2.carbon.identity.graaljs.engine.proto.ContextPropertySetRequest)
     com.google.protobuf.MessageOrBuilder {
 
   /**
@@ -32,17 +32,17 @@ public interface ContextPropertySetRequestOrBuilder extends
       getPropertyPathBytes();
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
    * @return Whether the value field is set.
    */
   boolean hasValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
    * @return The value.
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValue getValue();
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.proto.SerializedValue value = 3;</code>
+   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue value = 3;</code>
    */
   org.wso2.carbon.identity.graaljs.proto.SerializedValueOrBuilder getValueOrBuilder();
 }
