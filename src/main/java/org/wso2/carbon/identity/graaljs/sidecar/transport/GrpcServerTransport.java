@@ -116,19 +116,54 @@ public class GrpcServerTransport implements ServerTransport {
 
         @Override
         public void evaluate(EvaluateRequest request, StreamObserver<EvaluateResponse> responseObserver) {
-            log.debug("[gRPC-Server] Received evaluate request");
+            log.info("[gRPC-Server] ========== evaluate() RECEIVED ==========");
+            log.info("[gRPC-Server] Session: " + request.getSessionId());
+            log.info("[gRPC-Server] Script length: " + request.getScript().length() + " chars");
+            log.info("[gRPC-Server] Script preview: " +
+                    request.getScript().substring(0, Math.min(150, request.getScript().length())) + "...");
+            log.info("[gRPC-Server] Bindings count: " + request.getBindingsCount());
+            log.info("[gRPC-Server] Bindings keys: " + request.getBindingsMap().keySet());
+            log.info("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
+            log.info("[gRPC-Server] Callback socket path: " + request.getCallbackSocketPath());
+            log.info("[gRPC-Server] Source identifier: " + request.getSourceIdentifier());
+            if (request.hasContextData()) {
+                log.info("[gRPC-Server] ContextData - step: " + request.getContextData().getCurrentStep() +
+                        ", username: " + request.getContextData().getUsername() +
+                        ", tenant: " + request.getContextData().getTenantDomain());
+            }
+
+            long startTime = System.currentTimeMillis();
             try {
                 // Serialize request and delegate to engine service
+                log.info("[gRPC-Server] Serializing request to bytes...");
                 byte[] requestBytes = request.toByteArray();
+                log.info("[gRPC-Server] Request bytes: " + requestBytes.length + " bytes");
+
+                log.info("[gRPC-Server] >>> Delegating to JsEngineServiceImpl.handleEvaluate()...");
                 byte[] responseBytes = engineService.handleEvaluate(requestBytes);
+                log.info("[gRPC-Server] <<< JsEngineServiceImpl returned " + responseBytes.length + " bytes");
+
                 EvaluateResponse response = EvaluateResponse.parseFrom(responseBytes);
+                long elapsed = System.currentTimeMillis() - startTime;
+
+                log.info("[gRPC-Server] ========== evaluate() RESPONSE ==========");
+                log.info("[gRPC-Server] Total elapsed: " + elapsed + "ms");
+                log.info("[gRPC-Server] Success: " + response.getSuccess());
+                if (!response.getSuccess()) {
+                    log.error("[gRPC-Server] Error message: " + response.getErrorMessage());
+                    log.error("[gRPC-Server] Error type: " + response.getErrorType());
+                }
+                log.info("[gRPC-Server] Updated bindings count: " + response.getUpdatedBindingsCount());
+                log.info("[gRPC-Server] Result valueCase: " + response.getResult().getValueCase());
 
                 responseObserver.onNext(response);
                 responseObserver.onCompleted();
 
-                log.debug("[gRPC-Server] Evaluate completed successfully");
+                log.info("[gRPC-Server] ========== evaluate() COMPLETED ==========");
 
             } catch (Exception e) {
+                log.error("[gRPC-Server] ========== evaluate() FAILED ==========");
+                log.error("[gRPC-Server] Exception type: " + e.getClass().getName());
                 log.error("[gRPC-Server] Error during evaluate", e);
                 responseObserver.onError(e);
             }
@@ -137,19 +172,47 @@ public class GrpcServerTransport implements ServerTransport {
         @Override
         public void executeCallback(ExecuteCallbackRequest request,
                                      StreamObserver<ExecuteCallbackResponse> responseObserver) {
-            log.debug("[gRPC-Server] Received executeCallback request");
+            log.info("[gRPC-Server] ========== executeCallback() RECEIVED ==========");
+            log.info("[gRPC-Server] Session: " + request.getSessionId());
+            log.info("[gRPC-Server] Function source length: " + request.getFunctionSource().length() + " chars");
+            log.info("[gRPC-Server] Function preview: " +
+                    request.getFunctionSource().substring(0, Math.min(150, request.getFunctionSource().length())) + "...");
+            log.info("[gRPC-Server] Arguments count: " + request.getArgumentsCount());
+            log.info("[gRPC-Server] Bindings count: " + request.getBindingsCount());
+            log.info("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
+            log.info("[gRPC-Server] Callback socket path: " + request.getCallbackSocketPath());
+
+            long startTime = System.currentTimeMillis();
             try {
                 // Serialize request and delegate to engine service
+                log.info("[gRPC-Server] Serializing request to bytes...");
                 byte[] requestBytes = request.toByteArray();
+                log.info("[gRPC-Server] Request bytes: " + requestBytes.length + " bytes");
+
+                log.info("[gRPC-Server] >>> Delegating to JsEngineServiceImpl.handleExecuteCallback()...");
                 byte[] responseBytes = engineService.handleExecuteCallback(requestBytes);
+                log.info("[gRPC-Server] <<< JsEngineServiceImpl returned " + responseBytes.length + " bytes");
+
                 ExecuteCallbackResponse response = ExecuteCallbackResponse.parseFrom(responseBytes);
+                long elapsed = System.currentTimeMillis() - startTime;
+
+                log.info("[gRPC-Server] ========== executeCallback() RESPONSE ==========");
+                log.info("[gRPC-Server] Total elapsed: " + elapsed + "ms");
+                log.info("[gRPC-Server] Success: " + response.getSuccess());
+                if (!response.getSuccess()) {
+                    log.error("[gRPC-Server] Error message: " + response.getErrorMessage());
+                }
+                log.info("[gRPC-Server] Updated bindings count: " + response.getUpdatedBindingsCount());
+                log.info("[gRPC-Server] Result valueCase: " + response.getResult().getValueCase());
 
                 responseObserver.onNext(response);
                 responseObserver.onCompleted();
 
-                log.debug("[gRPC-Server] ExecuteCallback completed successfully");
+                log.info("[gRPC-Server] ========== executeCallback() COMPLETED ==========");
 
             } catch (Exception e) {
+                log.error("[gRPC-Server] ========== executeCallback() FAILED ==========");
+                log.error("[gRPC-Server] Exception type: " + e.getClass().getName());
                 log.error("[gRPC-Server] Error during executeCallback", e);
                 responseObserver.onError(e);
             }
