@@ -157,9 +157,11 @@ public class JsEngineServiceImpl {
             System.err.flush();
             log.error("PolyglotException during evaluation", e);
 
+            String errorMsg = e.getMessage() != null ? e.getMessage() :
+                    (e.getCause() != null ? e.getCause().toString() : "Unknown PolyglotException");
             byte[] errorResponse = EvaluateResponse.newBuilder()
                     .setSuccess(false)
-                    .setErrorMessage(e.getMessage())
+                    .setErrorMessage(errorMsg)
                     .setErrorType("PolyglotException")
                     .setElapsedMs(System.currentTimeMillis() - startTime)
                     .build()
@@ -192,6 +194,9 @@ public class JsEngineServiceImpl {
             System.err.flush();
             return errorResponse;
         } finally {
+            // CRITICAL: Clean up ThreadLocal to prevent context leakage between pooled thread requests
+            currentRegisteredFunctions.remove();
+
             if (callbackClient != null) {
                 try {
                     callbackClient.close();
@@ -366,6 +371,9 @@ public class JsEngineServiceImpl {
             System.err.flush();
             return errorResponse;
         } finally {
+            // CRITICAL: Clean up ThreadLocal to prevent context leakage between pooled thread requests
+            currentRegisteredFunctions.remove();
+
             if (callbackClient != null) {
                 try {
                     callbackClient.close();
@@ -657,6 +665,24 @@ public class JsEngineServiceImpl {
                 }
                 return arr;
             }
+            // IMPORTANT: Check if this is a DynamicContextProxy BEFORE the generic hasMembers() check.
+            // DynamicContextProxy returns empty member keys when serializing, so we need to send a
+            // marker that tells IS to reconstruct the object from stored context.
+            if (val.isProxyObject()) {
+                Object proxyObj = val.asProxyObject();
+                if (proxyObj instanceof DynamicContextProxy) {
+                    DynamicContextProxy proxy = (DynamicContextProxy) proxyObj;
+                    Map<String, Object> marker = new HashMap<>();
+                    marker.put("__isContextProxy", true);
+                    marker.put("__proxyType", proxy.getProxyType());
+                    marker.put("__basePath", proxy.getBasePath());
+                    System.out.println("[DEBUG-SIDECAR] Converting DynamicContextProxy to marker: type=" +
+                            proxy.getProxyType() + ", basePath=" + proxy.getBasePath());
+                    log.info("[Sidecar-Stub] Converting DynamicContextProxy to marker: type={}, basePath={}",
+                            proxy.getProxyType(), proxy.getBasePath());
+                    return marker;
+                }
+            }
             if (val.hasMembers()) {
                 Map<String, Object> map = new HashMap<>();
                 Set<String> memberKeys = val.getMemberKeys();
@@ -764,6 +790,27 @@ public class JsEngineServiceImpl {
             log.debug("[DynamicContextProxy] Created - type: {}, basePath: {}", proxyType, basePath);
         }
 
+        /**
+         * Get the proxy type (e.g., "context", "authenticateduser", "step").
+         */
+        public String getProxyType() {
+            return proxyType;
+        }
+
+        /**
+         * Get the base path for nested property access (e.g., "currentKnownSubject", "steps.1").
+         */
+        public String getBasePath() {
+            return basePath;
+        }
+
+        /**
+         * Get the session ID this proxy belongs to.
+         */
+        public String getSessionId() {
+            return sessionId;
+        }
+
         @Override
         public Object getMember(String key) {
             // Check cache first
@@ -800,8 +847,10 @@ public class JsEngineServiceImpl {
                             value != null ? value.getClass().getSimpleName() : "null");
                 }
 
-                // Cache the value
-                cache.put(key, value);
+                // Cache the value (only if non-null, ConcurrentHashMap doesn't allow null values)
+                if (value != null) {
+                    cache.put(key, value);
+                }
                 return value;
 
             } catch (java.io.IOException e) {
