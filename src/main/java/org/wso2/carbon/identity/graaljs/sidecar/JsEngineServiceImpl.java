@@ -384,6 +384,203 @@ public class JsEngineServiceImpl {
         }
     }
 
+    /**
+     * Handle an evaluate request with a pre-created callback client.
+     * Used by streaming transport where the callback client uses the bidi stream.
+     *
+     * @param requestBytes   Protobuf-encoded EvaluateRequest.
+     * @param callbackClient Pre-created callback client for host function callbacks.
+     * @return Protobuf-encoded EvaluateResponse.
+     */
+    public byte[] handleEvaluate(byte[] requestBytes, HostCallbackClient callbackClient) throws java.io.IOException {
+        log.info("[Sidecar] handleEvaluate (streaming) called");
+        long startTime = System.currentTimeMillis();
+        EvaluateRequest request = EvaluateRequest.parseFrom(requestBytes);
+        log.info("[Sidecar] handleEvaluate (streaming) - session: {}, sourceId: {}",
+                request.getSessionId(), request.getSourceIdentifier());
+        log.info("[Sidecar] Script length: {}, bindings: {}, hostFunctions: {}",
+                request.getScript().length(), request.getBindingsCount(), request.getHostFunctionsCount());
+
+        try {
+            try (Context context = createContext()) {
+                Value bindings = context.getBindings(JS_LANG);
+
+                // Register host function stubs that call back to IS
+                registerHostFunctionStubs(bindings, callbackClient);
+
+                // Restore bindings from request
+                for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
+                    bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
+                }
+
+                // Create and bind context proxy if ContextData is present
+                if (request.hasContextData()) {
+                    Value contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
+                    bindings.putMember("context", contextProxy);
+                    log.info("[Sidecar] Bound DYNAMIC context proxy for session: {}", request.getSessionId());
+                } else {
+                    Value emptyContext = context.eval(JS_LANG, "({})");
+                    bindings.putMember("context", emptyContext);
+                    log.warn("[Sidecar] No ContextData provided, binding empty context for session: {}",
+                            request.getSessionId());
+                }
+
+                // Evaluate the script
+                log.info("[Sidecar] Starting script evaluation (streaming)...");
+                Value result = context.eval(JS_LANG, request.getScript());
+                log.info("[Sidecar] Script evaluation completed successfully (streaming)");
+
+                // Extract updated bindings
+                Map<String, SerializedValue> updatedBindings = new HashMap<>();
+                for (String key : bindings.getMemberKeys()) {
+                    Value val = bindings.getMember(key);
+                    if (!val.canExecute() && !isHostFunction(key)) {
+                        updatedBindings.put(key, serializeValue(val));
+                    }
+                }
+
+                long elapsed = System.currentTimeMillis() - startTime;
+                return EvaluateResponse.newBuilder()
+                        .setSuccess(true)
+                        .setElapsedMs(elapsed)
+                        .setResult(serializeValue(result))
+                        .putAllUpdatedBindings(updatedBindings)
+                        .build()
+                        .toByteArray();
+            }
+
+        } catch (PolyglotException e) {
+            log.error("PolyglotException during evaluation (streaming)", e);
+            return EvaluateResponse.newBuilder()
+                    .setSuccess(false)
+                    .setErrorMessage(e.getMessage() != null ? e.getMessage() : "Unknown PolyglotException")
+                    .setErrorType("PolyglotException")
+                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                    .build()
+                    .toByteArray();
+
+        } catch (Throwable t) {
+            log.error("FATAL: Throwable during evaluation (streaming)", t);
+            String errorMessage = t.getClass().getName() + ": " +
+                    (t.getMessage() != null ? t.getMessage() : "No error message");
+            return EvaluateResponse.newBuilder()
+                    .setSuccess(false)
+                    .setErrorMessage(errorMessage)
+                    .setErrorType(t.getClass().getName())
+                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                    .build()
+                    .toByteArray();
+        } finally {
+            currentRegisteredFunctions.remove();
+            // NOTE: Do NOT close callbackClient here - it's managed by the streaming transport
+        }
+    }
+
+    /**
+     * Handle an execute callback request with a pre-created callback client.
+     * Used by streaming transport where the callback client uses the bidi stream.
+     *
+     * @param requestBytes   Protobuf-encoded ExecuteCallbackRequest.
+     * @param callbackClient Pre-created callback client for host function callbacks.
+     * @return Protobuf-encoded ExecuteCallbackResponse.
+     */
+    public byte[] handleExecuteCallback(byte[] requestBytes, HostCallbackClient callbackClient)
+            throws java.io.IOException {
+        long startTime = System.currentTimeMillis();
+        ExecuteCallbackRequest request = ExecuteCallbackRequest.parseFrom(requestBytes);
+        log.info("[Sidecar] handleExecuteCallback (streaming) - session: {}", request.getSessionId());
+        log.info("[Sidecar] Function source length: {}, args: {}, bindings: {}",
+                request.getFunctionSource().length(), request.getArgumentsCount(), request.getBindingsCount());
+
+        try {
+            try (Context context = createContext()) {
+                Value bindings = context.getBindings(JS_LANG);
+
+                // Register host function stubs dynamically based on the request
+                registerHostFunctionStubsFromRequest(bindings, callbackClient, request.getHostFunctionsList());
+
+                // Restore bindings
+                for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
+                    Object deserialized = deserializeValue(entry.getValue(), context);
+                    bindings.putMember(entry.getKey(), deserialized);
+                }
+
+                // Create context proxy from context data
+                Value contextProxy = null;
+                if (request.hasContextData()) {
+                    contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
+                    bindings.putMember("__callbackContext", contextProxy);
+                }
+
+                // Deserialize arguments
+                Object[] args = new Object[request.getArgumentsCount()];
+                for (int i = 0; i < args.length; i++) {
+                    SerializedValue sv = request.getArguments(i);
+                    if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
+                            sv.getStringValue().contains("JsGraalAuthenticationContext") &&
+                            contextProxy != null) {
+                        args[i] = contextProxy;
+                    } else {
+                        args[i] = deserializeValue(sv, context);
+                    }
+                }
+
+                // Evaluate and execute callback function
+                Value function = context.eval(JS_LANG, "(" + request.getFunctionSource() + ")");
+
+                Value result;
+                if (args.length > 0) {
+                    result = function.execute(args);
+                } else if (contextProxy != null) {
+                    result = function.execute(contextProxy);
+                } else {
+                    result = function.execute();
+                }
+
+                // Extract updated bindings
+                Map<String, SerializedValue> updatedBindings = new HashMap<>();
+                for (String key : bindings.getMemberKeys()) {
+                    Value val = bindings.getMember(key);
+                    if (!key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
+                        updatedBindings.put(key, serializeValue(val));
+                    }
+                }
+
+                long elapsed = System.currentTimeMillis() - startTime;
+                return ExecuteCallbackResponse.newBuilder()
+                        .setSuccess(true)
+                        .setElapsedMs(elapsed)
+                        .setResult(serializeValue(result))
+                        .putAllUpdatedBindings(updatedBindings)
+                        .build()
+                        .toByteArray();
+            }
+
+        } catch (PolyglotException e) {
+            log.error("PolyglotException during callback execution (streaming)", e);
+            return ExecuteCallbackResponse.newBuilder()
+                    .setSuccess(false)
+                    .setErrorMessage(e.getMessage())
+                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                    .build()
+                    .toByteArray();
+
+        } catch (Throwable t) {
+            log.error("FATAL: Throwable during callback execution (streaming)", t);
+            String errorMessage = t.getClass().getName() + ": " +
+                    (t.getMessage() != null ? t.getMessage() : "No error message");
+            return ExecuteCallbackResponse.newBuilder()
+                    .setSuccess(false)
+                    .setErrorMessage(errorMessage)
+                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                    .build()
+                    .toByteArray();
+        } finally {
+            currentRegisteredFunctions.remove();
+            // NOTE: Do NOT close callbackClient here - it's managed by the streaming transport
+        }
+    }
+
     private Context createContext() {
         ResourceLimits.Builder limitsBuilder = ResourceLimits.newBuilder();
         if (defaultStatementLimit > 0) {

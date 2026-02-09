@@ -36,3 +36,14 @@ service HostCallbackService {
     // Set a context property value (write-back from sidecar)
     rpc SetContextProperty(ContextPropertySetRequest) returns (ContextPropertySetResponse) {}
 }
+
+/**
+ * JsEngineStreamingService - Bidirectional streaming service
+ * Replaces both JsEngineService and HostCallbackService with a single stream.
+ * IS opens a stream, sends requests, receives callbacks, sends callback responses,
+ * and finally receives the evaluation result - all on one connection.
+ */
+service JsEngineStreamingService {
+    // Single bidirectional stream for entire script execution lifecycle
+    rpc ExecuteScript(stream StreamMessage) returns (stream StreamMessage) {}
+}

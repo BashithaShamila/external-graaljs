@@ -134,6 +134,11 @@ public final class JsEngineProtos {
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -251,8 +256,36 @@ public final class JsEngineProtos {
       "\0132F.org.wso2.carbon.identity.graaljs.eng" +
       "ine.proto.ContextData.ClaimsEntry\032-\n\013Cla" +
       "imsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001" +
-      "B:\n&org.wso2.carbon.identity.graaljs.pro" +
-      "toB\016JsEngineProtosP\001b\006proto3"
+      "\"\312\010\n\rStreamMessage\022\022\n\nsession_id\030\001 \001(\t\022Z" +
+      "\n\020evaluate_request\030\002 \001(\0132>.org.wso2.carb" +
+      "on.identity.graaljs.engine.proto.Evaluat" +
+      "eRequestH\000\022i\n\030execute_callback_request\030\003" +
+      " \001(\0132E.org.wso2.carbon.identity.graaljs." +
+      "engine.proto.ExecuteCallbackRequestH\000\022e\n" +
+      "\026host_function_response\030\004 \001(\0132C.org.wso2" +
+      ".carbon.identity.graaljs.engine.proto.Ho" +
+      "stFunctionResponseH\000\022k\n\031context_property" +
+      "_response\030\005 \001(\0132F.org.wso2.carbon.identi" +
+      "ty.graaljs.engine.proto.ContextPropertyR" +
+      "esponseH\000\022r\n\035context_property_set_respon" +
+      "se\030\006 \001(\0132I.org.wso2.carbon.identity.graa" +
+      "ljs.engine.proto.ContextPropertySetRespo" +
+      "nseH\000\022\\\n\021evaluate_response\030\n \001(\0132?.org.w" +
+      "so2.carbon.identity.graaljs.engine.proto" +
+      ".EvaluateResponseH\000\022k\n\031execute_callback_" +
+      "response\030\013 \001(\0132F.org.wso2.carbon.identit" +
+      "y.graaljs.engine.proto.ExecuteCallbackRe" +
+      "sponseH\000\022c\n\025host_function_request\030\014 \001(\0132" +
+      "B.org.wso2.carbon.identity.graaljs.engin" +
+      "e.proto.HostFunctionRequestH\000\022i\n\030context" +
+      "_property_request\030\r \001(\0132E.org.wso2.carbo" +
+      "n.identity.graaljs.engine.proto.ContextP" +
+      "ropertyRequestH\000\022p\n\034context_property_set" +
+      "_request\030\016 \001(\0132H.org.wso2.carbon.identit" +
+      "y.graaljs.engine.proto.ContextPropertySe" +
+      "tRequestH\000B\t\n\007payloadB:\n&org.wso2.carbon" +
+      ".identity.graaljs.protoB\016JsEngineProtosP" +
+      "\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -402,6 +435,12 @@ public final class JsEngineProtos {
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_descriptor,
         new java.lang.String[] { "Key", "Value", });
+    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_descriptor =
+      getDescriptor().getMessageTypes().get(17);
+    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+        internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_descriptor,
+        new java.lang.String[] { "SessionId", "EvaluateRequest", "ExecuteCallbackRequest", "HostFunctionResponse", "ContextPropertyResponse", "ContextPropertySetResponse", "EvaluateResponse", "ExecuteCallbackResponse", "HostFunctionRequest", "ContextPropertyRequest", "ContextPropertySetRequest", "Payload", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

@@ -143,3 +143,27 @@ message ContextData {
     repeated string roles = 6;
     map<string, string> claims = 7;
 }
+
+// ============ Bidirectional Streaming ============
+// Unified message for bidirectional streaming between IS and Sidecar.
+// Eliminates the need for a separate callback connection.
+
+message StreamMessage {
+    string session_id = 1;
+
+    oneof payload {
+        // IS → Sidecar
+        EvaluateRequest evaluate_request = 2;
+        ExecuteCallbackRequest execute_callback_request = 3;
+        HostFunctionResponse host_function_response = 4;
+        ContextPropertyResponse context_property_response = 5;
+        ContextPropertySetResponse context_property_set_response = 6;
+
+        // Sidecar → IS
+        EvaluateResponse evaluate_response = 10;
+        ExecuteCallbackResponse execute_callback_response = 11;
+        HostFunctionRequest host_function_request = 12;
+        ContextPropertyRequest context_property_request = 13;
+        ContextPropertySetRequest context_property_set_request = 14;
+    }
+}

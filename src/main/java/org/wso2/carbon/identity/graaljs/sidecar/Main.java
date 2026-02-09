@@ -20,7 +20,7 @@ package org.wso2.carbon.identity.graaljs.sidecar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.identity.graaljs.sidecar.transport.GrpcServerTransport;
+import org.wso2.carbon.identity.graaljs.sidecar.transport.GrpcStreamingServerTransport;
 import org.wso2.carbon.identity.graaljs.sidecar.transport.ServerTransport;
 import org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport;
 
@@ -142,8 +142,8 @@ public class Main {
         // Create engine service
         engineService = new JsEngineServiceImpl(statementLimit);
 
-        // Create gRPC transport
-        serverTransport = new GrpcServerTransport(port, engineService);
+        // Create bidirectional streaming gRPC transport
+        serverTransport = new GrpcStreamingServerTransport(port, engineService);
 
         // Start server
         startServer();

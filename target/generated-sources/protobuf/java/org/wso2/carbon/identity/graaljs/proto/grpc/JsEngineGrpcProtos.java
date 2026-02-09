@@ -46,9 +46,13 @@ public final class JsEngineGrpcProtos {
       "so2.carbon.identity.graaljs.engine.proto" +
       ".ContextPropertySetRequest\032I.org.wso2.ca" +
       "rbon.identity.graaljs.engine.proto.Conte" +
-      "xtPropertySetResponse\"\000BC\n+org.wso2.carb" +
-      "on.identity.graaljs.proto.grpcB\022JsEngine" +
-      "GrpcProtosP\001b\006proto3"
+      "xtPropertySetResponse\"\0002\256\001\n\030JsEngineStre" +
+      "amingService\022\221\001\n\rExecuteScript\022<.org.wso" +
+      "2.carbon.identity.graaljs.engine.proto.S" +
+      "treamMessage\032<.org.wso2.carbon.identity." +
+      "graaljs.engine.proto.StreamMessage\"\000(\0010\001" +
+      "BC\n+org.wso2.carbon.identity.graaljs.pro" +
+      "to.grpcB\022JsEngineGrpcProtosP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

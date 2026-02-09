@@ -76,6 +76,22 @@ public class HostCallbackClient implements Closeable {
     }
 
     /**
+     * Create a new callback client using an externally provided delegate.
+     * Used by streaming transport where the CallbackClient is a StreamingCallbackClient
+     * that sends callbacks over the bidirectional stream.
+     *
+     * @param delegate  The pre-created callback client (e.g., StreamingCallbackClient).
+     * @param sessionId Session identifier.
+     */
+    public HostCallbackClient(CallbackClient delegate, String sessionId) {
+        this.delegate = delegate;
+        this.sessionId = sessionId;
+        this.callbackAddress = "streaming";
+
+        log.info("[HostCallbackClient] Created with external delegate for session: {}", sessionId);
+    }
+
+    /**
      * Connect to the IS callback server.
      */
     public void connect() throws IOException {
