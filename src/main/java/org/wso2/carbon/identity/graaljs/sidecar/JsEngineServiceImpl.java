@@ -721,11 +721,11 @@ public class JsEngineServiceImpl {
             case STRING_VALUE:
                 return sv.getStringValue();
             case INT_VALUE:
-                return sv.getIntValue();
+                return context.eval(JS_LANG, String.valueOf(sv.getIntValue()));
             case DOUBLE_VALUE:
-                return sv.getDoubleValue();
+                return context.eval(JS_LANG, String.valueOf(sv.getDoubleValue()));
             case BOOL_VALUE:
-                return sv.getBoolValue();
+                return context.eval(JS_LANG, String.valueOf(sv.getBoolValue()));
             case NULL_VALUE:
                 return null;
             case ARRAY_VALUE:
@@ -980,11 +980,18 @@ public class JsEngineServiceImpl {
 
         public DynamicContextProxy(String sessionId, HostCallbackClient callbackClient,
                 String proxyType, String basePath) {
+            this(sessionId, callbackClient, proxyType, basePath, null);
+        }
+
+        public DynamicContextProxy(String sessionId, HostCallbackClient callbackClient,
+                String proxyType, String basePath, String[] memberKeys) {
             this.sessionId = sessionId;
             this.callbackClient = callbackClient;
             this.proxyType = proxyType;
             this.basePath = basePath;
-            log.debug("[DynamicContextProxy] Created - type: {}, basePath: {}", proxyType, basePath);
+            this.memberKeys = memberKeys;
+            log.debug("[DynamicContextProxy] Created - type: {}, basePath: {}, keys: {}",
+                    proxyType, basePath, memberKeys != null ? memberKeys.length : "none");
         }
 
         /**
@@ -1018,7 +1025,7 @@ public class JsEngineServiceImpl {
 
             try {
                 // Build the full property path
-                String propertyPath = basePath.isEmpty() ? key : basePath + "." + key;
+                String propertyPath = basePath.isEmpty() ? key : basePath + "::" + key;
                 log.info("[DynamicContextProxy] getMember '{}', full path: {}", key, propertyPath);
 
                 // Call back to IS for property value
@@ -1031,12 +1038,17 @@ public class JsEngineServiceImpl {
 
                 Object value;
                 if (response.getIsProxy()) {
-                    // Create nested proxy for complex objects
-                    log.debug("[DynamicContextProxy] Creating nested proxy for '{}', type: {}",
-                            key, response.getProxyType());
+                    // Create nested proxy for complex objects, passing member keys if available
+                    String[] proxyMemberKeys = null;
+                    if (response.getMemberKeysCount() > 0) {
+                        proxyMemberKeys = response.getMemberKeysList().toArray(new String[0]);
+                    }
+                    log.info("[DynamicContextProxy] Creating nested proxy for '{}', type: {}, keys: {}",
+                            key, response.getProxyType(),
+                            proxyMemberKeys != null ? proxyMemberKeys.length : "none");
                     value = new DynamicContextProxy(
                             sessionId, callbackClient,
-                            response.getProxyType(), propertyPath);
+                            response.getProxyType(), propertyPath, proxyMemberKeys);
                 } else {
                     // Deserialize the value
                     value = deserializeValue(response.getValue());
@@ -1066,7 +1078,7 @@ public class JsEngineServiceImpl {
 
             try {
                 // Get member keys from IS - use special path "__keys__"
-                String propertyPath = basePath.isEmpty() ? "__keys__" : basePath + ".__keys__";
+                String propertyPath = basePath.isEmpty() ? "__keys__" : basePath + "::__keys__";
                 ContextPropertyResponse response = callbackClient.getContextProperty(propertyPath, proxyType);
 
                 if (response.getSuccess() && response.getMemberKeysCount() > 0) {
@@ -1099,7 +1111,7 @@ public class JsEngineServiceImpl {
 
             try {
                 // Build the full property path
-                String propertyPath = basePath.isEmpty() ? key : basePath + "." + key;
+                String propertyPath = basePath.isEmpty() ? key : basePath + "::" + key;
                 log.info("[DynamicContextProxy] putMember '{}' = {}", propertyPath,
                         value != null ? value.toString() : "null");
 
