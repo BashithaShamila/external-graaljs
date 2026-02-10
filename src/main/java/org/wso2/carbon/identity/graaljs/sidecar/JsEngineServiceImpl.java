@@ -706,6 +706,23 @@ public class JsEngineServiceImpl {
                     .setFunctionValue(SerializedFunction.newBuilder().setSource(source))
                     .build();
         }
+        // DynamicContextProxy is a lazy proxy backed by IS-side data.
+        // Do NOT iterate its members (each triggers a gRPC callback to IS).
+        // Send a marker so IS can reconstruct the reference from stored context.
+        if (val.isProxyObject()) {
+            Object proxyObj = val.asProxyObject();
+            if (proxyObj instanceof DynamicContextProxy) {
+                DynamicContextProxy proxy = (DynamicContextProxy) proxyObj;
+                SerializedMap.Builder marker = SerializedMap.newBuilder();
+                marker.putEntries("__isContextProxy",
+                        SerializedValue.newBuilder().setBoolValue(true).build());
+                marker.putEntries("__proxyType",
+                        SerializedValue.newBuilder().setStringValue(proxy.getProxyType()).build());
+                marker.putEntries("__basePath",
+                        SerializedValue.newBuilder().setStringValue(proxy.getBasePath()).build());
+                return SerializedValue.newBuilder().setMapValue(marker).build();
+            }
+        }
         if (val.hasMembers()) {
             SerializedMap.Builder map = SerializedMap.newBuilder();
             for (String key : val.getMemberKeys()) {
