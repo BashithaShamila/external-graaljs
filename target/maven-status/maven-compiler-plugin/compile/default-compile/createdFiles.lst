@@ -112,7 +112,6 @@ org/wso2/carbon/identity/graaljs/proto/ContextPropertyRequest$1.class
 org/wso2/carbon/identity/graaljs/proto/ContextPropertySetResponse$1.class
 org/wso2/carbon/identity/graaljs/proto/SerializedMap.class
 org/wso2/carbon/identity/graaljs/proto/SerializedValue$Builder.class
-js_engine_grpc.proto
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$1.class
 org/wso2/carbon/identity/graaljs/proto/ContextPropertySetRequest$Builder.class
 org/wso2/carbon/identity/graaljs/proto/ExecuteCallbackRequest$BindingsDefaultEntryHolder.class
@@ -120,7 +119,6 @@ org/wso2/carbon/identity/graaljs/proto/EvaluateRequest$1.class
 org/wso2/carbon/identity/graaljs/proto/ContextPropertySetResponse.class
 org/wso2/carbon/identity/graaljs/proto/HostFunctionRequest.class
 org/wso2/carbon/identity/graaljs/proto/SerializedValue$ValueCase.class
-js_engine.proto
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngineStreamingServiceBlockingStub.class
 org/wso2/carbon/identity/graaljs/proto/SerializedProxyObject.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$JsEngineServiceBaseDescriptorSupplier.class

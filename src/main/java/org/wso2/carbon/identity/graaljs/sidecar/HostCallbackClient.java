@@ -92,6 +92,15 @@ public class HostCallbackClient implements Closeable {
     }
 
     /**
+     * Get the session ID for this callback client.
+     *
+     * @return Session identifier.
+     */
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    /**
      * Connect to the IS callback server.
      */
     public void connect() throws IOException {
@@ -384,6 +393,15 @@ public class HostCallbackClient implements Closeable {
                     map.put(entry.getKey(), deserializeValue(entry.getValue()));
                 }
                 return map;
+            case PROXY_OBJECT:
+                SerializedProxyObject proxy = sv.getProxyObject();
+                Map<String, Object> proxyMarker = new HashMap<>();
+                proxyMarker.put("__isHostRef", true);
+                proxyMarker.put("__proxyType", proxy.getType());
+                proxyMarker.put("__referenceId", proxy.getReferenceId());
+                log.info("[HostCallbackClient] Deserialized proxy object: type={}, refId={}",
+                        proxy.getType(), proxy.getReferenceId());
+                return proxyMarker;
             default:
                 return null;
         }

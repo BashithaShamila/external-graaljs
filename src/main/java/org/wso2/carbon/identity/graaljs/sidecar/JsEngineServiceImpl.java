@@ -815,6 +815,22 @@ public class JsEngineServiceImpl {
                         + (result != null ? result.getClass().getSimpleName() : "null"));
                 log.info("[Sidecar-Stub] Callback returned: {}",
                         result != null ? result.getClass().getSimpleName() : "null");
+
+                // Check if the result is a proxy marker from a complex host function return
+                if (result instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> resultMap = (Map<String, Object>) result;
+                    if (Boolean.TRUE.equals(resultMap.get("__isHostRef"))) {
+                        String proxyType = (String) resultMap.get("__proxyType");
+                        String referenceId = (String) resultMap.get("__referenceId");
+                        String basePath = "__hostref__::" + referenceId;
+                        log.info("[Sidecar-Stub] Creating DynamicContextProxy for host function return: " +
+                                "type={}, refId={}, basePath={}", proxyType, referenceId, basePath);
+                        return new DynamicContextProxy(
+                                callbackClient.getSessionId(), callbackClient, proxyType, basePath);
+                    }
+                }
+
                 return result;
             } catch (Exception e) {
                 System.out.println("[DEBUG-SIDECAR] ERROR: " + e.getMessage());
