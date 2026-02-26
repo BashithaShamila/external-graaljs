@@ -39,15 +39,16 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Bidirectional streaming gRPC server transport for the sidecar.
- * Replaces the unary GrpcServerTransport with a single bidi stream per script execution.
+ * Each stream represents a single session/request lifecycle (one stream per
+ * sendEvaluate or sendExecuteCallback call from IS).
  * <p>
  * Message flow:
- * 1. IS opens stream, sends EvaluateRequest/ExecuteCallbackRequest
+ * 1. IS opens a stream, sends EvaluateRequest/ExecuteCallbackRequest
  * 2. Sidecar dispatches to engine service on executor thread
  * 3. During JS execution, host function/context property callbacks are sent back on the stream
  * 4. IS responds with callback results on the same stream
  * 5. Sidecar completes execution, sends EvaluateResponse/ExecuteCallbackResponse
- * 6. Stream completes
+ * 6. Stream completes (onCompleted)
  */
 public class GrpcStreamingServerTransport implements ServerTransport {
 

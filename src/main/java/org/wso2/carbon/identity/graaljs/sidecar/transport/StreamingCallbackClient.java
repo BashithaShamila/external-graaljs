@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class StreamingCallbackClient implements CallbackClient {
 
     private static final Logger log = LoggerFactory.getLogger(StreamingCallbackClient.class);
-    private static final long CALLBACK_TIMEOUT_SECONDS = 30;
+    private static final long CALLBACK_TIMEOUT_SECONDS = 5;
 
     private final StreamObserver<StreamMessage> outbound;
     private final Object streamLock;
