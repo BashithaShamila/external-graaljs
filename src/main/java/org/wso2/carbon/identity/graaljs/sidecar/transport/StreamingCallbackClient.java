@@ -96,6 +96,10 @@ public class StreamingCallbackClient implements CallbackClient {
     public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
         log.info("[StreamingCallback] invokeHostFunction: " + request.getFunctionName() +
                 ", session: " + request.getSessionId());
+        long t0 = System.currentTimeMillis();
+        System.out.println("[PERF] [" + t0 + "] SIDECAR HOST_FN_CALLBACK_START session=" +
+                request.getSessionId() + " function=" + request.getFunctionName() +
+                " startTs=" + t0);
 
         CompletableFuture<StreamMessage> future = new CompletableFuture<>();
         pendingResponse.set(future);
@@ -110,13 +114,24 @@ public class StreamingCallbackClient implements CallbackClient {
             synchronized (streamLock) {
                 outbound.onNext(streamMsg);
             }
+            long t1 = System.currentTimeMillis();
+            System.out.println("[PERF] [" + t1 + "] SIDECAR HOST_FN_CALLBACK_SENT session=" +
+                    request.getSessionId() + " function=" + request.getFunctionName() +
+                    " startTs=" + t0 + " sentTs=" + t1 +
+                    " sendMs=" + (t1 - t0));
             log.info("[StreamingCallback] Sent HostFunctionRequest on stream");
 
             // Block until IS responds
             StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            long t2 = System.currentTimeMillis();
 
             if (response.getPayloadCase() == StreamMessage.PayloadCase.HOST_FUNCTION_RESPONSE) {
                 HostFunctionResponse hfResponse = response.getHostFunctionResponse();
+                System.out.println("[PERF] [" + t2 + "] SIDECAR HOST_FN_CALLBACK_RESPONSE session=" +
+                        request.getSessionId() + " function=" + request.getFunctionName() +
+                        " success=" + hfResponse.getSuccess() +
+                        " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
+                        " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
                 log.info("[StreamingCallback] Received HostFunctionResponse, success: " +
                         hfResponse.getSuccess());
                 return hfResponse;
@@ -125,12 +140,25 @@ public class StreamingCallbackClient implements CallbackClient {
             }
 
         } catch (TimeoutException e) {
+            long tErr = System.currentTimeMillis();
+            System.out.println("[PERF] [" + tErr +
+                    "] SIDECAR HOST_FN_CALLBACK_TIMEOUT session=" + request.getSessionId() +
+                    " function=" + request.getFunctionName() +
+                    " startTs=" + t0 + " timeoutTs=" + tErr +
+                    " timeoutMs=" + (tErr - t0));
             throw new IOException("Host function callback timed out after " +
                     CALLBACK_TIMEOUT_SECONDS + "s", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Host function callback interrupted", e);
         } catch (ExecutionException e) {
+            long tErr = System.currentTimeMillis();
+            System.out.println("[PERF] [" + tErr +
+                    "] SIDECAR HOST_FN_CALLBACK_ERROR session=" + request.getSessionId() +
+                    " function=" + request.getFunctionName() +
+                    " error=" + e.getCause().getMessage() +
+                    " startTs=" + t0 + " errorTs=" + tErr +
+                    " elapsedMs=" + (tErr - t0));
             throw new IOException("Host function callback failed: " + e.getCause().getMessage(),
                     e.getCause());
         } finally {
@@ -142,6 +170,10 @@ public class StreamingCallbackClient implements CallbackClient {
     public ContextPropertyResponse getContextProperty(ContextPropertyRequest request) throws IOException {
         log.info("[StreamingCallback] getContextProperty: " + request.getPropertyPath() +
                 ", session: " + request.getSessionId());
+        long t0 = System.currentTimeMillis();
+        System.out.println("[PERF] [" + t0 + "] SIDECAR CTX_PROP_CALLBACK_START session=" +
+                request.getSessionId() + " path=" + request.getPropertyPath() +
+                " startTs=" + t0);
 
         CompletableFuture<StreamMessage> future = new CompletableFuture<>();
         pendingResponse.set(future);
@@ -155,12 +187,23 @@ public class StreamingCallbackClient implements CallbackClient {
             synchronized (streamLock) {
                 outbound.onNext(streamMsg);
             }
+            long t1 = System.currentTimeMillis();
+            System.out.println("[PERF] [" + t1 + "] SIDECAR CTX_PROP_CALLBACK_SENT session=" +
+                    request.getSessionId() + " path=" + request.getPropertyPath() +
+                    " startTs=" + t0 + " sentTs=" + t1 +
+                    " sendMs=" + (t1 - t0));
             log.info("[StreamingCallback] Sent ContextPropertyRequest on stream");
 
             StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            long t2 = System.currentTimeMillis();
 
             if (response.getPayloadCase() == StreamMessage.PayloadCase.CONTEXT_PROPERTY_RESPONSE) {
                 ContextPropertyResponse cpResponse = response.getContextPropertyResponse();
+                System.out.println("[PERF] [" + t2 + "] SIDECAR CTX_PROP_CALLBACK_RESPONSE session=" +
+                        request.getSessionId() + " path=" + request.getPropertyPath() +
+                        " success=" + cpResponse.getSuccess() +
+                        " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
+                        " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
                 log.info("[StreamingCallback] Received ContextPropertyResponse, success: " +
                         cpResponse.getSuccess());
                 return cpResponse;
@@ -169,11 +212,24 @@ public class StreamingCallbackClient implements CallbackClient {
             }
 
         } catch (TimeoutException e) {
+            long tErr = System.currentTimeMillis();
+            System.out.println("[PERF] [" + tErr +
+                    "] SIDECAR CTX_PROP_CALLBACK_TIMEOUT session=" + request.getSessionId() +
+                    " path=" + request.getPropertyPath() +
+                    " startTs=" + t0 + " timeoutTs=" + tErr +
+                    " timeoutMs=" + (tErr - t0));
             throw new IOException("Context property callback timed out", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Context property callback interrupted", e);
         } catch (ExecutionException e) {
+            long tErr = System.currentTimeMillis();
+            System.out.println("[PERF] [" + tErr +
+                    "] SIDECAR CTX_PROP_CALLBACK_ERROR session=" + request.getSessionId() +
+                    " path=" + request.getPropertyPath() +
+                    " error=" + e.getCause().getMessage() +
+                    " startTs=" + t0 + " errorTs=" + tErr +
+                    " elapsedMs=" + (tErr - t0));
             throw new IOException("Context property callback failed: " + e.getCause().getMessage(),
                     e.getCause());
         } finally {
@@ -185,6 +241,10 @@ public class StreamingCallbackClient implements CallbackClient {
     public ContextPropertySetResponse setContextProperty(ContextPropertySetRequest request) throws IOException {
         log.info("[StreamingCallback] setContextProperty: " + request.getPropertyPath() +
                 ", session: " + request.getSessionId());
+        long t0 = System.currentTimeMillis();
+        System.out.println("[PERF] [" + t0 + "] SIDECAR CTX_PROP_SET_CALLBACK_START session=" +
+                request.getSessionId() + " path=" + request.getPropertyPath() +
+                " startTs=" + t0);
 
         CompletableFuture<StreamMessage> future = new CompletableFuture<>();
         pendingResponse.set(future);
@@ -198,12 +258,23 @@ public class StreamingCallbackClient implements CallbackClient {
             synchronized (streamLock) {
                 outbound.onNext(streamMsg);
             }
+            long t1 = System.currentTimeMillis();
+            System.out.println("[PERF] [" + t1 + "] SIDECAR CTX_PROP_SET_CALLBACK_SENT session=" +
+                    request.getSessionId() + " path=" + request.getPropertyPath() +
+                    " startTs=" + t0 + " sentTs=" + t1 +
+                    " sendMs=" + (t1 - t0));
             log.info("[StreamingCallback] Sent ContextPropertySetRequest on stream");
 
             StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            long t2 = System.currentTimeMillis();
 
             if (response.getPayloadCase() == StreamMessage.PayloadCase.CONTEXT_PROPERTY_SET_RESPONSE) {
                 ContextPropertySetResponse cpsResponse = response.getContextPropertySetResponse();
+                System.out.println("[PERF] [" + t2 + "] SIDECAR CTX_PROP_SET_CALLBACK_RESPONSE session=" +
+                        request.getSessionId() + " path=" + request.getPropertyPath() +
+                        " success=" + cpsResponse.getSuccess() +
+                        " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
+                        " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
                 log.info("[StreamingCallback] Received ContextPropertySetResponse, success: " +
                         cpsResponse.getSuccess());
                 return cpsResponse;
@@ -212,11 +283,24 @@ public class StreamingCallbackClient implements CallbackClient {
             }
 
         } catch (TimeoutException e) {
+            long tErr = System.currentTimeMillis();
+            System.out.println("[PERF] [" + tErr +
+                    "] SIDECAR CTX_PROP_SET_CALLBACK_TIMEOUT session=" + request.getSessionId() +
+                    " path=" + request.getPropertyPath() +
+                    " startTs=" + t0 + " timeoutTs=" + tErr +
+                    " timeoutMs=" + (tErr - t0));
             throw new IOException("Context property set callback timed out", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Context property set callback interrupted", e);
         } catch (ExecutionException e) {
+            long tErr = System.currentTimeMillis();
+            System.out.println("[PERF] [" + tErr +
+                    "] SIDECAR CTX_PROP_SET_CALLBACK_ERROR session=" + request.getSessionId() +
+                    " path=" + request.getPropertyPath() +
+                    " error=" + e.getCause().getMessage() +
+                    " startTs=" + t0 + " errorTs=" + tErr +
+                    " elapsedMs=" + (tErr - t0));
             throw new IOException("Context property set callback failed: " +
                     e.getCause().getMessage(), e.getCause());
         } finally {

@@ -127,6 +127,9 @@ public class GrpcStreamingServerTransport implements ServerTransport {
 
         @Override
         public StreamObserver<StreamMessage> executeScript(StreamObserver<StreamMessage> responseObserver) {
+            long streamOpenTime = System.currentTimeMillis();
+            System.out.println("[PERF] [" + streamOpenTime + "] SIDECAR STREAM_OPENED" +
+                    " streamOpenTs=" + streamOpenTime);
             log.info("[gRPC-Streaming-Server] New stream opened");
 
             return new StreamObserver<StreamMessage>() {
@@ -137,16 +140,25 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                 @Override
                 public void onNext(StreamMessage message) {
                     String sessionId = message.getSessionId();
+                    long now = System.currentTimeMillis();
                     log.info("[gRPC-Streaming-Server] Received message type: " + message.getPayloadCase() +
                             ", session: " + sessionId);
 
                     switch (message.getPayloadCase()) {
                         case EVALUATE_REQUEST:
+                            System.out.println("[PERF] [" + now + "] SIDECAR EVALUATE_REQUEST_RECEIVED session=" +
+                                    sessionId + " streamOpenTs=" + streamOpenTime +
+                                    " receivedTs=" + now +
+                                    " sinceStreamOpenMs=" + (now - streamOpenTime));
                             executorService.submit(() -> handleEvaluate(
                                     sessionId, message.getEvaluateRequest(), responseObserver));
                             break;
 
                         case EXECUTE_CALLBACK_REQUEST:
+                            System.out.println("[PERF] [" + now + "] SIDECAR EXEC_CALLBACK_REQUEST_RECEIVED session=" +
+                                    sessionId + " streamOpenTs=" + streamOpenTime +
+                                    " receivedTs=" + now +
+                                    " sinceStreamOpenMs=" + (now - streamOpenTime));
                             executorService.submit(() -> handleExecuteCallback(
                                     sessionId, message.getExecuteCallbackRequest(), responseObserver));
                             break;
@@ -154,6 +166,11 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                         case HOST_FUNCTION_RESPONSE:
                         case CONTEXT_PROPERTY_RESPONSE:
                         case CONTEXT_PROPERTY_SET_RESPONSE:
+                            System.out.println("[PERF] [" + now + "] SIDECAR CALLBACK_RESPONSE_RECEIVED session=" +
+                                    sessionId + " type=" + message.getPayloadCase() +
+                                    " streamOpenTs=" + streamOpenTime +
+                                    " receivedTs=" + now +
+                                    " sinceStreamOpenMs=" + (now - streamOpenTime));
                             // Deliver callback response to the blocked JS thread
                             if (streamingCallbackClient != null) {
                                 streamingCallbackClient.deliverResponse(message);
@@ -171,6 +188,13 @@ public class GrpcStreamingServerTransport implements ServerTransport {
 
                 @Override
                 public void onError(Throwable t) {
+                    long errTs = System.currentTimeMillis();
+                    System.out.println("[PERF] [" + errTs +
+                            "] SIDECAR STREAM_ERROR" +
+                            " streamOpenTs=" + streamOpenTime +
+                            " errorTs=" + errTs +
+                            " error=" + t.getMessage() +
+                            " sinceStreamOpenMs=" + (errTs - streamOpenTime));
                     log.error("[gRPC-Streaming-Server] Stream error", t);
                     if (streamingCallbackClient != null) {
                         streamingCallbackClient.onStreamError(t);
@@ -179,6 +203,12 @@ public class GrpcStreamingServerTransport implements ServerTransport {
 
                 @Override
                 public void onCompleted() {
+                    long completedTs = System.currentTimeMillis();
+                    System.out.println("[PERF] [" + completedTs +
+                            "] SIDECAR STREAM_COMPLETED_BY_CLIENT" +
+                            " streamOpenTs=" + streamOpenTime +
+                            " completedTs=" + completedTs +
+                            " streamLifetimeMs=" + (completedTs - streamOpenTime));
                     log.info("[gRPC-Streaming-Server] Stream completed by client");
                 }
 
@@ -186,6 +216,10 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                                              StreamObserver<StreamMessage> outbound) {
                     log.info("[gRPC-Streaming-Server] handleEvaluate - session: " + sessionId);
                     long startTime = System.currentTimeMillis();
+                    System.out.println("[PERF] [" + startTime + "] SIDECAR EVALUATE_HANDLE_START session=" +
+                            sessionId + " streamOpenTs=" + streamOpenTime +
+                            " handleStartTs=" + startTime +
+                            " sinceStreamOpenMs=" + (startTime - streamOpenTime));
 
                     try {
                         // Create streaming callback client that uses the bidi stream
@@ -197,13 +231,23 @@ public class GrpcStreamingServerTransport implements ServerTransport {
 
                         // Delegate to engine service with the streaming callback client
                         byte[] requestBytes = request.toByteArray();
+                        long engineStart = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + engineStart + "] SIDECAR EVALUATE_ENGINE_START session=" +
+                                sessionId + " handleStartTs=" + startTime +
+                                " engineStartTs=" + engineStart +
+                                " setupMs=" + (engineStart - startTime));
                         byte[] responseBytes = engineService.handleEvaluate(requestBytes, callbackClient);
+                        long engineEnd = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + engineEnd + "] SIDECAR EVALUATE_ENGINE_DONE session=" +
+                                sessionId + " engineStartTs=" + engineStart +
+                                " engineEndTs=" + engineEnd +
+                                " engineMs=" + (engineEnd - engineStart));
 
                         EvaluateResponse response = EvaluateResponse.parseFrom(responseBytes);
-                        long elapsed = System.currentTimeMillis() - startTime;
+                        long parseEnd = System.currentTimeMillis();
 
-                        log.info("[gRPC-Streaming-Server] Evaluate completed in " + elapsed +
-                                "ms, success: " + response.getSuccess());
+                        log.info("[gRPC-Streaming-Server] Evaluate completed in " +
+                                (parseEnd - startTime) + "ms, success: " + response.getSuccess());
 
                         // Send response back on stream
                         synchronized (streamLock) {
@@ -213,8 +257,25 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                                     .build());
                             outbound.onCompleted();
                         }
+                        long sendTime = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + sendTime + "] SIDECAR EVALUATE_RESPONSE_SENT session=" +
+                                sessionId + " success=" + response.getSuccess() +
+                                " handleStartTs=" + startTime + " engineStartTs=" + engineStart +
+                                " engineEndTs=" + engineEnd + " parseEndTs=" + parseEnd +
+                                " sentTs=" + sendTime +
+                                " setupMs=" + (engineStart - startTime) +
+                                " engineMs=" + (engineEnd - engineStart) +
+                                " parseMs=" + (parseEnd - engineEnd) +
+                                " sendMs=" + (sendTime - parseEnd) +
+                                " totalMs=" + (sendTime - startTime) +
+                                " streamLifetimeMs=" + (sendTime - streamOpenTime));
 
                     } catch (Exception e) {
+                        long errTime = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + errTime + "] SIDECAR EVALUATE_ERROR session=" +
+                                sessionId + " error=" + e.getMessage() +
+                                " handleStartTs=" + startTime + " errorTs=" + errTime +
+                                " totalMs=" + (errTime - startTime));
                         log.error("[gRPC-Streaming-Server] Error during evaluate, session: " + sessionId, e);
                         try {
                             EvaluateResponse errorResponse = EvaluateResponse.newBuilder()
@@ -222,7 +283,7 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                                     .setErrorMessage(e.getMessage() != null ? e.getMessage() :
                                             e.getClass().getName())
                                     .setErrorType(e.getClass().getName())
-                                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                                    .setElapsedMs(errTime - startTime)
                                     .build();
                             synchronized (streamLock) {
                                 outbound.onNext(StreamMessage.newBuilder()
@@ -243,6 +304,10 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                                                      StreamObserver<StreamMessage> outbound) {
                     log.info("[gRPC-Streaming-Server] handleExecuteCallback - session: " + sessionId);
                     long startTime = System.currentTimeMillis();
+                    System.out.println("[PERF] [" + startTime + "] SIDECAR EXEC_CALLBACK_HANDLE_START session=" +
+                            sessionId + " streamOpenTs=" + streamOpenTime +
+                            " handleStartTs=" + startTime +
+                            " sinceStreamOpenMs=" + (startTime - streamOpenTime));
 
                     try {
                         // Create streaming callback client that uses the bidi stream
@@ -254,13 +319,23 @@ public class GrpcStreamingServerTransport implements ServerTransport {
 
                         // Delegate to engine service with the streaming callback client
                         byte[] requestBytes = request.toByteArray();
+                        long engineStart = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + engineStart + "] SIDECAR EXEC_CALLBACK_ENGINE_START session=" +
+                                sessionId + " handleStartTs=" + startTime +
+                                " engineStartTs=" + engineStart +
+                                " setupMs=" + (engineStart - startTime));
                         byte[] responseBytes = engineService.handleExecuteCallback(requestBytes, callbackClient);
+                        long engineEnd = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + engineEnd + "] SIDECAR EXEC_CALLBACK_ENGINE_DONE session=" +
+                                sessionId + " engineStartTs=" + engineStart +
+                                " engineEndTs=" + engineEnd +
+                                " engineMs=" + (engineEnd - engineStart));
 
                         ExecuteCallbackResponse response = ExecuteCallbackResponse.parseFrom(responseBytes);
-                        long elapsed = System.currentTimeMillis() - startTime;
+                        long parseEnd = System.currentTimeMillis();
 
-                        log.info("[gRPC-Streaming-Server] ExecuteCallback completed in " + elapsed +
-                                "ms, success: " + response.getSuccess());
+                        log.info("[gRPC-Streaming-Server] ExecuteCallback completed in " +
+                                (parseEnd - startTime) + "ms, success: " + response.getSuccess());
 
                         // Send response back on stream
                         synchronized (streamLock) {
@@ -270,8 +345,25 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                                     .build());
                             outbound.onCompleted();
                         }
+                        long sendTime = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + sendTime + "] SIDECAR EXEC_CALLBACK_RESPONSE_SENT session=" +
+                                sessionId + " success=" + response.getSuccess() +
+                                " handleStartTs=" + startTime + " engineStartTs=" + engineStart +
+                                " engineEndTs=" + engineEnd + " parseEndTs=" + parseEnd +
+                                " sentTs=" + sendTime +
+                                " setupMs=" + (engineStart - startTime) +
+                                " engineMs=" + (engineEnd - engineStart) +
+                                " parseMs=" + (parseEnd - engineEnd) +
+                                " sendMs=" + (sendTime - parseEnd) +
+                                " totalMs=" + (sendTime - startTime) +
+                                " streamLifetimeMs=" + (sendTime - streamOpenTime));
 
                     } catch (Exception e) {
+                        long errTime = System.currentTimeMillis();
+                        System.out.println("[PERF] [" + errTime + "] SIDECAR EXEC_CALLBACK_ERROR session=" +
+                                sessionId + " error=" + e.getMessage() +
+                                " handleStartTs=" + startTime + " errorTs=" + errTime +
+                                " totalMs=" + (errTime - startTime));
                         log.error("[gRPC-Streaming-Server] Error during executeCallback, session: " +
                                 sessionId, e);
                         try {
@@ -279,7 +371,7 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                                     .setSuccess(false)
                                     .setErrorMessage(e.getMessage() != null ? e.getMessage() :
                                             e.getClass().getName())
-                                    .setElapsedMs(System.currentTimeMillis() - startTime)
+                                    .setElapsedMs(errTime - startTime)
                                     .build();
                             synchronized (streamLock) {
                                 outbound.onNext(StreamMessage.newBuilder()
