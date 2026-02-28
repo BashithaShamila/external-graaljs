@@ -32,17 +32,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Convenience wrapper for callback clients that provides a simple API.
- * Mirrors the IS framework pattern where UdsCallbackServerImpl wraps HostCallbackServer.
+ * Mirrors the IS framework pattern where UdsCallbackServerImpl wraps
+ * HostCallbackServer.
  * <p>
- * This class uses CallbackClientFactory internally to create the appropriate transport
- * implementation (UDS or gRPC), then adapts the CallbackClient interface to provide
+ * This class uses CallbackClientFactory internally to create the appropriate
+ * transport
+ * implementation (UDS or gRPC), then adapts the CallbackClient interface to
+ * provide
  * a simpler API for JsEngineServiceImpl.
  * <p>
  * Transport Selection:
- * - Uses CallbackClientFactory to auto-detect transport type from address format
+ * - Uses CallbackClientFactory to auto-detect transport type from address
+ * format
  * - UDS: /path/to/socket or file:///path/to/socket
  * - gRPC: localhost:port or grpc://localhost:port
  * <p>
@@ -57,12 +62,20 @@ public class HostCallbackClient implements Closeable {
     private final String sessionId;
     private final CallbackClient delegate;
 
+    // Tracks cumulative time (ms) spent waiting for IS callbacks during a single
+    // request.
+    // This allows the sidecar to decompose total elapsed into pure-JS vs
+    // callback-roundtrip time.
+    private final AtomicLong totalCallbackTimeMs = new AtomicLong(0);
+
     /**
      * Create a new callback client using factory pattern.
      *
-     * @param callbackAddress Address where IS callback server is listening (UDS path or gRPC address).
-     * @param sessionId Session identifier.
-     * @throws IOException if address format is invalid or transport is not supported.
+     * @param callbackAddress Address where IS callback server is listening (UDS
+     *                        path or gRPC address).
+     * @param sessionId       Session identifier.
+     * @throws IOException if address format is invalid or transport is not
+     *                     supported.
      */
     public HostCallbackClient(String callbackAddress, String sessionId) throws IOException {
         this.callbackAddress = callbackAddress;
@@ -77,10 +90,12 @@ public class HostCallbackClient implements Closeable {
 
     /**
      * Create a new callback client using an externally provided delegate.
-     * Used by streaming transport where the CallbackClient is a StreamingCallbackClient
+     * Used by streaming transport where the CallbackClient is a
+     * StreamingCallbackClient
      * that sends callbacks over the bidirectional stream.
      *
-     * @param delegate  The pre-created callback client (e.g., StreamingCallbackClient).
+     * @param delegate  The pre-created callback client (e.g.,
+     *                  StreamingCallbackClient).
      * @param sessionId Session identifier.
      */
     public HostCallbackClient(CallbackClient delegate, String sessionId) {
@@ -119,7 +134,8 @@ public class HostCallbackClient implements Closeable {
      * Invoke a host function on the IS side.
      * Convenience method that handles proto serialization.
      *
-     * @param functionName Name of the host function (e.g., "executeStep", "sendError").
+     * @param functionName Name of the host function (e.g., "executeStep",
+     *                     "sendError").
      * @param arguments    Arguments to pass.
      * @return Result from the host function.
      * @throws IOException If communication fails.
@@ -143,8 +159,12 @@ public class HostCallbackClient implements Closeable {
 
         HostFunctionRequest request = requestBuilder.build();
 
-        // Delegate to transport implementation
+        // Delegate to transport implementation — track round-trip time
+        long cbStart = System.currentTimeMillis();
         HostFunctionResponse response = delegate.invokeHostFunction(request);
+        long cbElapsed = System.currentTimeMillis() - cbStart;
+        totalCallbackTimeMs.addAndGet(cbElapsed);
+        log.info("[HostCallbackClient] invokeHostFunction '{}' round-trip: {}ms", functionName, cbElapsed);
 
         if (!response.getSuccess()) {
             log.error("[HostCallbackClient] Host function failed: {}", response.getErrorMessage());
@@ -178,8 +198,12 @@ public class HostCallbackClient implements Closeable {
                 .setProxyType(proxyType)
                 .build();
 
-        // Delegate to transport implementation
-        return delegate.getContextProperty(request);
+        // Delegate to transport implementation — track round-trip time
+        long cbStart = System.currentTimeMillis();
+        ContextPropertyResponse response = delegate.getContextProperty(request);
+        long cbElapsed = System.currentTimeMillis() - cbStart;
+        totalCallbackTimeMs.addAndGet(cbElapsed);
+        return response;
     }
 
     /**
@@ -205,8 +229,29 @@ public class HostCallbackClient implements Closeable {
                 .setValue(value)
                 .build();
 
-        // Delegate to transport implementation
-        return delegate.setContextProperty(request);
+        // Delegate to transport implementation — track round-trip time
+        long cbStart = System.currentTimeMillis();
+        ContextPropertySetResponse response = delegate.setContextProperty(request);
+        long cbElapsed = System.currentTimeMillis() - cbStart;
+        totalCallbackTimeMs.addAndGet(cbElapsed);
+        return response;
+    }
+
+    /**
+     * Get the cumulative time spent waiting for IS callbacks during this request.
+     *
+     * @return Total callback round-trip time in milliseconds.
+     */
+    public long getCallbackTimeMs() {
+        return totalCallbackTimeMs.get();
+    }
+
+    /**
+     * Reset the callback time tracker. Call at the start of each request
+     * when the callback client is reused (e.g., streaming transport).
+     */
+    public void resetCallbackTimeMs() {
+        totalCallbackTimeMs.set(0);
     }
 
     @Override

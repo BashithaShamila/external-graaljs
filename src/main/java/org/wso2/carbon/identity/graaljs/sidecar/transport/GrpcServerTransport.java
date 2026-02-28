@@ -48,8 +48,8 @@ public class GrpcServerTransport implements ServerTransport {
     /**
      * Create a new gRPC server transport.
      *
-     * @param port           Port to bind (0 for automatic selection).
-     * @param engineService  JavaScript engine service implementation.
+     * @param port          Port to bind (0 for automatic selection).
+     * @param engineService JavaScript engine service implementation.
      */
     public GrpcServerTransport(int port, JsEngineServiceImpl engineService) {
         this.port = port;
@@ -145,9 +145,13 @@ public class GrpcServerTransport implements ServerTransport {
 
                 EvaluateResponse response = EvaluateResponse.parseFrom(responseBytes);
                 long elapsed = System.currentTimeMillis() - startTime;
+                long engineTime = response.getElapsedMs();
+                long transportOverhead = elapsed - engineTime;
 
                 log.info("[gRPC-Server] ========== evaluate() RESPONSE ==========");
-                log.info("[gRPC-Server] Total elapsed: " + elapsed + "ms");
+                log.info(
+                        "[gRPC-Server] Time breakdown: totalElapsed={}ms, engineProcessing={}ms, transportOverhead={}ms",
+                        elapsed, engineTime, transportOverhead);
                 log.info("[gRPC-Server] Success: " + response.getSuccess());
                 if (!response.getSuccess()) {
                     log.error("[gRPC-Server] Error message: " + response.getErrorMessage());
@@ -171,12 +175,13 @@ public class GrpcServerTransport implements ServerTransport {
 
         @Override
         public void executeCallback(ExecuteCallbackRequest request,
-                                     StreamObserver<ExecuteCallbackResponse> responseObserver) {
+                StreamObserver<ExecuteCallbackResponse> responseObserver) {
             log.info("[gRPC-Server] ========== executeCallback() RECEIVED ==========");
             log.info("[gRPC-Server] Session: " + request.getSessionId());
             log.info("[gRPC-Server] Function source length: " + request.getFunctionSource().length() + " chars");
             log.info("[gRPC-Server] Function preview: " +
-                    request.getFunctionSource().substring(0, Math.min(150, request.getFunctionSource().length())) + "...");
+                    request.getFunctionSource().substring(0, Math.min(150, request.getFunctionSource().length()))
+                    + "...");
             log.info("[gRPC-Server] Arguments count: " + request.getArgumentsCount());
             log.info("[gRPC-Server] Bindings count: " + request.getBindingsCount());
             log.info("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
@@ -195,9 +200,13 @@ public class GrpcServerTransport implements ServerTransport {
 
                 ExecuteCallbackResponse response = ExecuteCallbackResponse.parseFrom(responseBytes);
                 long elapsed = System.currentTimeMillis() - startTime;
+                long engineTime = response.getElapsedMs();
+                long transportOverhead = elapsed - engineTime;
 
                 log.info("[gRPC-Server] ========== executeCallback() RESPONSE ==========");
-                log.info("[gRPC-Server] Total elapsed: " + elapsed + "ms");
+                log.info(
+                        "[gRPC-Server] Time breakdown: totalElapsed={}ms, engineProcessing={}ms, transportOverhead={}ms",
+                        elapsed, engineTime, transportOverhead);
                 log.info("[gRPC-Server] Success: " + response.getSuccess());
                 if (!response.getSuccess()) {
                     log.error("[gRPC-Server] Error message: " + response.getErrorMessage());

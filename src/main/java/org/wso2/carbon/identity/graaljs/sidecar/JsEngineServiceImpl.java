@@ -71,7 +71,8 @@ public class JsEngineServiceImpl {
 
         HostCallbackClient callbackClient = null;
         try {
-            // Create callback client using factory (auto-detects transport type from address)
+            // Create callback client using factory (auto-detects transport type from
+            // address)
             if (request.getCallbackSocketPath() != null && !request.getCallbackSocketPath().isEmpty()) {
                 log.info("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
                 // Use factory to create appropriate callback client based on address format
@@ -80,7 +81,7 @@ public class JsEngineServiceImpl {
                 callbackClient = new HostCallbackClient(request.getCallbackSocketPath(), request.getSessionId());
                 // TODO: Replace with factory when other transports are ready:
                 // CallbackClient client = CallbackClientFactory.createClient(
-                //     request.getCallbackSocketPath(), request.getSessionId());
+                // request.getCallbackSocketPath(), request.getSessionId());
                 // client.connect();
                 // callbackClient = adaptToHostCallbackClient(client);
             } else {
@@ -133,8 +134,12 @@ public class JsEngineServiceImpl {
                 }
 
                 long elapsed = System.currentTimeMillis() - startTime;
+                long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
+                long pureProcessingMs = elapsed - callbackMs;
                 System.out.println("[DEBUG-SIDECAR] Building success response, elapsed: " + elapsed + "ms");
                 System.out.flush();
+                log.info("[Sidecar] Time breakdown: totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                        elapsed, pureProcessingMs, callbackMs);
 
                 byte[] responseBytes = EvaluateResponse.newBuilder()
                         .setSuccess(true)
@@ -157,8 +162,8 @@ public class JsEngineServiceImpl {
             System.err.flush();
             log.error("PolyglotException during evaluation", e);
 
-            String errorMsg = e.getMessage() != null ? e.getMessage() :
-                    (e.getCause() != null ? e.getCause().toString() : "Unknown PolyglotException");
+            String errorMsg = e.getMessage() != null ? e.getMessage()
+                    : (e.getCause() != null ? e.getCause().toString() : "Unknown PolyglotException");
             byte[] errorResponse = EvaluateResponse.newBuilder()
                     .setSuccess(false)
                     .setErrorMessage(errorMsg)
@@ -172,7 +177,8 @@ public class JsEngineServiceImpl {
             return errorResponse;
 
         } catch (Throwable t) {
-            // CRITICAL: Catch ALL throwables including OutOfMemoryError, StackOverflowError, etc.
+            // CRITICAL: Catch ALL throwables including OutOfMemoryError,
+            // StackOverflowError, etc.
             System.err.println("[FATAL-SIDECAR] Throwable during evaluation: " + t.getClass().getName());
             System.err.println("[FATAL-SIDECAR] Error message: " + t.getMessage());
             t.printStackTrace(System.err);
@@ -194,7 +200,8 @@ public class JsEngineServiceImpl {
             System.err.flush();
             return errorResponse;
         } finally {
-            // CRITICAL: Clean up ThreadLocal to prevent context leakage between pooled thread requests
+            // CRITICAL: Clean up ThreadLocal to prevent context leakage between pooled
+            // thread requests
             currentRegisteredFunctions.remove();
 
             if (callbackClient != null) {
@@ -225,7 +232,8 @@ public class JsEngineServiceImpl {
 
         HostCallbackClient callbackClient = null;
         try {
-            // Create callback client using factory (auto-detects transport type from address)
+            // Create callback client using factory (auto-detects transport type from
+            // address)
             if (request.getCallbackSocketPath() != null && !request.getCallbackSocketPath().isEmpty()) {
                 log.info("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
                 // Use factory to create appropriate callback client based on address format
@@ -234,7 +242,7 @@ public class JsEngineServiceImpl {
                 callbackClient = new HostCallbackClient(request.getCallbackSocketPath(), request.getSessionId());
                 // TODO: Replace with factory when other transports are ready:
                 // CallbackClient client = CallbackClientFactory.createClient(
-                //     request.getCallbackSocketPath(), request.getSessionId());
+                // request.getCallbackSocketPath(), request.getSessionId());
                 // client.connect();
                 // callbackClient = adaptToHostCallbackClient(client);
             } else {
@@ -321,7 +329,11 @@ public class JsEngineServiceImpl {
                 log.info("[Sidecar] Extracted {} updated bindings", updatedBindings.size());
 
                 long elapsed = System.currentTimeMillis() - startTime;
+                long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
+                long pureProcessingMs = elapsed - callbackMs;
                 log.info("[Sidecar] executeCallback completed in {}ms", elapsed);
+                log.info("[Sidecar] Time breakdown: totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                        elapsed, pureProcessingMs, callbackMs);
 
                 return ExecuteCallbackResponse.newBuilder()
                         .setSuccess(true)
@@ -350,7 +362,8 @@ public class JsEngineServiceImpl {
             return errorResponse;
 
         } catch (Throwable t) {
-            // CRITICAL: Catch ALL throwables including OutOfMemoryError, StackOverflowError, etc.
+            // CRITICAL: Catch ALL throwables including OutOfMemoryError,
+            // StackOverflowError, etc.
             System.err.println("[FATAL-SIDECAR] Throwable during callback: " + t.getClass().getName());
             System.err.println("[FATAL-SIDECAR] Error message: " + t.getMessage());
             t.printStackTrace(System.err);
@@ -371,7 +384,8 @@ public class JsEngineServiceImpl {
             System.err.flush();
             return errorResponse;
         } finally {
-            // CRITICAL: Clean up ThreadLocal to prevent context leakage between pooled thread requests
+            // CRITICAL: Clean up ThreadLocal to prevent context leakage between pooled
+            // thread requests
             currentRegisteredFunctions.remove();
 
             if (callbackClient != null) {
@@ -389,31 +403,42 @@ public class JsEngineServiceImpl {
      * Used by streaming transport where the callback client uses the bidi stream.
      *
      * @param requestBytes   Protobuf-encoded EvaluateRequest.
-     * @param callbackClient Pre-created callback client for host function callbacks.
+     * @param callbackClient Pre-created callback client for host function
+     *                       callbacks.
      * @return Protobuf-encoded EvaluateResponse.
      */
     public byte[] handleEvaluate(byte[] requestBytes, HostCallbackClient callbackClient) throws java.io.IOException {
         log.info("[Sidecar] handleEvaluate (streaming) called");
         long startTime = System.currentTimeMillis();
+
+        // Phase A: Request parse
         EvaluateRequest request = EvaluateRequest.parseFrom(requestBytes);
+        long tRequestParsed = System.currentTimeMillis();
         log.info("[Sidecar] handleEvaluate (streaming) - session: {}, sourceId: {}",
                 request.getSessionId(), request.getSourceIdentifier());
         log.info("[Sidecar] Script length: {}, bindings: {}, hostFunctions: {}",
                 request.getScript().length(), request.getBindingsCount(), request.getHostFunctionsCount());
 
         try {
+            // Reset callback timer for reused streaming clients
+            if (callbackClient != null) {
+                callbackClient.resetCallbackTimeMs();
+            }
+
             try (Context context = createContext()) {
                 Value bindings = context.getBindings(JS_LANG);
 
-                // Register host function stubs that call back to IS
+                // Phase B: Context setup (create context + register stubs)
                 registerHostFunctionStubs(bindings, callbackClient);
+                long tContextSetup = System.currentTimeMillis();
 
-                // Restore bindings from request
+                // Phase C: Binding restore
                 for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
                     bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
                 }
+                long tBindingsRestored = System.currentTimeMillis();
 
-                // Create and bind context proxy if ContextData is present
+                // Phase D: Proxy create
                 if (request.hasContextData()) {
                     Value contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
                     bindings.putMember("context", contextProxy);
@@ -424,13 +449,15 @@ public class JsEngineServiceImpl {
                     log.warn("[Sidecar] No ContextData provided, binding empty context for session: {}",
                             request.getSessionId());
                 }
+                long tProxyCreated = System.currentTimeMillis();
 
-                // Evaluate the script
+                // Phase E: JS evaluate
                 log.info("[Sidecar] Starting script evaluation (streaming)...");
                 Value result = context.eval(JS_LANG, request.getScript());
+                long tJsEvaluated = System.currentTimeMillis();
                 log.info("[Sidecar] Script evaluation completed successfully (streaming)");
 
-                // Extract updated bindings
+                // Phase F: Binding extract
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
@@ -438,15 +465,36 @@ public class JsEngineServiceImpl {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
+                long tBindingsExtracted = System.currentTimeMillis();
 
-                long elapsed = System.currentTimeMillis() - startTime;
-                return EvaluateResponse.newBuilder()
+                // Phase G: Response build
+                long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
+                byte[] responseBytes = EvaluateResponse.newBuilder()
                         .setSuccess(true)
-                        .setElapsedMs(elapsed)
+                        .setElapsedMs(tBindingsExtracted - startTime)
                         .setResult(serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
+                long tResponseBuilt = System.currentTimeMillis();
+
+                long elapsed = tResponseBuilt - startTime;
+                long pureProcessingMs = elapsed - callbackMs;
+                log.info(
+                        "[Sidecar] Time breakdown (streaming): totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                        elapsed, pureProcessingMs, callbackMs);
+                log.info("[Sidecar] Phase timing (streaming): requestParse={}ms, contextSetup={}ms, " +
+                        "bindingRestore={}ms, proxyCreate={}ms, jsEvaluate={}ms, " +
+                        "bindingExtract={}ms, responseBuild={}ms, total={}ms",
+                        tRequestParsed - startTime,
+                        tContextSetup - tRequestParsed,
+                        tBindingsRestored - tContextSetup,
+                        tProxyCreated - tBindingsRestored,
+                        tJsEvaluated - tProxyCreated,
+                        tBindingsExtracted - tJsEvaluated,
+                        tResponseBuilt - tBindingsExtracted,
+                        elapsed);
+                return responseBytes;
             }
 
         } catch (PolyglotException e) {
@@ -472,7 +520,8 @@ public class JsEngineServiceImpl {
                     .toByteArray();
         } finally {
             currentRegisteredFunctions.remove();
-            // NOTE: Do NOT close callbackClient here - it's managed by the streaming transport
+            // NOTE: Do NOT close callbackClient here - it's managed by the streaming
+            // transport
         }
     }
 
@@ -481,31 +530,42 @@ public class JsEngineServiceImpl {
      * Used by streaming transport where the callback client uses the bidi stream.
      *
      * @param requestBytes   Protobuf-encoded ExecuteCallbackRequest.
-     * @param callbackClient Pre-created callback client for host function callbacks.
+     * @param callbackClient Pre-created callback client for host function
+     *                       callbacks.
      * @return Protobuf-encoded ExecuteCallbackResponse.
      */
     public byte[] handleExecuteCallback(byte[] requestBytes, HostCallbackClient callbackClient)
             throws java.io.IOException {
         long startTime = System.currentTimeMillis();
+
+        // Phase A: Request parse
         ExecuteCallbackRequest request = ExecuteCallbackRequest.parseFrom(requestBytes);
+        long tRequestParsed = System.currentTimeMillis();
         log.info("[Sidecar] handleExecuteCallback (streaming) - session: {}", request.getSessionId());
         log.info("[Sidecar] Function source length: {}, args: {}, bindings: {}",
                 request.getFunctionSource().length(), request.getArgumentsCount(), request.getBindingsCount());
 
         try {
+            // Reset callback timer for reused streaming clients
+            if (callbackClient != null) {
+                callbackClient.resetCallbackTimeMs();
+            }
+
             try (Context context = createContext()) {
                 Value bindings = context.getBindings(JS_LANG);
 
-                // Register host function stubs dynamically based on the request
+                // Phase B: Context setup (create context + register stubs)
                 registerHostFunctionStubsFromRequest(bindings, callbackClient, request.getHostFunctionsList());
+                long tContextSetup = System.currentTimeMillis();
 
-                // Restore bindings
+                // Phase C: Binding restore
                 for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
                     Object deserialized = deserializeValue(entry.getValue(), context);
                     bindings.putMember(entry.getKey(), deserialized);
                 }
+                long tBindingsRestored = System.currentTimeMillis();
 
-                // Create context proxy from context data
+                // Phase D: Proxy create + argument deserialization
                 Value contextProxy = null;
                 if (request.hasContextData()) {
                     contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
@@ -524,8 +584,9 @@ public class JsEngineServiceImpl {
                         args[i] = deserializeValue(sv, context);
                     }
                 }
+                long tProxyAndArgsReady = System.currentTimeMillis();
 
-                // Evaluate and execute callback function
+                // Phase E: JS evaluate (function execution)
                 Value function = context.eval(JS_LANG, "(" + request.getFunctionSource() + ")");
 
                 Value result;
@@ -536,8 +597,9 @@ public class JsEngineServiceImpl {
                 } else {
                     result = function.execute();
                 }
+                long tJsEvaluated = System.currentTimeMillis();
 
-                // Extract updated bindings
+                // Phase F: Binding extract
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
@@ -545,15 +607,36 @@ public class JsEngineServiceImpl {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
+                long tBindingsExtracted = System.currentTimeMillis();
 
-                long elapsed = System.currentTimeMillis() - startTime;
-                return ExecuteCallbackResponse.newBuilder()
+                // Phase G: Response build
+                long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
+                byte[] responseBytes = ExecuteCallbackResponse.newBuilder()
                         .setSuccess(true)
-                        .setElapsedMs(elapsed)
+                        .setElapsedMs(tBindingsExtracted - startTime)
                         .setResult(serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
+                long tResponseBuilt = System.currentTimeMillis();
+
+                long elapsed = tResponseBuilt - startTime;
+                long pureProcessingMs = elapsed - callbackMs;
+                log.info(
+                        "[Sidecar] Time breakdown (streaming): totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                        elapsed, pureProcessingMs, callbackMs);
+                log.info("[Sidecar] Phase timing (streaming): requestParse={}ms, contextSetup={}ms, " +
+                        "bindingRestore={}ms, proxyAndArgs={}ms, jsEvaluate={}ms, " +
+                        "bindingExtract={}ms, responseBuild={}ms, total={}ms",
+                        tRequestParsed - startTime,
+                        tContextSetup - tRequestParsed,
+                        tBindingsRestored - tContextSetup,
+                        tProxyAndArgsReady - tBindingsRestored,
+                        tJsEvaluated - tProxyAndArgsReady,
+                        tBindingsExtracted - tJsEvaluated,
+                        tResponseBuilt - tBindingsExtracted,
+                        elapsed);
+                return responseBytes;
             }
 
         } catch (PolyglotException e) {
@@ -577,7 +660,8 @@ public class JsEngineServiceImpl {
                     .toByteArray();
         } finally {
             currentRegisteredFunctions.remove();
-            // NOTE: Do NOT close callbackClient here - it's managed by the streaming transport
+            // NOTE: Do NOT close callbackClient here - it's managed by the streaming
+            // transport
         }
     }
 
@@ -895,8 +979,10 @@ public class JsEngineServiceImpl {
                 }
                 return arr;
             }
-            // IMPORTANT: Check if this is a DynamicContextProxy BEFORE the generic hasMembers() check.
-            // DynamicContextProxy returns empty member keys when serializing, so we need to send a
+            // IMPORTANT: Check if this is a DynamicContextProxy BEFORE the generic
+            // hasMembers() check.
+            // DynamicContextProxy returns empty member keys when serializing, so we need to
+            // send a
             // marker that tells IS to reconstruct the object from stored context.
             if (val.isProxyObject()) {
                 Object proxyObj = val.asProxyObject();
@@ -1035,7 +1121,8 @@ public class JsEngineServiceImpl {
         }
 
         /**
-         * Get the base path for nested property access (e.g., "currentKnownSubject", "steps.1").
+         * Get the base path for nested property access (e.g., "currentKnownSubject",
+         * "steps.1").
          */
         public String getBasePath() {
             return basePath;
@@ -1089,7 +1176,8 @@ public class JsEngineServiceImpl {
                             value != null ? value.getClass().getSimpleName() : "null");
                 }
 
-                // Cache the value (only if non-null, ConcurrentHashMap doesn't allow null values)
+                // Cache the value (only if non-null, ConcurrentHashMap doesn't allow null
+                // values)
                 if (value != null) {
                     cache.put(key, value);
                 }
@@ -1266,20 +1354,21 @@ public class JsEngineServiceImpl {
         HostFunctionRequest request = HostFunctionRequest.parseFrom(requestBytes);
         log.info("[Sidecar] handleHostFunction - session: {}, function: {}, args: {}",
                 request.getSessionId(), request.getFunctionName(), request.getArgumentsCount());
-        
+
         // This is typically handled via callback mechanism during script execution
         // This direct handler is mainly for logging purposes
         HostFunctionResponse response = HostFunctionResponse.newBuilder()
                 .setSuccess(false)
                 .setErrorMessage("Host function calls should be handled via callback mechanism during script execution")
                 .build();
-        
+
         return response.toByteArray();
     }
 
     /**
      * Handle a context property request (placeholder implementation).
-     * These requests are typically handled by the proxy mechanism during script execution.
+     * These requests are typically handled by the proxy mechanism during script
+     * execution.
      *
      * @param requestBytes Protobuf-encoded ContextPropertyRequest.
      * @return Protobuf-encoded ContextPropertyResponse.
@@ -1288,20 +1377,22 @@ public class JsEngineServiceImpl {
         ContextPropertyRequest request = ContextPropertyRequest.parseFrom(requestBytes);
         log.info("[Sidecar] handleContextProperty - session: {}, property: {}, proxyType: {}",
                 request.getSessionId(), request.getPropertyPath(), request.getProxyType());
-        
+
         // This is typically handled via proxy mechanism during script execution
         // This direct handler is mainly for logging purposes
         ContextPropertyResponse response = ContextPropertyResponse.newBuilder()
                 .setSuccess(false)
-                .setErrorMessage("Context property access should be handled via proxy mechanism during script execution")
+                .setErrorMessage(
+                        "Context property access should be handled via proxy mechanism during script execution")
                 .build();
-        
+
         return response.toByteArray();
     }
 
     /**
      * Handle a context property set request (placeholder implementation).
-     * These requests are typically handled by the proxy mechanism during script execution.
+     * These requests are typically handled by the proxy mechanism during script
+     * execution.
      *
      * @param requestBytes Protobuf-encoded ContextPropertySetRequest.
      * @return Protobuf-encoded ContextPropertySetResponse.
@@ -1310,14 +1401,15 @@ public class JsEngineServiceImpl {
         ContextPropertySetRequest request = ContextPropertySetRequest.parseFrom(requestBytes);
         log.info("[Sidecar] handleContextPropertySet - session: {}, property: {}, value: {}",
                 request.getSessionId(), request.getPropertyPath(), request.getValue());
-        
-        // This is typically handled via proxy mechanism during script execution  
+
+        // This is typically handled via proxy mechanism during script execution
         // This direct handler is mainly for logging purposes
         ContextPropertySetResponse response = ContextPropertySetResponse.newBuilder()
                 .setSuccess(false)
-                .setErrorMessage("Context property setting should be handled via proxy mechanism during script execution")
+                .setErrorMessage(
+                        "Context property setting should be handled via proxy mechanism during script execution")
                 .build();
-        
+
         return response.toByteArray();
     }
 }
