@@ -54,36 +54,60 @@ public class GrpcCallbackClient implements CallbackClient {
      */
     public GrpcCallbackClient(String grpcTarget) {
         this.grpcTarget = grpcTarget;
-        log.info("[gRPC-Callback] Created GrpcCallbackClient for target: " + grpcTarget);
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Created GrpcCallbackClient for target: " + grpcTarget);
+        }
     }
 
     @Override
     public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
-        log.info("[gRPC-Callback] ========== invokeHostFunction() ==========");
-        log.info("[gRPC-Callback] Target: " + grpcTarget);
-        log.info("[gRPC-Callback] Session: " + request.getSessionId());
-        log.info("[gRPC-Callback] Function: " + request.getFunctionName());
-        log.info("[gRPC-Callback] Arguments count: " + request.getArgumentsCount());
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== invokeHostFunction() ==========");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Target: " + grpcTarget);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Session: " + request.getSessionId());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Function: " + request.getFunctionName());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Arguments count: " + request.getArgumentsCount());
+        }
         for (int i = 0; i < request.getArgumentsCount(); i++) {
-            log.info("[gRPC-Callback] Arg[" + i + "] valueCase: " + request.getArguments(i).getValueCase());
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Arg[" + i + "] valueCase: " + request.getArguments(i).getValueCase());
+            }
         }
 
         ensureConnected();
         long startTime = System.currentTimeMillis();
         try {
-            log.info("[gRPC-Callback] >>> Sending invokeHostFunction to IS...");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] >>> Sending invokeHostFunction to IS...");
+            }
             HostFunctionResponse response = blockingStub
                     .withDeadlineAfter(30, TimeUnit.SECONDS)
                     .invokeHostFunction(request);
             long elapsed = System.currentTimeMillis() - startTime;
 
-            log.info("[gRPC-Callback] <<< Received response in " + elapsed + "ms");
-            log.info("[gRPC-Callback] Success: " + response.getSuccess());
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] <<< Received response in " + elapsed + "ms");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Success: " + response.getSuccess());
+            }
             if (!response.getSuccess()) {
                 log.error("[gRPC-Callback] Error: " + response.getErrorMessage());
             }
-            log.info("[gRPC-Callback] Result valueCase: " + response.getResult().getValueCase());
-            log.info("[gRPC-Callback] ========== invokeHostFunction() COMPLETED ==========");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Result valueCase: " + response.getResult().getValueCase());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] ========== invokeHostFunction() COMPLETED ==========");
+            }
             return response;
         } catch (StatusRuntimeException e) {
             log.error("[gRPC-Callback] ========== invokeHostFunction() FAILED ==========");
@@ -96,30 +120,54 @@ public class GrpcCallbackClient implements CallbackClient {
 
     @Override
     public ContextPropertyResponse getContextProperty(ContextPropertyRequest request) throws IOException {
-        log.info("[gRPC-Callback] ========== getContextProperty() ==========");
-        log.info("[gRPC-Callback] Target: " + grpcTarget);
-        log.info("[gRPC-Callback] Session: " + request.getSessionId());
-        log.info("[gRPC-Callback] PropertyPath: " + request.getPropertyPath());
-        log.info("[gRPC-Callback] ProxyType: " + request.getProxyType());
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== getContextProperty() ==========");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Target: " + grpcTarget);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Session: " + request.getSessionId());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] PropertyPath: " + request.getPropertyPath());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ProxyType: " + request.getProxyType());
+        }
 
         ensureConnected();
         long startTime = System.currentTimeMillis();
         try {
-            log.info("[gRPC-Callback] >>> Sending getContextProperty to IS...");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] >>> Sending getContextProperty to IS...");
+            }
             ContextPropertyResponse response = blockingStub
                     .withDeadlineAfter(10, TimeUnit.SECONDS)
                     .getContextProperty(request);
             long elapsed = System.currentTimeMillis() - startTime;
 
-            log.info("[gRPC-Callback] <<< Received response in " + elapsed + "ms");
-            log.info("[gRPC-Callback] Success: " + response.getSuccess());
-            log.info("[gRPC-Callback] IsProxy: " + response.getIsProxy());
-            log.info("[gRPC-Callback] ProxyType: " + response.getProxyType());
-            log.info("[gRPC-Callback] MemberKeys count: " + response.getMemberKeysCount());
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] <<< Received response in " + elapsed + "ms");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Success: " + response.getSuccess());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] IsProxy: " + response.getIsProxy());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] ProxyType: " + response.getProxyType());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] MemberKeys count: " + response.getMemberKeysCount());
+            }
             if (!response.getSuccess()) {
                 log.error("[gRPC-Callback] Error: " + response.getErrorMessage());
             }
-            log.info("[gRPC-Callback] ========== getContextProperty() COMPLETED ==========");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] ========== getContextProperty() COMPLETED ==========");
+            }
             return response;
         } catch (StatusRuntimeException e) {
             log.error("[gRPC-Callback] ========== getContextProperty() FAILED ==========");
@@ -131,27 +179,45 @@ public class GrpcCallbackClient implements CallbackClient {
 
     @Override
     public ContextPropertySetResponse setContextProperty(ContextPropertySetRequest request) throws IOException {
-        log.info("[gRPC-Callback] ========== setContextProperty() ==========");
-        log.info("[gRPC-Callback] Target: " + grpcTarget);
-        log.info("[gRPC-Callback] Session: " + request.getSessionId());
-        log.info("[gRPC-Callback] PropertyPath: " + request.getPropertyPath());
-        log.info("[gRPC-Callback] Value valueCase: " + request.getValue().getValueCase());
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== setContextProperty() ==========");
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Target: " + grpcTarget);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Session: " + request.getSessionId());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] PropertyPath: " + request.getPropertyPath());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Value valueCase: " + request.getValue().getValueCase());
+        }
 
         ensureConnected();
         long startTime = System.currentTimeMillis();
         try {
-            log.info("[gRPC-Callback] >>> Sending setContextProperty to IS...");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] >>> Sending setContextProperty to IS...");
+            }
             ContextPropertySetResponse response = blockingStub
                     .withDeadlineAfter(10, TimeUnit.SECONDS)
                     .setContextProperty(request);
             long elapsed = System.currentTimeMillis() - startTime;
 
-            log.info("[gRPC-Callback] <<< Received response in " + elapsed + "ms");
-            log.info("[gRPC-Callback] Success: " + response.getSuccess());
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] <<< Received response in " + elapsed + "ms");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Success: " + response.getSuccess());
+            }
             if (!response.getSuccess()) {
                 log.error("[gRPC-Callback] Error: " + response.getErrorMessage());
             }
-            log.info("[gRPC-Callback] ========== setContextProperty() COMPLETED ==========");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] ========== setContextProperty() COMPLETED ==========");
+            }
             return response;
         } catch (StatusRuntimeException e) {
             log.error("[gRPC-Callback] ========== setContextProperty() FAILED ==========");
@@ -163,59 +229,87 @@ public class GrpcCallbackClient implements CallbackClient {
 
     @Override
     public void connect() throws IOException {
-        log.info("[gRPC-Callback] ========== connect() ==========");
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== connect() ==========");
+        }
         if (channel != null && !channel.isShutdown()) {
-            log.info("[gRPC-Callback] Already connected to: " + grpcTarget);
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Already connected to: " + grpcTarget);
+            }
             return;
         }
 
-        log.info("[gRPC-Callback] Creating new channel to: " + grpcTarget);
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Creating new channel to: " + grpcTarget);
+        }
         channel = ManagedChannelBuilder.forTarget(grpcTarget)
                 .usePlaintext()
                 .idleTimeout(60, TimeUnit.SECONDS)
                 .build();
 
         blockingStub = HostCallbackServiceGrpc.newBlockingStub(channel);
-        log.info("[gRPC-Callback] Connected successfully to: " + grpcTarget);
-        log.info("[gRPC-Callback] ========== connect() COMPLETED ==========");
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] Connected successfully to: " + grpcTarget);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== connect() COMPLETED ==========");
+        }
     }
 
     @Override
     public boolean isConnected() {
         boolean connected = channel != null && !channel.isShutdown();
-        log.info("[gRPC-Callback] isConnected(): " + connected);
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] isConnected(): " + connected);
+        }
         return connected;
     }
 
     @Override
     public void close() throws IOException {
-        log.info("[gRPC-Callback] ========== close() ==========");
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== close() ==========");
+        }
         if (channel != null) {
-            log.info("[gRPC-Callback] Closing connection to: " + grpcTarget);
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Closing connection to: " + grpcTarget);
+            }
             try {
                 channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-                log.info("[gRPC-Callback] Connection closed successfully");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Callback] Connection closed successfully");
+                }
             } catch (InterruptedException e) {
                 log.warn("[gRPC-Callback] Interrupted during shutdown, forcing...", e);
                 channel.shutdownNow();
                 Thread.currentThread().interrupt();
             }
         } else {
-            log.info("[gRPC-Callback] No channel to close");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] No channel to close");
+            }
         }
-        log.info("[gRPC-Callback] ========== close() COMPLETED ==========");
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ========== close() COMPLETED ==========");
+        }
     }
 
     /**
      * Ensure the client is connected before making calls.
      */
     private void ensureConnected() throws IOException {
-        log.info("[gRPC-Callback] ensureConnected() - checking connection...");
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Callback] ensureConnected() - checking connection...");
+        }
         if (!isConnected()) {
-            log.info("[gRPC-Callback] Not connected, connecting now...");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Not connected, connecting now...");
+            }
             connect();
         } else {
-            log.info("[gRPC-Callback] Already connected, reusing channel");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Callback] Already connected, reusing channel");
+            }
         }
     }
 }

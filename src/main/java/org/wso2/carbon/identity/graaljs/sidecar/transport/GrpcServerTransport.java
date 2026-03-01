@@ -68,11 +68,15 @@ public class GrpcServerTransport implements ServerTransport {
                 .build()
                 .start();
 
-        log.info("[gRPC-Server] Started on port: " + server.getPort());
+        if (log.isDebugEnabled()) {
+            log.debug("[gRPC-Server] Started on port: " + server.getPort());
+        }
 
         // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("[gRPC-Server] Shutting down via shutdown hook");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Shutting down via shutdown hook");
+            }
             try {
                 GrpcServerTransport.this.stop();
             } catch (IOException e) {
@@ -84,7 +88,9 @@ public class GrpcServerTransport implements ServerTransport {
     @Override
     public void stop() throws IOException {
         if (server != null) {
-            log.info("[gRPC-Server] Stopping server...");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Stopping server...");
+            }
             try {
                 server.shutdown().awaitTermination(10, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
@@ -92,7 +98,9 @@ public class GrpcServerTransport implements ServerTransport {
                 server.shutdownNow();
                 Thread.currentThread().interrupt();
             }
-            log.info("[gRPC-Server] Stopped");
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Stopped");
+            }
         }
     }
 
@@ -116,54 +124,94 @@ public class GrpcServerTransport implements ServerTransport {
 
         @Override
         public void evaluate(EvaluateRequest request, StreamObserver<EvaluateResponse> responseObserver) {
-            log.info("[gRPC-Server] ========== evaluate() RECEIVED ==========");
-            log.info("[gRPC-Server] Session: " + request.getSessionId());
-            log.info("[gRPC-Server] Script length: " + request.getScript().length() + " chars");
-            log.info("[gRPC-Server] Script preview: " +
-                    request.getScript().substring(0, Math.min(150, request.getScript().length())) + "...");
-            log.info("[gRPC-Server] Bindings count: " + request.getBindingsCount());
-            log.info("[gRPC-Server] Bindings keys: " + request.getBindingsMap().keySet());
-            log.info("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
-            log.info("[gRPC-Server] Callback socket path: " + request.getCallbackSocketPath());
-            log.info("[gRPC-Server] Source identifier: " + request.getSourceIdentifier());
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] ========== evaluate() RECEIVED ==========");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Session: " + request.getSessionId());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Script length: " + request.getScript().length() + " chars");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Script preview: " +
+                        request.getScript().substring(0, Math.min(150, request.getScript().length())) + "...");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Bindings count: " + request.getBindingsCount());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Bindings keys: " + request.getBindingsMap().keySet());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Callback socket path: " + request.getCallbackSocketPath());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Source identifier: " + request.getSourceIdentifier());
+            }
             if (request.hasContextData()) {
-                log.info("[gRPC-Server] ContextData - step: " + request.getContextData().getCurrentStep() +
-                        ", username: " + request.getContextData().getUsername() +
-                        ", tenant: " + request.getContextData().getTenantDomain());
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] ContextData - step: " + request.getContextData().getCurrentStep() +
+                            ", username: " + request.getContextData().getUsername() +
+                            ", tenant: " + request.getContextData().getTenantDomain());
+                }
             }
 
             long startTime = System.currentTimeMillis();
             try {
                 // Serialize request and delegate to engine service
-                log.info("[gRPC-Server] Serializing request to bytes...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Serializing request to bytes...");
+                }
                 byte[] requestBytes = request.toByteArray();
-                log.info("[gRPC-Server] Request bytes: " + requestBytes.length + " bytes");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Request bytes: " + requestBytes.length + " bytes");
+                }
 
-                log.info("[gRPC-Server] >>> Delegating to JsEngineServiceImpl.handleEvaluate()...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] >>> Delegating to JsEngineServiceImpl.handleEvaluate()...");
+                }
                 byte[] responseBytes = engineService.handleEvaluate(requestBytes);
-                log.info("[gRPC-Server] <<< JsEngineServiceImpl returned " + responseBytes.length + " bytes");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] <<< JsEngineServiceImpl returned " + responseBytes.length + " bytes");
+                }
 
                 EvaluateResponse response = EvaluateResponse.parseFrom(responseBytes);
                 long elapsed = System.currentTimeMillis() - startTime;
                 long engineTime = response.getElapsedMs();
                 long transportOverhead = elapsed - engineTime;
 
-                log.info("[gRPC-Server] ========== evaluate() RESPONSE ==========");
-                log.info(
-                        "[gRPC-Server] Time breakdown: totalElapsed={}ms, engineProcessing={}ms, transportOverhead={}ms",
-                        elapsed, engineTime, transportOverhead);
-                log.info("[gRPC-Server] Success: " + response.getSuccess());
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] ========== evaluate() RESPONSE ==========");
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "[gRPC-Server] Time breakdown: totalElapsed={}ms, engineProcessing={}ms, transportOverhead={}ms",
+                            elapsed, engineTime, transportOverhead);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Success: " + response.getSuccess());
+                }
                 if (!response.getSuccess()) {
                     log.error("[gRPC-Server] Error message: " + response.getErrorMessage());
                     log.error("[gRPC-Server] Error type: " + response.getErrorType());
                 }
-                log.info("[gRPC-Server] Updated bindings count: " + response.getUpdatedBindingsCount());
-                log.info("[gRPC-Server] Result valueCase: " + response.getResult().getValueCase());
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Updated bindings count: " + response.getUpdatedBindingsCount());
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Result valueCase: " + response.getResult().getValueCase());
+                }
 
                 responseObserver.onNext(response);
                 responseObserver.onCompleted();
 
-                log.info("[gRPC-Server] ========== evaluate() COMPLETED ==========");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] ========== evaluate() COMPLETED ==========");
+                }
 
             } catch (Exception e) {
                 log.error("[gRPC-Server] ========== evaluate() FAILED ==========");
@@ -176,48 +224,84 @@ public class GrpcServerTransport implements ServerTransport {
         @Override
         public void executeCallback(ExecuteCallbackRequest request,
                 StreamObserver<ExecuteCallbackResponse> responseObserver) {
-            log.info("[gRPC-Server] ========== executeCallback() RECEIVED ==========");
-            log.info("[gRPC-Server] Session: " + request.getSessionId());
-            log.info("[gRPC-Server] Function source length: " + request.getFunctionSource().length() + " chars");
-            log.info("[gRPC-Server] Function preview: " +
-                    request.getFunctionSource().substring(0, Math.min(150, request.getFunctionSource().length()))
-                    + "...");
-            log.info("[gRPC-Server] Arguments count: " + request.getArgumentsCount());
-            log.info("[gRPC-Server] Bindings count: " + request.getBindingsCount());
-            log.info("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
-            log.info("[gRPC-Server] Callback socket path: " + request.getCallbackSocketPath());
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] ========== executeCallback() RECEIVED ==========");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Session: " + request.getSessionId());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Function source length: " + request.getFunctionSource().length() + " chars");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Function preview: " +
+                        request.getFunctionSource().substring(0, Math.min(150, request.getFunctionSource().length()))
+                        + "...");
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Arguments count: " + request.getArgumentsCount());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Bindings count: " + request.getBindingsCount());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Host functions count: " + request.getHostFunctionsCount());
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[gRPC-Server] Callback socket path: " + request.getCallbackSocketPath());
+            }
 
             long startTime = System.currentTimeMillis();
             try {
                 // Serialize request and delegate to engine service
-                log.info("[gRPC-Server] Serializing request to bytes...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Serializing request to bytes...");
+                }
                 byte[] requestBytes = request.toByteArray();
-                log.info("[gRPC-Server] Request bytes: " + requestBytes.length + " bytes");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Request bytes: " + requestBytes.length + " bytes");
+                }
 
-                log.info("[gRPC-Server] >>> Delegating to JsEngineServiceImpl.handleExecuteCallback()...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] >>> Delegating to JsEngineServiceImpl.handleExecuteCallback()...");
+                }
                 byte[] responseBytes = engineService.handleExecuteCallback(requestBytes);
-                log.info("[gRPC-Server] <<< JsEngineServiceImpl returned " + responseBytes.length + " bytes");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] <<< JsEngineServiceImpl returned " + responseBytes.length + " bytes");
+                }
 
                 ExecuteCallbackResponse response = ExecuteCallbackResponse.parseFrom(responseBytes);
                 long elapsed = System.currentTimeMillis() - startTime;
                 long engineTime = response.getElapsedMs();
                 long transportOverhead = elapsed - engineTime;
 
-                log.info("[gRPC-Server] ========== executeCallback() RESPONSE ==========");
-                log.info(
-                        "[gRPC-Server] Time breakdown: totalElapsed={}ms, engineProcessing={}ms, transportOverhead={}ms",
-                        elapsed, engineTime, transportOverhead);
-                log.info("[gRPC-Server] Success: " + response.getSuccess());
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] ========== executeCallback() RESPONSE ==========");
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "[gRPC-Server] Time breakdown: totalElapsed={}ms, engineProcessing={}ms, transportOverhead={}ms",
+                            elapsed, engineTime, transportOverhead);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Success: " + response.getSuccess());
+                }
                 if (!response.getSuccess()) {
                     log.error("[gRPC-Server] Error message: " + response.getErrorMessage());
                 }
-                log.info("[gRPC-Server] Updated bindings count: " + response.getUpdatedBindingsCount());
-                log.info("[gRPC-Server] Result valueCase: " + response.getResult().getValueCase());
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Updated bindings count: " + response.getUpdatedBindingsCount());
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] Result valueCase: " + response.getResult().getValueCase());
+                }
 
                 responseObserver.onNext(response);
                 responseObserver.onCompleted();
 
-                log.info("[gRPC-Server] ========== executeCallback() COMPLETED ==========");
+                if (log.isDebugEnabled()) {
+                    log.debug("[gRPC-Server] ========== executeCallback() COMPLETED ==========");
+                }
 
             } catch (Exception e) {
                 log.error("[gRPC-Server] ========== executeCallback() FAILED ==========");

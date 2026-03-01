@@ -114,7 +114,9 @@ public class UdsServerTransport implements ServerTransport {
         acceptThread.setDaemon(false);
         acceptThread.start();
 
-        log.info("[UDS-Server] Started on socket: " + socketPath);
+        if (log.isDebugEnabled()) {
+            log.debug("[UDS-Server] Started on socket: " + socketPath);
+        }
     }
 
     @Override
@@ -123,7 +125,9 @@ public class UdsServerTransport implements ServerTransport {
             return;
         }
 
-        log.info("[UDS-Server] Stopping server...");
+        if (log.isDebugEnabled()) {
+            log.debug("[UDS-Server] Stopping server...");
+        }
         running.set(false);
 
         // Interrupt accept thread
@@ -144,7 +148,9 @@ public class UdsServerTransport implements ServerTransport {
         // Clean up socket file
         new File(socketPath).delete();
 
-        log.info("[UDS-Server] Stopped");
+        if (log.isDebugEnabled()) {
+            log.debug("[UDS-Server] Stopped");
+        }
     }
 
     @Override
@@ -161,7 +167,9 @@ public class UdsServerTransport implements ServerTransport {
      * Accept incoming client connections.
      */
     private void acceptConnections() {
-        log.info("[UDS-Server] Accepting connections...");
+        if (log.isDebugEnabled()) {
+            log.debug("[UDS-Server] Accepting connections...");
+        }
         while (running.get()) {
             try {
                 AFUNIXSocket clientSocket = serverSocket.accept();
@@ -173,7 +181,9 @@ public class UdsServerTransport implements ServerTransport {
                 }
             }
         }
-        log.info("[UDS-Server] Stopped accepting connections");
+        if (log.isDebugEnabled()) {
+            log.debug("[UDS-Server] Stopped accepting connections");
+        }
     }
 
     /**
@@ -204,7 +214,9 @@ public class UdsServerTransport implements ServerTransport {
                         byte[] messageBytes = new byte[length];
                         input.readFully(messageBytes);
 
-                        log.info("[UDS-Server] Received message type: " + messageType + ", length: " + length);
+                        if (log.isDebugEnabled()) {
+                            log.debug("[UDS-Server] Received message type: " + messageType + ", length: " + length);
+                        }
 
                         // Always log message details for testing
                         logDecodedMessage(messageType, messageBytes, "[UDS-Server] Request");
@@ -246,7 +258,9 @@ public class UdsServerTransport implements ServerTransport {
 
                         // Always log response details for testing  
                         logDecodedMessage(responseType, responseBytes, "[UDS-Server] Response");
-                        log.info("[UDS-Server] Sent response type: " + responseType);
+                        if (log.isDebugEnabled()) {
+                            log.debug("[UDS-Server] Sent response type: " + responseType);
+                        }
 
                     } catch (java.io.EOFException e) {
                         log.debug("[UDS-Server] Client disconnected");
@@ -273,46 +287,68 @@ public class UdsServerTransport implements ServerTransport {
                 switch (messageType) {
                     case EVALUATE_REQUEST:
                         EvaluateRequest evaluateRequest = EvaluateRequest.parseFrom(messageBytes);
-                        log.info("{} EVALUATE_REQUEST: {}", prefix, evaluateRequest);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} EVALUATE_REQUEST: {}", prefix, evaluateRequest);
+                        }
                         break;
                     case EXECUTE_CALLBACK_REQUEST:
                         ExecuteCallbackRequest executeCallbackRequest = ExecuteCallbackRequest.parseFrom(messageBytes);
-                        log.info("{} EXECUTE_CALLBACK_REQUEST: {}", prefix, executeCallbackRequest);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} EXECUTE_CALLBACK_REQUEST: {}", prefix, executeCallbackRequest);
+                        }
                         break;
                     case EVALUATE_RESPONSE:
                         EvaluateResponse evaluateResponse = EvaluateResponse.parseFrom(messageBytes);
-                        log.info("{} EVALUATE_RESPONSE: {}", prefix, evaluateResponse);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} EVALUATE_RESPONSE: {}", prefix, evaluateResponse);
+                        }
                         break;
                     case EXECUTE_CALLBACK_RESPONSE:
                         ExecuteCallbackResponse executeCallbackResponse = ExecuteCallbackResponse.parseFrom(messageBytes);
-                        log.info("{} EXECUTE_CALLBACK_RESPONSE: {}", prefix, executeCallbackResponse);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} EXECUTE_CALLBACK_RESPONSE: {}", prefix, executeCallbackResponse);
+                        }
                         break;
                     case HOST_FUNCTION_REQUEST:
                         HostFunctionRequest hostFunctionRequest = HostFunctionRequest.parseFrom(messageBytes);
-                        log.info("{} HOST_FUNCTION_REQUEST: {}", prefix, hostFunctionRequest);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} HOST_FUNCTION_REQUEST: {}", prefix, hostFunctionRequest);
+                        }
                         break;
                     case HOST_FUNCTION_RESPONSE:
                         HostFunctionResponse hostFunctionResponse = HostFunctionResponse.parseFrom(messageBytes);
-                        log.info("{} HOST_FUNCTION_RESPONSE: {}", prefix, hostFunctionResponse);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} HOST_FUNCTION_RESPONSE: {}", prefix, hostFunctionResponse);
+                        }
                         break;
                     case CONTEXT_PROPERTY_REQUEST:
                         ContextPropertyRequest contextPropertyRequest = ContextPropertyRequest.parseFrom(messageBytes);
-                        log.info("{} CONTEXT_PROPERTY_REQUEST: {}", prefix, contextPropertyRequest);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} CONTEXT_PROPERTY_REQUEST: {}", prefix, contextPropertyRequest);
+                        }
                         break;
                     case CONTEXT_PROPERTY_RESPONSE:
                         ContextPropertyResponse contextPropertyResponse = ContextPropertyResponse.parseFrom(messageBytes);
-                        log.info("{} CONTEXT_PROPERTY_RESPONSE: {}", prefix, contextPropertyResponse);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} CONTEXT_PROPERTY_RESPONSE: {}", prefix, contextPropertyResponse);
+                        }
                         break;
                     case CONTEXT_PROPERTY_SET_REQUEST:
                         ContextPropertySetRequest contextPropertySetRequest = ContextPropertySetRequest.parseFrom(messageBytes);
-                        log.info("{} CONTEXT_PROPERTY_SET_REQUEST: {}", prefix, contextPropertySetRequest);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} CONTEXT_PROPERTY_SET_REQUEST: {}", prefix, contextPropertySetRequest);
+                        }
                         break;
                     case CONTEXT_PROPERTY_SET_RESPONSE:
                         ContextPropertySetResponse contextPropertySetResponse = ContextPropertySetResponse.parseFrom(messageBytes);
-                        log.info("{} CONTEXT_PROPERTY_SET_RESPONSE: {}", prefix, contextPropertySetResponse);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} CONTEXT_PROPERTY_SET_RESPONSE: {}", prefix, contextPropertySetResponse);
+                        }
                         break;
                     default:
-                        log.info("{} Unknown message type: {}", prefix, messageType);
+                        if (log.isDebugEnabled()) {
+                            log.debug("{} Unknown message type: {}", prefix, messageType);
+                        }
                         break;
                 }
             } catch (Exception e) {

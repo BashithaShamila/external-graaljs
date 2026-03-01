@@ -84,8 +84,10 @@ public class HostCallbackClient implements Closeable {
         // Use factory to create appropriate callback client based on address format
         this.delegate = CallbackClientFactory.createClient(callbackAddress, sessionId);
 
-        log.info("[HostCallbackClient] Created callback client for address: {}, session: {}",
-                callbackAddress, sessionId);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] Created callback client for address: {}, session: {}",
+                    callbackAddress, sessionId);
+        }
     }
 
     /**
@@ -103,7 +105,9 @@ public class HostCallbackClient implements Closeable {
         this.sessionId = sessionId;
         this.callbackAddress = "streaming";
 
-        log.info("[HostCallbackClient] Created with external delegate for session: {}", sessionId);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] Created with external delegate for session: {}", sessionId);
+        }
     }
 
     /**
@@ -120,7 +124,9 @@ public class HostCallbackClient implements Closeable {
      */
     public void connect() throws IOException {
         delegate.connect();
-        log.info("[HostCallbackClient] Connected to: {}", callbackAddress);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] Connected to: {}", callbackAddress);
+        }
     }
 
     /**
@@ -141,8 +147,10 @@ public class HostCallbackClient implements Closeable {
      * @throws IOException If communication fails.
      */
     public Object invokeHostFunction(String functionName, Object... arguments) throws IOException {
-        log.info("[HostCallbackClient] invokeHostFunction '{}' with {} args, session: {}",
-                functionName, arguments.length, sessionId);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] invokeHostFunction '{}' with {} args, session: {}",
+                    functionName, arguments.length, sessionId);
+        }
         ensureConnected();
 
         // Build request
@@ -164,7 +172,9 @@ public class HostCallbackClient implements Closeable {
         HostFunctionResponse response = delegate.invokeHostFunction(request);
         long cbElapsed = System.currentTimeMillis() - cbStart;
         totalCallbackTimeMs.addAndGet(cbElapsed);
-        log.info("[HostCallbackClient] invokeHostFunction '{}' round-trip: {}ms", functionName, cbElapsed);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] invokeHostFunction '{}' round-trip: {}ms", functionName, cbElapsed);
+        }
 
         if (!response.getSuccess()) {
             log.error("[HostCallbackClient] Host function failed: {}", response.getErrorMessage());
@@ -172,8 +182,10 @@ public class HostCallbackClient implements Closeable {
         }
 
         Object result = deserializeValue(response.getResult());
-        log.info("[HostCallbackClient] Returning result: {}",
-                result != null ? result.getClass().getSimpleName() : "null");
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] Returning result: {}",
+                    result != null ? result.getClass().getSimpleName() : "null");
+        }
         return result;
     }
 
@@ -218,8 +230,10 @@ public class HostCallbackClient implements Closeable {
      */
     public ContextPropertySetResponse setContextProperty(String propertyPath, String proxyType,
             SerializedValue value) throws IOException {
-        log.info("[HostCallbackClient] setContextProperty '{}' (type: {}), session: {}",
-                propertyPath, proxyType, sessionId);
+        if (log.isDebugEnabled()) {
+            log.debug("[HostCallbackClient] setContextProperty '{}' (type: {}), session: {}",
+                    propertyPath, proxyType, sessionId);
+        }
         ensureConnected();
 
         // Build request
@@ -444,8 +458,10 @@ public class HostCallbackClient implements Closeable {
                 proxyMarker.put("__isHostRef", true);
                 proxyMarker.put("__proxyType", proxy.getType());
                 proxyMarker.put("__referenceId", proxy.getReferenceId());
-                log.info("[HostCallbackClient] Deserialized proxy object: type={}, refId={}",
-                        proxy.getType(), proxy.getReferenceId());
+                if (log.isDebugEnabled()) {
+                    log.debug("[HostCallbackClient] Deserialized proxy object: type={}, refId={}",
+                            proxy.getType(), proxy.getReferenceId());
+                }
                 return proxyMarker;
             default:
                 return null;

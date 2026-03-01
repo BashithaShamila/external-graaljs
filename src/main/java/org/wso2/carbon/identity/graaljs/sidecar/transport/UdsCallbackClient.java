@@ -91,7 +91,9 @@ public class UdsCallbackClient implements CallbackClient {
         output = new DataOutputStream(socket.getOutputStream());
         input = new DataInputStream(socket.getInputStream());
         connected = true;
-        log.info("[UdsCallbackClient] Connected to UDS socket: {}", socketPath);
+        if (log.isDebugEnabled()) {
+            log.debug("[UdsCallbackClient] Connected to UDS socket: {}", socketPath);
+        }
     }
 
     @Override
@@ -101,8 +103,10 @@ public class UdsCallbackClient implements CallbackClient {
 
     @Override
     public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
-        log.info("[UdsCallbackClient] invokeHostFunction: {}, session: {}",
-                request.getFunctionName(), request.getSessionId());
+        if (log.isDebugEnabled()) {
+            log.debug("[UdsCallbackClient] invokeHostFunction: {}, session: {}",
+                    request.getFunctionName(), request.getSessionId());
+        }
         ensureConnected();
 
         // Send request
@@ -125,7 +129,9 @@ public class UdsCallbackClient implements CallbackClient {
         input.readFully(responseBytes);
 
         HostFunctionResponse response = HostFunctionResponse.parseFrom(responseBytes);
-        log.info("[UdsCallbackClient] Response received - success: {}", response.getSuccess());
+        if (log.isDebugEnabled()) {
+            log.debug("[UdsCallbackClient] Response received - success: {}", response.getSuccess());
+        }
         return response;
     }
 
@@ -161,8 +167,10 @@ public class UdsCallbackClient implements CallbackClient {
 
     @Override
     public ContextPropertySetResponse setContextProperty(ContextPropertySetRequest request) throws IOException {
-        log.info("[UdsCallbackClient] setContextProperty: {}, session: {}",
-                request.getPropertyPath(), request.getSessionId());
+        if (log.isDebugEnabled()) {
+            log.debug("[UdsCallbackClient] setContextProperty: {}, session: {}",
+                    request.getPropertyPath(), request.getSessionId());
+        }
         ensureConnected();
 
         // Send request
@@ -184,7 +192,9 @@ public class UdsCallbackClient implements CallbackClient {
         input.readFully(responseBytes);
 
         ContextPropertySetResponse response = ContextPropertySetResponse.parseFrom(responseBytes);
-        log.info("[UdsCallbackClient] SetProperty response - success: {}", response.getSuccess());
+        if (log.isDebugEnabled()) {
+            log.debug("[UdsCallbackClient] SetProperty response - success: {}", response.getSuccess());
+        }
         return response;
     }
 

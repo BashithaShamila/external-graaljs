@@ -63,7 +63,9 @@ public class StreamingCallbackClient implements CallbackClient {
     public StreamingCallbackClient(StreamObserver<StreamMessage> outbound, Object streamLock) {
         this.outbound = outbound;
         this.streamLock = streamLock;
-        log.info("[StreamingCallback] Created streaming callback client");
+        if (log.isDebugEnabled()) {
+            log.debug("[StreamingCallback] Created streaming callback client");
+        }
     }
 
     /**
@@ -73,7 +75,9 @@ public class StreamingCallbackClient implements CallbackClient {
     public void deliverResponse(StreamMessage message) {
         CompletableFuture<StreamMessage> future = pendingResponse.get();
         if (future != null) {
-            log.info("[StreamingCallback] Delivering response type: " + message.getPayloadCase());
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Delivering response type: " + message.getPayloadCase());
+            }
             future.complete(message);
         } else {
             log.warn("[StreamingCallback] Received response but no pending future: " +
@@ -94,8 +98,10 @@ public class StreamingCallbackClient implements CallbackClient {
 
     @Override
     public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
-        log.info("[StreamingCallback] invokeHostFunction: " + request.getFunctionName() +
-                ", session: " + request.getSessionId());
+        if (log.isDebugEnabled()) {
+            log.debug("[StreamingCallback] invokeHostFunction: " + request.getFunctionName() +
+                    ", session: " + request.getSessionId());
+        }
         long t0 = System.currentTimeMillis();
         System.out.println("[PERF] [" + t0 + "] SIDECAR HOST_FN_CALLBACK_START session=" +
                 request.getSessionId() + " function=" + request.getFunctionName() +
@@ -119,7 +125,9 @@ public class StreamingCallbackClient implements CallbackClient {
                     request.getSessionId() + " function=" + request.getFunctionName() +
                     " startTs=" + t0 + " sentTs=" + t1 +
                     " sendMs=" + (t1 - t0));
-            log.info("[StreamingCallback] Sent HostFunctionRequest on stream");
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Sent HostFunctionRequest on stream");
+            }
 
             // Block until IS responds
             StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
@@ -132,8 +140,10 @@ public class StreamingCallbackClient implements CallbackClient {
                         " success=" + hfResponse.getSuccess() +
                         " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
                         " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
-                log.info("[StreamingCallback] Received HostFunctionResponse, success: " +
-                        hfResponse.getSuccess());
+                if (log.isDebugEnabled()) {
+                    log.debug("[StreamingCallback] Received HostFunctionResponse, success: " +
+                            hfResponse.getSuccess());
+                }
                 return hfResponse;
             } else {
                 throw new IOException("Unexpected response type: " + response.getPayloadCase());
@@ -162,14 +172,19 @@ public class StreamingCallbackClient implements CallbackClient {
             throw new IOException("Host function callback failed: " + e.getCause().getMessage(),
                     e.getCause());
         } finally {
-            pendingResponse.set(null);
+            // Use compareAndSet to only clear if it's still OUR future.
+            // Prevents clearing a future that was set by a subsequent callback
+            // in edge cases with out-of-order gRPC message delivery.
+            pendingResponse.compareAndSet(future, null);
         }
     }
 
     @Override
     public ContextPropertyResponse getContextProperty(ContextPropertyRequest request) throws IOException {
-        log.info("[StreamingCallback] getContextProperty: " + request.getPropertyPath() +
-                ", session: " + request.getSessionId());
+        if (log.isDebugEnabled()) {
+            log.debug("[StreamingCallback] getContextProperty: " + request.getPropertyPath() +
+                    ", session: " + request.getSessionId());
+        }
         long t0 = System.currentTimeMillis();
         System.out.println("[PERF] [" + t0 + "] SIDECAR CTX_PROP_CALLBACK_START session=" +
                 request.getSessionId() + " path=" + request.getPropertyPath() +
@@ -192,7 +207,9 @@ public class StreamingCallbackClient implements CallbackClient {
                     request.getSessionId() + " path=" + request.getPropertyPath() +
                     " startTs=" + t0 + " sentTs=" + t1 +
                     " sendMs=" + (t1 - t0));
-            log.info("[StreamingCallback] Sent ContextPropertyRequest on stream");
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Sent ContextPropertyRequest on stream");
+            }
 
             StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             long t2 = System.currentTimeMillis();
@@ -204,8 +221,10 @@ public class StreamingCallbackClient implements CallbackClient {
                         " success=" + cpResponse.getSuccess() +
                         " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
                         " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
-                log.info("[StreamingCallback] Received ContextPropertyResponse, success: " +
-                        cpResponse.getSuccess());
+                if (log.isDebugEnabled()) {
+                    log.debug("[StreamingCallback] Received ContextPropertyResponse, success: " +
+                            cpResponse.getSuccess());
+                }
                 return cpResponse;
             } else {
                 throw new IOException("Unexpected response type: " + response.getPayloadCase());
@@ -233,14 +252,16 @@ public class StreamingCallbackClient implements CallbackClient {
             throw new IOException("Context property callback failed: " + e.getCause().getMessage(),
                     e.getCause());
         } finally {
-            pendingResponse.set(null);
+            pendingResponse.compareAndSet(future, null);
         }
     }
 
     @Override
     public ContextPropertySetResponse setContextProperty(ContextPropertySetRequest request) throws IOException {
-        log.info("[StreamingCallback] setContextProperty: " + request.getPropertyPath() +
-                ", session: " + request.getSessionId());
+        if (log.isDebugEnabled()) {
+            log.debug("[StreamingCallback] setContextProperty: " + request.getPropertyPath() +
+                    ", session: " + request.getSessionId());
+        }
         long t0 = System.currentTimeMillis();
         System.out.println("[PERF] [" + t0 + "] SIDECAR CTX_PROP_SET_CALLBACK_START session=" +
                 request.getSessionId() + " path=" + request.getPropertyPath() +
@@ -263,7 +284,9 @@ public class StreamingCallbackClient implements CallbackClient {
                     request.getSessionId() + " path=" + request.getPropertyPath() +
                     " startTs=" + t0 + " sentTs=" + t1 +
                     " sendMs=" + (t1 - t0));
-            log.info("[StreamingCallback] Sent ContextPropertySetRequest on stream");
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Sent ContextPropertySetRequest on stream");
+            }
 
             StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             long t2 = System.currentTimeMillis();
@@ -275,8 +298,10 @@ public class StreamingCallbackClient implements CallbackClient {
                         " success=" + cpsResponse.getSuccess() +
                         " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
                         " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
-                log.info("[StreamingCallback] Received ContextPropertySetResponse, success: " +
-                        cpsResponse.getSuccess());
+                if (log.isDebugEnabled()) {
+                    log.debug("[StreamingCallback] Received ContextPropertySetResponse, success: " +
+                            cpsResponse.getSuccess());
+                }
                 return cpsResponse;
             } else {
                 throw new IOException("Unexpected response type: " + response.getPayloadCase());
@@ -304,14 +329,16 @@ public class StreamingCallbackClient implements CallbackClient {
             throw new IOException("Context property set callback failed: " +
                     e.getCause().getMessage(), e.getCause());
         } finally {
-            pendingResponse.set(null);
+            pendingResponse.compareAndSet(future, null);
         }
     }
 
     @Override
     public void connect() throws IOException {
         // No-op: stream is already open
-        log.info("[StreamingCallback] connect() - no-op (stream already open)");
+        if (log.isDebugEnabled()) {
+            log.debug("[StreamingCallback] connect() - no-op (stream already open)");
+        }
     }
 
     @Override
@@ -322,6 +349,8 @@ public class StreamingCallbackClient implements CallbackClient {
     @Override
     public void close() throws IOException {
         // No-op: stream lifecycle is managed by the server transport
-        log.info("[StreamingCallback] close() - no-op (stream managed by server)");
+        if (log.isDebugEnabled()) {
+            log.debug("[StreamingCallback] close() - no-op (stream managed by server)");
+        }
     }
 }

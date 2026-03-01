@@ -64,17 +64,23 @@ public class JsEngineServiceImpl {
                 + request.getScript().length());
         System.out.println("[DEBUG-SIDECAR] Callback socket: " + request.getCallbackSocketPath());
         System.out.flush();
-        log.info("[Sidecar] handleEvaluate - session: {}, sourceId: {}, callbackSocket: {}",
-                request.getSessionId(), request.getSourceIdentifier(), request.getCallbackSocketPath());
-        log.info("[Sidecar] Script length: {}, bindings: {}, hostFunctions: {}",
-                request.getScript().length(), request.getBindingsCount(), request.getHostFunctionsCount());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleEvaluate - session: {}, sourceId: {}, callbackSocket: {}",
+                    request.getSessionId(), request.getSourceIdentifier(), request.getCallbackSocketPath());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] Script length: {}, bindings: {}, hostFunctions: {}",
+                    request.getScript().length(), request.getBindingsCount(), request.getHostFunctionsCount());
+        }
 
         HostCallbackClient callbackClient = null;
         try {
             // Create callback client using factory (auto-detects transport type from
             // address)
             if (request.getCallbackSocketPath() != null && !request.getCallbackSocketPath().isEmpty()) {
-                log.info("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
+                }
                 // Use factory to create appropriate callback client based on address format
                 // For now, this will create UDS client (current working implementation)
                 // Future: Will auto-detect and create gRPC/HTTP/WebSocket clients
@@ -104,7 +110,9 @@ public class JsEngineServiceImpl {
                 if (request.hasContextData()) {
                     Value contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
                     bindings.putMember("context", contextProxy);
-                    log.info("[Sidecar] Bound DYNAMIC context proxy for session: {}", request.getSessionId());
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Bound DYNAMIC context proxy for session: {}", request.getSessionId());
+                    }
                 } else {
                     // Create a minimal empty context object to prevent ReferenceError
                     Value emptyContext = context.eval(JS_LANG, "({})");
@@ -116,19 +124,29 @@ public class JsEngineServiceImpl {
                 // Evaluate the script
                 System.out.println("[DEBUG-SIDECAR] About to evaluate script...");
                 System.out.flush();
-                log.info("[Sidecar] Starting script evaluation...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Starting script evaluation...");
+                }
 
                 Value result = context.eval(JS_LANG, request.getScript());
 
                 System.out.println("[DEBUG-SIDECAR] Script evaluation completed successfully");
                 System.out.flush();
-                log.info("[Sidecar] Script evaluation completed successfully");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Script evaluation completed successfully");
+                }
 
                 // Extract updated bindings
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
-                    if (!val.canExecute() && !isHostFunction(key)) {
+                    // Skip "context" -- it is an unserializable JsGraalAuthenticationContext proxy.
+                    // Context mutations are handled via live DynamicContextProxy callbacks,
+                    // and structured ContextData is sent separately. Serializing it here
+                    // causes a ProtobufSerializer toString() fallback with WARN log.
+                    // If context binding is ever needed here, implement a proper toProto()
+                    // conversion for JsGraalAuthenticationContext first.
+                    if (!"context".equals(key) && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -138,8 +156,10 @@ public class JsEngineServiceImpl {
                 long pureProcessingMs = elapsed - callbackMs;
                 System.out.println("[DEBUG-SIDECAR] Building success response, elapsed: " + elapsed + "ms");
                 System.out.flush();
-                log.info("[Sidecar] Time breakdown: totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
-                        elapsed, pureProcessingMs, callbackMs);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Time breakdown: totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                            elapsed, pureProcessingMs, callbackMs);
+                }
 
                 byte[] responseBytes = EvaluateResponse.newBuilder()
                         .setSuccess(true)
@@ -151,7 +171,9 @@ public class JsEngineServiceImpl {
 
                 System.out.println("[DEBUG-SIDECAR] Success response built, size: " + responseBytes.length + " bytes");
                 System.out.flush();
-                log.info("[Sidecar] Success response built, returning {} bytes", responseBytes.length);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Success response built, returning {} bytes", responseBytes.length);
+                }
 
                 return responseBytes;
             }
@@ -223,19 +245,27 @@ public class JsEngineServiceImpl {
     public byte[] handleExecuteCallback(byte[] requestBytes) throws java.io.IOException {
         long startTime = System.currentTimeMillis();
         ExecuteCallbackRequest request = ExecuteCallbackRequest.parseFrom(requestBytes);
-        log.info("[Sidecar] handleExecuteCallback - session: {}, callbackSocket: {}",
-                request.getSessionId(), request.getCallbackSocketPath());
-        log.info("[Sidecar] Function source length: {}, args: {}, bindings: {}",
-                request.getFunctionSource().length(), request.getArgumentsCount(), request.getBindingsCount());
-        log.info("[Sidecar] Function source preview: {}",
-                request.getFunctionSource().substring(0, Math.min(200, request.getFunctionSource().length())));
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleExecuteCallback - session: {}, callbackSocket: {}",
+                    request.getSessionId(), request.getCallbackSocketPath());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] Function source length: {}, args: {}, bindings: {}",
+                    request.getFunctionSource().length(), request.getArgumentsCount(), request.getBindingsCount());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] Function source preview: {}",
+                    request.getFunctionSource().substring(0, Math.min(200, request.getFunctionSource().length())));
+        }
 
         HostCallbackClient callbackClient = null;
         try {
             // Create callback client using factory (auto-detects transport type from
             // address)
             if (request.getCallbackSocketPath() != null && !request.getCallbackSocketPath().isEmpty()) {
-                log.info("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Creating callback client to: {}", request.getCallbackSocketPath());
+                }
                 // Use factory to create appropriate callback client based on address format
                 // For now, this will create UDS client (current working implementation)
                 // Future: Will auto-detect and create gRPC/HTTP/WebSocket clients
@@ -250,38 +280,50 @@ public class JsEngineServiceImpl {
             }
 
             try (Context context = createContext()) {
-                log.info("[Sidecar] GraalJS Context created");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] GraalJS Context created");
+                }
                 Value bindings = context.getBindings(JS_LANG);
 
                 // Register host function stubs dynamically based on the request
-                log.info("[Sidecar] Registering host function stubs from request: {} functions",
-                        request.getHostFunctionsCount());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Registering host function stubs from request: {} functions",
+                            request.getHostFunctionsCount());
+                }
                 registerHostFunctionStubsFromRequest(bindings, callbackClient, request.getHostFunctionsList());
 
                 // Restore bindings
-                log.info("[Sidecar] Restoring {} bindings from request", request.getBindingsCount());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Restoring {} bindings from request", request.getBindingsCount());
+                }
                 for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
                     Object deserialized = deserializeValue(entry.getValue(), context);
-                    log.info("[Sidecar] Restoring binding: {} = {} (type: {})",
-                            entry.getKey(),
-                            deserialized,
-                            deserialized != null ? deserialized.getClass().getSimpleName() : "null");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Restoring binding: {} = {} (type: {})",
+                                entry.getKey(),
+                                deserialized,
+                                deserialized != null ? deserialized.getClass().getSimpleName() : "null");
+                    }
                     bindings.putMember(entry.getKey(), deserialized);
                 }
 
                 // Create context proxy from context data (before deserializing args).
                 Value contextProxy = null;
                 if (request.hasContextData()) {
-                    log.info("[Sidecar] Creating context proxy for step: {}, username: {}",
-                            request.getContextData().getCurrentStep(),
-                            request.getContextData().getUsername());
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Creating context proxy for step: {}, username: {}",
+                                request.getContextData().getCurrentStep(),
+                                request.getContextData().getUsername());
+                    }
                     contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
                     bindings.putMember("__callbackContext", contextProxy);
                 }
 
                 // Deserialize arguments.
                 Object[] args = new Object[request.getArgumentsCount()];
-                log.info("[Sidecar] Deserializing {} arguments", args.length);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Deserializing {} arguments", args.length);
+                }
                 for (int i = 0; i < args.length; i++) {
                     SerializedValue sv = request.getArguments(i);
                     // Check if this argument is a context placeholder (string containing
@@ -290,50 +332,78 @@ public class JsEngineServiceImpl {
                             sv.getStringValue().contains("JsGraalAuthenticationContext") &&
                             contextProxy != null) {
                         // Replace with the actual context proxy.
-                        log.info("[Sidecar] Arg[{}] is context placeholder, using context proxy", i);
+                        if (log.isDebugEnabled()) {
+                            log.debug("[Sidecar] Arg[{}] is context placeholder, using context proxy", i);
+                        }
                         args[i] = contextProxy;
                     } else {
                         args[i] = deserializeValue(sv, context);
-                        log.info("[Sidecar] Arg[{}] = {}", i,
-                                args[i] != null ? args[i].getClass().getSimpleName() : "null");
+                        if (log.isDebugEnabled()) {
+                            log.debug("[Sidecar] Arg[{}] = {}", i,
+                                    args[i] != null ? args[i].getClass().getSimpleName() : "null");
+                        }
                     }
                 }
 
                 // Evaluate and execute callback function.
-                log.info("[Sidecar] Evaluating callback function...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Evaluating callback function...");
+                }
                 Value function = context.eval(JS_LANG, "(" + request.getFunctionSource() + ")");
-                log.info("[Sidecar] Function is executable: {}", function.canExecute());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Function is executable: {}", function.canExecute());
+                }
 
                 Value result;
                 if (args.length > 0) {
-                    log.info("[Sidecar] Executing function with {} args", args.length);
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Executing function with {} args", args.length);
+                    }
                     result = function.execute(args);
                 } else if (contextProxy != null) {
-                    log.info("[Sidecar] Executing function with context proxy");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Executing function with context proxy");
+                    }
                     result = function.execute(contextProxy);
                 } else {
-                    log.info("[Sidecar] Executing function with no args");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Executing function with no args");
+                    }
                     result = function.execute();
                 }
-                log.info("[Sidecar] Function execution completed, result type: {}",
-                        result != null && !result.isNull() ? result.getMetaObject() : "null");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Function execution completed, result type: {}",
+                            result != null && !result.isNull() ? result.getMetaObject() : "null");
+                }
 
                 // Extract updated bindings
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
-                    if (!key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
+                    // Skip "context" -- it is an unserializable JsGraalAuthenticationContext proxy.
+                    // Context mutations are handled via live DynamicContextProxy callbacks,
+                    // and structured ContextData is sent separately. Serializing it here
+                    // causes a ProtobufSerializer toString() fallback with WARN log.
+                    // If context binding is ever needed here, implement a proper toProto()
+                    // conversion for JsGraalAuthenticationContext first.
+                    if (!"context".equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
-                log.info("[Sidecar] Extracted {} updated bindings", updatedBindings.size());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Extracted {} updated bindings", updatedBindings.size());
+                }
 
                 long elapsed = System.currentTimeMillis() - startTime;
                 long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
                 long pureProcessingMs = elapsed - callbackMs;
-                log.info("[Sidecar] executeCallback completed in {}ms", elapsed);
-                log.info("[Sidecar] Time breakdown: totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
-                        elapsed, pureProcessingMs, callbackMs);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] executeCallback completed in {}ms", elapsed);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Time breakdown: totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                            elapsed, pureProcessingMs, callbackMs);
+                }
 
                 return ExecuteCallbackResponse.newBuilder()
                         .setSuccess(true)
@@ -408,16 +478,22 @@ public class JsEngineServiceImpl {
      * @return Protobuf-encoded EvaluateResponse.
      */
     public byte[] handleEvaluate(byte[] requestBytes, HostCallbackClient callbackClient) throws java.io.IOException {
-        log.info("[Sidecar] handleEvaluate (streaming) called");
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleEvaluate (streaming) called");
+        }
         long startTime = System.currentTimeMillis();
 
         // Phase A: Request parse
         EvaluateRequest request = EvaluateRequest.parseFrom(requestBytes);
         long tRequestParsed = System.currentTimeMillis();
-        log.info("[Sidecar] handleEvaluate (streaming) - session: {}, sourceId: {}",
-                request.getSessionId(), request.getSourceIdentifier());
-        log.info("[Sidecar] Script length: {}, bindings: {}, hostFunctions: {}",
-                request.getScript().length(), request.getBindingsCount(), request.getHostFunctionsCount());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleEvaluate (streaming) - session: {}, sourceId: {}",
+                    request.getSessionId(), request.getSourceIdentifier());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] Script length: {}, bindings: {}, hostFunctions: {}",
+                    request.getScript().length(), request.getBindingsCount(), request.getHostFunctionsCount());
+        }
 
         try {
             // Reset callback timer for reused streaming clients
@@ -442,7 +518,9 @@ public class JsEngineServiceImpl {
                 if (request.hasContextData()) {
                     Value contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
                     bindings.putMember("context", contextProxy);
-                    log.info("[Sidecar] Bound DYNAMIC context proxy for session: {}", request.getSessionId());
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Bound DYNAMIC context proxy for session: {}", request.getSessionId());
+                    }
                 } else {
                     Value emptyContext = context.eval(JS_LANG, "({})");
                     bindings.putMember("context", emptyContext);
@@ -452,16 +530,26 @@ public class JsEngineServiceImpl {
                 long tProxyCreated = System.currentTimeMillis();
 
                 // Phase E: JS evaluate
-                log.info("[Sidecar] Starting script evaluation (streaming)...");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Starting script evaluation (streaming)...");
+                }
                 Value result = context.eval(JS_LANG, request.getScript());
                 long tJsEvaluated = System.currentTimeMillis();
-                log.info("[Sidecar] Script evaluation completed successfully (streaming)");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Script evaluation completed successfully (streaming)");
+                }
 
                 // Phase F: Binding extract
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
-                    if (!val.canExecute() && !isHostFunction(key)) {
+                    // Skip "context" -- it is an unserializable JsGraalAuthenticationContext proxy.
+                    // Context mutations are handled via live DynamicContextProxy callbacks,
+                    // and structured ContextData is sent separately. Serializing it here
+                    // causes a ProtobufSerializer toString() fallback with WARN log.
+                    // If context binding is ever needed here, implement a proper toProto()
+                    // conversion for JsGraalAuthenticationContext first.
+                    if (!"context".equals(key) && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -469,31 +557,34 @@ public class JsEngineServiceImpl {
 
                 // Phase G: Response build
                 long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
+                long elapsed = System.currentTimeMillis() - startTime;
+                long pureProcessingMs = elapsed - callbackMs;
                 byte[] responseBytes = EvaluateResponse.newBuilder()
                         .setSuccess(true)
-                        .setElapsedMs(tBindingsExtracted - startTime)
+                        .setElapsedMs(elapsed)
                         .setResult(serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
                 long tResponseBuilt = System.currentTimeMillis();
-
-                long elapsed = tResponseBuilt - startTime;
-                long pureProcessingMs = elapsed - callbackMs;
-                log.info(
-                        "[Sidecar] Time breakdown (streaming): totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
-                        elapsed, pureProcessingMs, callbackMs);
-                log.info("[Sidecar] Phase timing (streaming): requestParse={}ms, contextSetup={}ms, " +
-                        "bindingRestore={}ms, proxyCreate={}ms, jsEvaluate={}ms, " +
-                        "bindingExtract={}ms, responseBuild={}ms, total={}ms",
-                        tRequestParsed - startTime,
-                        tContextSetup - tRequestParsed,
-                        tBindingsRestored - tContextSetup,
-                        tProxyCreated - tBindingsRestored,
-                        tJsEvaluated - tProxyCreated,
-                        tBindingsExtracted - tJsEvaluated,
-                        tResponseBuilt - tBindingsExtracted,
-                        elapsed);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "[Sidecar] Time breakdown (streaming): totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                            elapsed, pureProcessingMs, callbackMs);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Phase timing (streaming): requestParse={}ms, contextSetup={}ms, " +
+                            "bindingRestore={}ms, proxyCreate={}ms, jsEvaluate={}ms, " +
+                            "bindingExtract={}ms, responseBuild={}ms, total={}ms",
+                            tRequestParsed - startTime,
+                            tContextSetup - tRequestParsed,
+                            tBindingsRestored - tContextSetup,
+                            tProxyCreated - tBindingsRestored,
+                            tJsEvaluated - tProxyCreated,
+                            tBindingsExtracted - tJsEvaluated,
+                            tResponseBuilt - tBindingsExtracted,
+                            elapsed);
+                }
                 return responseBytes;
             }
 
@@ -541,9 +632,13 @@ public class JsEngineServiceImpl {
         // Phase A: Request parse
         ExecuteCallbackRequest request = ExecuteCallbackRequest.parseFrom(requestBytes);
         long tRequestParsed = System.currentTimeMillis();
-        log.info("[Sidecar] handleExecuteCallback (streaming) - session: {}", request.getSessionId());
-        log.info("[Sidecar] Function source length: {}, args: {}, bindings: {}",
-                request.getFunctionSource().length(), request.getArgumentsCount(), request.getBindingsCount());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleExecuteCallback (streaming) - session: {}", request.getSessionId());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] Function source length: {}, args: {}, bindings: {}",
+                    request.getFunctionSource().length(), request.getArgumentsCount(), request.getBindingsCount());
+        }
 
         try {
             // Reset callback timer for reused streaming clients
@@ -603,7 +698,13 @@ public class JsEngineServiceImpl {
                 Map<String, SerializedValue> updatedBindings = new HashMap<>();
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
-                    if (!key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
+                    // Skip "context" -- it is an unserializable JsGraalAuthenticationContext proxy.
+                    // Context mutations are handled via live DynamicContextProxy callbacks,
+                    // and structured ContextData is sent separately. Serializing it here
+                    // causes a ProtobufSerializer toString() fallback with WARN log.
+                    // If context binding is ever needed here, implement a proper toProto()
+                    // conversion for JsGraalAuthenticationContext first.
+                    if (!"context".equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -611,31 +712,34 @@ public class JsEngineServiceImpl {
 
                 // Phase G: Response build
                 long callbackMs = callbackClient != null ? callbackClient.getCallbackTimeMs() : 0;
+                long elapsed = System.currentTimeMillis() - startTime;
+                long pureProcessingMs = elapsed - callbackMs;
                 byte[] responseBytes = ExecuteCallbackResponse.newBuilder()
                         .setSuccess(true)
-                        .setElapsedMs(tBindingsExtracted - startTime)
+                        .setElapsedMs(elapsed)
                         .setResult(serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
                 long tResponseBuilt = System.currentTimeMillis();
-
-                long elapsed = tResponseBuilt - startTime;
-                long pureProcessingMs = elapsed - callbackMs;
-                log.info(
-                        "[Sidecar] Time breakdown (streaming): totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
-                        elapsed, pureProcessingMs, callbackMs);
-                log.info("[Sidecar] Phase timing (streaming): requestParse={}ms, contextSetup={}ms, " +
-                        "bindingRestore={}ms, proxyAndArgs={}ms, jsEvaluate={}ms, " +
-                        "bindingExtract={}ms, responseBuild={}ms, total={}ms",
-                        tRequestParsed - startTime,
-                        tContextSetup - tRequestParsed,
-                        tBindingsRestored - tContextSetup,
-                        tProxyAndArgsReady - tBindingsRestored,
-                        tJsEvaluated - tProxyAndArgsReady,
-                        tBindingsExtracted - tJsEvaluated,
-                        tResponseBuilt - tBindingsExtracted,
-                        elapsed);
+                if (log.isDebugEnabled()) {
+                    log.debug(
+                            "[Sidecar] Time breakdown (streaming): totalElapsed={}ms, pureProcessing={}ms, callbackRoundTrips={}ms",
+                            elapsed, pureProcessingMs, callbackMs);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Phase timing (streaming): requestParse={}ms, contextSetup={}ms, " +
+                            "bindingRestore={}ms, proxyAndArgs={}ms, jsEvaluate={}ms, " +
+                            "bindingExtract={}ms, responseBuild={}ms, total={}ms",
+                            tRequestParsed - startTime,
+                            tContextSetup - tRequestParsed,
+                            tBindingsRestored - tContextSetup,
+                            tProxyAndArgsReady - tBindingsRestored,
+                            tJsEvaluated - tProxyAndArgsReady,
+                            tBindingsExtracted - tJsEvaluated,
+                            tResponseBuilt - tBindingsExtracted,
+                            elapsed);
+                }
                 return responseBytes;
             }
 
@@ -694,14 +798,18 @@ public class JsEngineServiceImpl {
         // Register stubs for all host functions from the request
         for (HostFunctionDefinition funcDef : hostFunctions) {
             String funcName = funcDef.getName();
-            log.info("[Sidecar] Registering host function stub: {}", funcName);
+            if (log.isDebugEnabled()) {
+                log.debug("[Sidecar] Registering host function stub: {}", funcName);
+            }
             bindings.putMember(funcName, new HostFunctionStub(funcName, callbackClient));
             registeredFunctions.add(funcName);
         }
 
         // Store for isHostFunction checks
         currentRegisteredFunctions.set(registeredFunctions);
-        log.info("[Sidecar] Registered {} host function stubs", registeredFunctions.size());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] Registered {} host function stubs", registeredFunctions.size());
+        }
     }
 
     // Thread-local to track registered functions for current request
@@ -739,9 +847,11 @@ public class JsEngineServiceImpl {
      * @return A JavaScript Value representing the context proxy.
      */
     private Value createContextProxy(Context context, ContextData data, HostCallbackClient callbackClient) {
-        log.info(
-                "[Sidecar] Creating DYNAMIC context proxy with data: username={}, userStoreDomain={}, tenantDomain={}, step={}",
-                data.getUsername(), data.getUserStoreDomain(), data.getTenantDomain(), data.getCurrentStep());
+        if (log.isDebugEnabled()) {
+            log.debug(
+                    "[Sidecar] Creating DYNAMIC context proxy with data: username={}, userStoreDomain={}, tenantDomain={}, step={}",
+                    data.getUsername(), data.getUserStoreDomain(), data.getTenantDomain(), data.getCurrentStep());
+        }
 
         // Use DynamicContextProxy which calls back to IS for every property access
         // This ensures the sidecar context behaves identically to the local
@@ -865,15 +975,19 @@ public class JsEngineServiceImpl {
         HostFunctionStub(String functionName, HostCallbackClient callbackClient) {
             this.functionName = functionName;
             this.callbackClient = callbackClient;
-            log.info("[Sidecar-Stub] Created HostFunctionStub for: {}, callbackClient: {}",
-                    functionName, callbackClient != null ? "available" : "null");
+            if (log.isDebugEnabled()) {
+                log.debug("[Sidecar-Stub] Created HostFunctionStub for: {}, callbackClient: {}",
+                        functionName, callbackClient != null ? "available" : "null");
+            }
         }
 
         @Override
         public Object execute(Value... args) {
             System.out.println(
                     "[DEBUG-SIDECAR] Host function '" + functionName + "' called with " + args.length + " args");
-            log.info("[Sidecar-Stub] Host function '{}' called with {} args", functionName, args.length);
+            if (log.isDebugEnabled()) {
+                log.debug("[Sidecar-Stub] Host function '{}' called with {} args", functionName, args.length);
+            }
             if (callbackClient == null) {
                 System.out.println("[DEBUG-SIDECAR] ERROR: No callback client!");
                 log.error("[Sidecar-Stub] Host function '{}' called but no callback client available!", functionName);
@@ -888,17 +1002,23 @@ public class JsEngineServiceImpl {
                     javaArgs[i] = convertToJava(args[i]);
                     System.out.println("[DEBUG-SIDECAR] Converted arg[" + i + "] to: " +
                             (javaArgs[i] != null ? javaArgs[i].getClass().getSimpleName() : "null"));
-                    log.info("[Sidecar-Stub] Converted arg[{}] to: {}", i,
-                            javaArgs[i] != null ? javaArgs[i].getClass().getSimpleName() : "null");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar-Stub] Converted arg[{}] to: {}", i,
+                                javaArgs[i] != null ? javaArgs[i].getClass().getSimpleName() : "null");
+                    }
                 }
 
                 System.out.println("[DEBUG-SIDECAR] Invoking callback to IS for '" + functionName + "'");
-                log.info("[Sidecar-Stub] Invoking callback to IS for '{}' with {} args", functionName, javaArgs.length);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar-Stub] Invoking callback to IS for '{}' with {} args", functionName, javaArgs.length);
+                }
                 Object result = callbackClient.invokeHostFunction(functionName, javaArgs);
                 System.out.println("[DEBUG-SIDECAR] Callback returned: "
                         + (result != null ? result.getClass().getSimpleName() : "null"));
-                log.info("[Sidecar-Stub] Callback returned: {}",
-                        result != null ? result.getClass().getSimpleName() : "null");
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar-Stub] Callback returned: {}",
+                            result != null ? result.getClass().getSimpleName() : "null");
+                }
 
                 // Check if the result is a proxy marker from a complex host function return
                 if (result instanceof Map) {
@@ -908,8 +1028,10 @@ public class JsEngineServiceImpl {
                         String proxyType = (String) resultMap.get("__proxyType");
                         String referenceId = (String) resultMap.get("__referenceId");
                         String basePath = "__hostref__::" + referenceId;
-                        log.info("[Sidecar-Stub] Creating DynamicContextProxy for host function return: " +
-                                "type={}, refId={}, basePath={}", proxyType, referenceId, basePath);
+                        if (log.isDebugEnabled()) {
+                            log.debug("[Sidecar-Stub] Creating DynamicContextProxy for host function return: " +
+                                    "type={}, refId={}, basePath={}", proxyType, referenceId, basePath);
+                        }
                         return new DynamicContextProxy(
                                 callbackClient.getSessionId(), callbackClient, proxyType, basePath);
                     }
@@ -954,14 +1076,18 @@ public class JsEngineServiceImpl {
                         source = val.toString();
                         // val.toString() for functions returns the full source like:
                         // "function(context) { ... }" or "(context) => { ... }"
-                        log.info("[Sidecar-Stub] Using toString() for function, got: {}...",
-                                source.substring(0, Math.min(80, source.length())));
+                        if (log.isDebugEnabled()) {
+                            log.debug("[Sidecar-Stub] Using toString() for function, got: {}...",
+                                    source.substring(0, Math.min(80, source.length())));
+                        }
                     } catch (Exception e) {
                         log.warn("[Sidecar-Stub] Could not get function toString(): {}", e.getMessage());
                     }
                 } else {
-                    log.info("[Sidecar-Stub] Extracted function source via getSourceLocation: {}...",
-                            source.substring(0, Math.min(80, source.length())));
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar-Stub] Extracted function source via getSourceLocation: {}...",
+                                source.substring(0, Math.min(80, source.length())));
+                    }
                 }
                 if (source != null && !source.isEmpty() &&
                         (source.contains("function") || source.contains("=>"))) {
@@ -994,8 +1120,10 @@ public class JsEngineServiceImpl {
                     marker.put("__basePath", proxy.getBasePath());
                     System.out.println("[DEBUG-SIDECAR] Converting DynamicContextProxy to marker: type=" +
                             proxy.getProxyType() + ", basePath=" + proxy.getBasePath());
-                    log.info("[Sidecar-Stub] Converting DynamicContextProxy to marker: type={}, basePath={}",
-                            proxy.getProxyType(), proxy.getBasePath());
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar-Stub] Converting DynamicContextProxy to marker: type={}, basePath={}",
+                                proxy.getProxyType(), proxy.getBasePath());
+                    }
                     return marker;
                 }
             }
@@ -1004,34 +1132,42 @@ public class JsEngineServiceImpl {
                 Set<String> memberKeys = val.getMemberKeys();
                 System.out.println(
                         "[DEBUG-SIDECAR] Converting object with " + memberKeys.size() + " members: " + memberKeys);
-                log.info("[Sidecar-Stub] Converting object with {} members: {}",
-                        memberKeys.size(), memberKeys);
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar-Stub] Converting object with {} members: {}",
+                            memberKeys.size(), memberKeys);
+                }
                 for (String key : memberKeys) {
                     Value memberVal = val.getMember(key);
                     System.out.println("[DEBUG-SIDECAR] Member '" + key + "': isNull="
                             + (memberVal == null || memberVal.isNull()) +
                             ", canExecute=" + (memberVal != null && memberVal.canExecute()) +
                             ", hasMembers=" + (memberVal != null && memberVal.hasMembers()));
-                    log.info("[Sidecar-Stub] Member '{}': isNull={}, canExecute={}, hasMembers={}, hasArrayElements={}",
-                            key,
-                            memberVal == null || memberVal.isNull(),
-                            memberVal != null && memberVal.canExecute(),
-                            memberVal != null && memberVal.hasMembers(),
-                            memberVal != null && memberVal.hasArrayElements());
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar-Stub] Member '{}': isNull={}, canExecute={}, hasMembers={}, hasArrayElements={}",
+                                key,
+                                memberVal == null || memberVal.isNull(),
+                                memberVal != null && memberVal.canExecute(),
+                                memberVal != null && memberVal.hasMembers(),
+                                memberVal != null && memberVal.hasArrayElements());
+                    }
                     Object converted = convertToJava(memberVal);
                     System.out.println("[DEBUG-SIDECAR] Member '" + key + "' converted to type: " +
                             (converted != null ? converted.getClass().getSimpleName() : "null"));
-                    log.info("[Sidecar-Stub] Member '{}' converted to: {} (type: {})",
-                            key,
-                            converted instanceof String
-                                    ? ((String) converted).substring(0, Math.min(60, ((String) converted).length()))
-                                            + "..."
-                                    : converted,
-                            converted != null ? converted.getClass().getSimpleName() : "null");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar-Stub] Member '{}' converted to: {} (type: {})",
+                                key,
+                                converted instanceof String
+                                        ? ((String) converted).substring(0, Math.min(60, ((String) converted).length()))
+                                                + "..."
+                                        : converted,
+                                converted != null ? converted.getClass().getSimpleName() : "null");
+                    }
                     map.put(key, converted);
                 }
                 System.out.println("[DEBUG-SIDECAR] Final map has " + map.size() + " entries: " + map.keySet());
-                log.info("[Sidecar-Stub] Final map has {} entries: {}", map.size(), map.keySet());
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar-Stub] Final map has {} entries: {}", map.size(), map.keySet());
+                }
                 return map;
             }
             return val.toString();
@@ -1146,7 +1282,9 @@ public class JsEngineServiceImpl {
             try {
                 // Build the full property path
                 String propertyPath = basePath.isEmpty() ? key : basePath + "::" + key;
-                log.info("[DynamicContextProxy] getMember '{}', full path: {}", key, propertyPath);
+                if (log.isDebugEnabled()) {
+                    log.debug("[DynamicContextProxy] getMember '{}', full path: {}", key, propertyPath);
+                }
 
                 // Call back to IS for property value
                 ContextPropertyResponse response = callbackClient.getContextProperty(propertyPath, proxyType);
@@ -1163,17 +1301,21 @@ public class JsEngineServiceImpl {
                     if (response.getMemberKeysCount() > 0) {
                         proxyMemberKeys = response.getMemberKeysList().toArray(new String[0]);
                     }
-                    log.info("[DynamicContextProxy] Creating nested proxy for '{}', type: {}, keys: {}",
-                            key, response.getProxyType(),
-                            proxyMemberKeys != null ? proxyMemberKeys.length : "none");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[DynamicContextProxy] Creating nested proxy for '{}', type: {}, keys: {}",
+                                key, response.getProxyType(),
+                                proxyMemberKeys != null ? proxyMemberKeys.length : "none");
+                    }
                     value = new DynamicContextProxy(
                             sessionId, callbackClient,
                             response.getProxyType(), propertyPath, proxyMemberKeys);
                 } else {
                     // Deserialize the value
                     value = deserializeValue(response.getValue());
-                    log.info("[DynamicContextProxy] Deserialized '{}' = {}", key,
-                            value != null ? value.getClass().getSimpleName() : "null");
+                    if (log.isDebugEnabled()) {
+                        log.debug("[DynamicContextProxy] Deserialized '{}' = {}", key,
+                                value != null ? value.getClass().getSimpleName() : "null");
+                    }
                 }
 
                 // Cache the value (only if non-null, ConcurrentHashMap doesn't allow null
@@ -1191,7 +1333,9 @@ public class JsEngineServiceImpl {
 
         @Override
         public Object getMemberKeys() {
-            log.info("[DynamicContextProxy] getMemberKeys() called for path: {}", basePath);
+            if (log.isDebugEnabled()) {
+                log.debug("[DynamicContextProxy] getMemberKeys() called for path: {}", basePath);
+            }
 
             if (memberKeys != null) {
                 return memberKeys;
@@ -1204,8 +1348,10 @@ public class JsEngineServiceImpl {
 
                 if (response.getSuccess() && response.getMemberKeysCount() > 0) {
                     memberKeys = response.getMemberKeysList().toArray(new String[0]);
-                    log.info("[DynamicContextProxy] Retrieved {} member keys: {}", memberKeys.length,
-                            java.util.Arrays.toString(memberKeys));
+                    if (log.isDebugEnabled()) {
+                        log.debug("[DynamicContextProxy] Retrieved {} member keys: {}", memberKeys.length,
+                                java.util.Arrays.toString(memberKeys));
+                    }
                     return memberKeys;
                 }
             } catch (java.io.IOException e) {
@@ -1233,8 +1379,10 @@ public class JsEngineServiceImpl {
             try {
                 // Build the full property path
                 String propertyPath = basePath.isEmpty() ? key : basePath + "::" + key;
-                log.info("[DynamicContextProxy] putMember '{}' = {}", propertyPath,
-                        value != null ? value.toString() : "null");
+                if (log.isDebugEnabled()) {
+                    log.debug("[DynamicContextProxy] putMember '{}' = {}", propertyPath,
+                            value != null ? value.toString() : "null");
+                }
 
                 // Serialize the value
                 SerializedValue serializedValue = serializeGraalValue(value);
@@ -1352,8 +1500,10 @@ public class JsEngineServiceImpl {
      */
     public byte[] handleHostFunction(byte[] requestBytes) throws java.io.IOException {
         HostFunctionRequest request = HostFunctionRequest.parseFrom(requestBytes);
-        log.info("[Sidecar] handleHostFunction - session: {}, function: {}, args: {}",
-                request.getSessionId(), request.getFunctionName(), request.getArgumentsCount());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleHostFunction - session: {}, function: {}, args: {}",
+                    request.getSessionId(), request.getFunctionName(), request.getArgumentsCount());
+        }
 
         // This is typically handled via callback mechanism during script execution
         // This direct handler is mainly for logging purposes
@@ -1375,8 +1525,10 @@ public class JsEngineServiceImpl {
      */
     public byte[] handleContextProperty(byte[] requestBytes) throws java.io.IOException {
         ContextPropertyRequest request = ContextPropertyRequest.parseFrom(requestBytes);
-        log.info("[Sidecar] handleContextProperty - session: {}, property: {}, proxyType: {}",
-                request.getSessionId(), request.getPropertyPath(), request.getProxyType());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleContextProperty - session: {}, property: {}, proxyType: {}",
+                    request.getSessionId(), request.getPropertyPath(), request.getProxyType());
+        }
 
         // This is typically handled via proxy mechanism during script execution
         // This direct handler is mainly for logging purposes
@@ -1399,8 +1551,10 @@ public class JsEngineServiceImpl {
      */
     public byte[] handleContextPropertySet(byte[] requestBytes) throws java.io.IOException {
         ContextPropertySetRequest request = ContextPropertySetRequest.parseFrom(requestBytes);
-        log.info("[Sidecar] handleContextPropertySet - session: {}, property: {}, value: {}",
-                request.getSessionId(), request.getPropertyPath(), request.getValue());
+        if (log.isDebugEnabled()) {
+            log.debug("[Sidecar] handleContextPropertySet - session: {}, property: {}, value: {}",
+                    request.getSessionId(), request.getPropertyPath(), request.getValue());
+        }
 
         // This is typically handled via proxy mechanism during script execution
         // This direct handler is mainly for logging purposes
