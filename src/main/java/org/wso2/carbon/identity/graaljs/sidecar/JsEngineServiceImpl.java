@@ -24,12 +24,14 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.ResourceLimits;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
+import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.graaljs.proto.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +44,9 @@ public class JsEngineServiceImpl {
 
     private static final Logger log = LoggerFactory.getLogger(JsEngineServiceImpl.class);
     private static final String JS_LANG = "js";
+
+    // ThreadLocal to store the current callback client for proxy object deserialization
+    private static final ThreadLocal<HostCallbackClient> currentCallbackClient = new ThreadLocal<>();
 
     private final int defaultStatementLimit;
 
@@ -97,12 +102,24 @@ public class JsEngineServiceImpl {
             try (Context context = createContext()) {
                 Value bindings = context.getBindings(JS_LANG);
 
-                // Register host function stubs that call back to IS
-                registerHostFunctionStubs(bindings, callbackClient);
+                // Register host function stubs that call back to IS.
+                // Use the list supplied by the request (same as the
+                // execute‑callback path) so that pre‑auth evaluation gets the
+                // full set of functions instead of a hard‑coded subset.
+                // If the client side is old and sends no functions, fall back to
+                // the legacy defaults inside registerHostFunctionStubsFromRequest().
+                registerHostFunctionStubsFromRequest(bindings, callbackClient,
+                        request.getHostFunctionsList());
 
                 // Restore bindings from request
-                for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
-                    bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
+                // Set callback client in ThreadLocal for proxy object deserialization
+                currentCallbackClient.set(callbackClient);
+                try {
+                    for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
+                        bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
+                    }
+                } finally {
+                    currentCallbackClient.remove();
                 }
 
                 // Create and bind context proxy if ContextData is present
@@ -296,53 +313,62 @@ public class JsEngineServiceImpl {
                 if (log.isDebugEnabled()) {
                     log.debug("[Sidecar] Restoring {} bindings from request", request.getBindingsCount());
                 }
-                for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
-                    Object deserialized = deserializeValue(entry.getValue(), context);
-                    if (log.isDebugEnabled()) {
-                        log.debug("[Sidecar] Restoring binding: {} = {} (type: {})",
-                                entry.getKey(),
-                                deserialized,
-                                deserialized != null ? deserialized.getClass().getSimpleName() : "null");
-                    }
-                    bindings.putMember(entry.getKey(), deserialized);
-                }
 
-                // Create context proxy from context data (before deserializing args).
+                // Declare variables outside try block so they're accessible later
                 Value contextProxy = null;
-                if (request.hasContextData()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("[Sidecar] Creating context proxy for step: {}, username: {}",
-                                request.getContextData().getCurrentStep(),
-                                request.getContextData().getUsername());
-                    }
-                    contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
-                    bindings.putMember("__callbackContext", contextProxy);
-                }
-
-                // Deserialize arguments.
                 Object[] args = new Object[request.getArgumentsCount()];
-                if (log.isDebugEnabled()) {
-                    log.debug("[Sidecar] Deserializing {} arguments", args.length);
-                }
-                for (int i = 0; i < args.length; i++) {
-                    SerializedValue sv = request.getArguments(i);
-                    // Check if this argument is a context placeholder (string containing
-                    // JsGraalAuthenticationContext).
-                    if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
-                            sv.getStringValue().contains("JsGraalAuthenticationContext") &&
-                            contextProxy != null) {
-                        // Replace with the actual context proxy.
+
+                // Set callback client for proxy object deserialization
+                currentCallbackClient.set(callbackClient);
+                try {
+                    for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
+                        Object deserialized = deserializeValue(entry.getValue(), context);
                         if (log.isDebugEnabled()) {
-                            log.debug("[Sidecar] Arg[{}] is context placeholder, using context proxy", i);
+                            log.debug("[Sidecar] Restoring binding: {} = {} (type: {})",
+                                    entry.getKey(),
+                                    deserialized,
+                                    deserialized != null ? deserialized.getClass().getSimpleName() : "null");
                         }
-                        args[i] = contextProxy;
-                    } else {
-                        args[i] = deserializeValue(sv, context);
+                        bindings.putMember(entry.getKey(), deserialized);
+                    }
+
+                    // Create context proxy from context data (before deserializing args).
+                    if (request.hasContextData()) {
                         if (log.isDebugEnabled()) {
-                            log.debug("[Sidecar] Arg[{}] = {}", i,
-                                    args[i] != null ? args[i].getClass().getSimpleName() : "null");
+                            log.debug("[Sidecar] Creating context proxy for step: {}, username: {}",
+                                    request.getContextData().getCurrentStep(),
+                                    request.getContextData().getUsername());
+                        }
+                        contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
+                        bindings.putMember("__callbackContext", contextProxy);
+                    }
+
+                    // Deserialize arguments.
+                    if (log.isDebugEnabled()) {
+                        log.debug("[Sidecar] Deserializing {} arguments", args.length);
+                    }
+                    for (int i = 0; i < args.length; i++) {
+                        SerializedValue sv = request.getArguments(i);
+                        // Check if this argument is a context placeholder (string containing
+                        // JsGraalAuthenticationContext).
+                        if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
+                                sv.getStringValue().contains("JsGraalAuthenticationContext") &&
+                                contextProxy != null) {
+                            // Replace with the actual context proxy.
+                            if (log.isDebugEnabled()) {
+                                log.debug("[Sidecar] Arg[{}] is context placeholder, using context proxy", i);
+                            }
+                            args[i] = contextProxy;
+                        } else {
+                            args[i] = deserializeValue(sv, context);
+                            if (log.isDebugEnabled()) {
+                                log.debug("[Sidecar] Arg[{}] = {}", i,
+                                        args[i] != null ? args[i].getClass().getSimpleName() : "null");
+                            }
                         }
                     }
+                } finally {
+                    currentCallbackClient.remove();
                 }
 
                 // Evaluate and execute callback function.
@@ -505,12 +531,22 @@ public class JsEngineServiceImpl {
                 Value bindings = context.getBindings(JS_LANG);
 
                 // Phase B: Context setup (create context + register stubs)
-                registerHostFunctionStubs(bindings, callbackClient);
+                // Use dynamic list from the request, mirroring the executeCallback
+                // registration logic. This ensures host functions like
+                // getMaskedValue, httpGet, etc. are available during initial
+                // script evaluation rather than only after the first callback.
+                registerHostFunctionStubsFromRequest(bindings, callbackClient,
+                        request.getHostFunctionsList());
                 long tContextSetup = System.currentTimeMillis();
 
                 // Phase C: Binding restore
-                for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
-                    bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
+                currentCallbackClient.set(callbackClient);
+                try {
+                    for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
+                        bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
+                    }
+                } finally {
+                    currentCallbackClient.remove();
                 }
                 long tBindingsRestored = System.currentTimeMillis();
 
@@ -653,32 +689,39 @@ public class JsEngineServiceImpl {
                 registerHostFunctionStubsFromRequest(bindings, callbackClient, request.getHostFunctionsList());
                 long tContextSetup = System.currentTimeMillis();
 
+                // Declare variables outside try block so they're accessible later
+                Value contextProxy = null;
+                Object[] args = new Object[request.getArgumentsCount()];
+
                 // Phase C: Binding restore
-                for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
-                    Object deserialized = deserializeValue(entry.getValue(), context);
-                    bindings.putMember(entry.getKey(), deserialized);
+                currentCallbackClient.set(callbackClient);
+                try {
+                    for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
+                        Object deserialized = deserializeValue(entry.getValue(), context);
+                        bindings.putMember(entry.getKey(), deserialized);
+                    }
+
+                    // Phase D: Proxy create + argument deserialization
+                    if (request.hasContextData()) {
+                        contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
+                        bindings.putMember("__callbackContext", contextProxy);
+                    }
+
+                    // Deserialize arguments
+                    for (int i = 0; i < args.length; i++) {
+                        SerializedValue sv = request.getArguments(i);
+                        if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
+                                sv.getStringValue().contains("JsGraalAuthenticationContext") &&
+                                contextProxy != null) {
+                            args[i] = contextProxy;
+                        } else {
+                            args[i] = deserializeValue(sv, context);
+                        }
+                    }
+                } finally {
+                    currentCallbackClient.remove();
                 }
                 long tBindingsRestored = System.currentTimeMillis();
-
-                // Phase D: Proxy create + argument deserialization
-                Value contextProxy = null;
-                if (request.hasContextData()) {
-                    contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
-                    bindings.putMember("__callbackContext", contextProxy);
-                }
-
-                // Deserialize arguments
-                Object[] args = new Object[request.getArgumentsCount()];
-                for (int i = 0; i < args.length; i++) {
-                    SerializedValue sv = request.getArguments(i);
-                    if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
-                            sv.getStringValue().contains("JsGraalAuthenticationContext") &&
-                            contextProxy != null) {
-                        args[i] = contextProxy;
-                    } else {
-                        args[i] = deserializeValue(sv, context);
-                    }
-                }
                 long tProxyAndArgsReady = System.currentTimeMillis();
 
                 // Phase E: JS evaluate (function execution)
@@ -795,14 +838,26 @@ public class JsEngineServiceImpl {
         bindings.putMember("Log", new LoggerProxy());
         registeredFunctions.add("Log");
 
-        // Register stubs for all host functions from the request
-        for (HostFunctionDefinition funcDef : hostFunctions) {
-            String funcName = funcDef.getName();
-            if (log.isDebugEnabled()) {
-                log.debug("[Sidecar] Registering host function stub: {}", funcName);
+        // If the request did not include any host‑function definitions (older
+        // client), fall back to the legacy hard‑coded list so that basic
+        // functions like executeStep continue to work.
+        if (hostFunctions == null || hostFunctions.isEmpty()) {
+            String[] defaultFuncNames = { "executeStep", "sendError", "fail", "showPrompt",
+                    "loadLocalLibrary", "getSecretByName", "selectAcrFrom" };
+            for (String funcName : defaultFuncNames) {
+                bindings.putMember(funcName, new HostFunctionStub(funcName, callbackClient));
+                registeredFunctions.add(funcName);
             }
-            bindings.putMember(funcName, new HostFunctionStub(funcName, callbackClient));
-            registeredFunctions.add(funcName);
+        } else {
+            // Register stubs for all host functions from the request
+            for (HostFunctionDefinition funcDef : hostFunctions) {
+                String funcName = funcDef.getName();
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Registering host function stub: {}", funcName);
+                }
+                bindings.putMember(funcName, new HostFunctionStub(funcName, callbackClient));
+                registeredFunctions.add(funcName);
+            }
         }
 
         // Store for isHostFunction checks
@@ -958,6 +1013,35 @@ public class JsEngineServiceImpl {
                 return jsObject;
             case FUNCTION_VALUE:
                 return context.eval(JS_LANG, "(" + sv.getFunctionValue().getSource() + ")");
+            case PROXY_OBJECT:
+                // Handle proxy object markers - create a DynamicContextProxy that lazily fetches properties
+                // This is CRITICAL for arrays of complex objects (e.g., getUsersWithClaimValues returning
+                // 100 User objects). Instead of eagerly serializing all properties (causing timeouts),
+                // we create a proxy that fetches properties on-demand when accessed.
+                org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxyObj = sv.getProxyObject();
+                String proxyType = proxyObj.getType();
+                String referenceId = proxyObj.getReferenceId();
+
+                if (log.isDebugEnabled()) {
+                    log.debug("[Sidecar] Creating proxy for POJO: type={}, refId={}", proxyType, referenceId);
+                }
+
+                // Use __proxyref__ prefix to distinguish from context proxies (__hostref__ pattern)
+                String basePath = "__proxyref__::" + referenceId;
+
+                // Get callback client from ThreadLocal (set by calling methods)
+                HostCallbackClient callbackClient = currentCallbackClient.get();
+                if (callbackClient == null) {
+                    log.warn("[Sidecar] No callback client available for proxy object, returning null");
+                    return null;
+                }
+
+                return new DynamicContextProxy(
+                        callbackClient.getSessionId(),
+                        callbackClient,
+                        proxyType, // "pojo" or specific type
+                        basePath
+                );
             default:
                 return null;
         }
@@ -1027,13 +1111,49 @@ public class JsEngineServiceImpl {
                     if (Boolean.TRUE.equals(resultMap.get("__isHostRef"))) {
                         String proxyType = (String) resultMap.get("__proxyType");
                         String referenceId = (String) resultMap.get("__referenceId");
-                        String basePath = "__hostref__::" + referenceId;
+                        // "pojo" type uses proxyObjectCache (__proxyref__), others use hostRefCache (__hostref__)
+                        String prefix = "pojo".equals(proxyType) ? "__proxyref__" : "__hostref__";
+                        String basePath = prefix + "::" + referenceId;
                         if (log.isDebugEnabled()) {
                             log.debug("[Sidecar-Stub] Creating DynamicContextProxy for host function return: " +
                                     "type={}, refId={}, basePath={}", proxyType, referenceId, basePath);
                         }
                         return new DynamicContextProxy(
                                 callbackClient.getSessionId(), callbackClient, proxyType, basePath);
+                    }
+                }
+
+                // Handle arrays containing proxy markers (e.g., getUsersWithClaimValues
+                // returning an array of User objects serialized as proxy markers).
+                // Each proxy marker element becomes a DynamicContextProxy for lazy property access.
+                if (result instanceof List) {
+                    @SuppressWarnings("unchecked")
+                    List<Object> resultList = (List<Object>) result;
+                    Object[] elements = new Object[resultList.size()];
+                    boolean hasProxyElements = false;
+                    for (int i = 0; i < resultList.size(); i++) {
+                        Object element = resultList.get(i);
+                        if (element instanceof Map) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> elementMap = (Map<String, Object>) element;
+                            if (Boolean.TRUE.equals(elementMap.get("__isHostRef"))) {
+                                String proxyType = (String) elementMap.get("__proxyType");
+                                String referenceId = (String) elementMap.get("__referenceId");
+                                String basePath = "__proxyref__::" + referenceId;
+                                elements[i] = new DynamicContextProxy(
+                                        callbackClient.getSessionId(), callbackClient, proxyType, basePath);
+                                hasProxyElements = true;
+                                System.out.println("[DEBUG-SIDECAR] List element[" + i +
+                                        "] -> DynamicContextProxy refId=" + referenceId);
+                                continue;
+                            }
+                        }
+                        elements[i] = element;
+                    }
+                    if (hasProxyElements) {
+                        System.out.println("[DEBUG-SIDECAR] Returning ProxyArray with " +
+                                elements.length + " elements (proxy-wrapped)");
+                        return ProxyArray.fromArray(elements);
                     }
                 }
 
