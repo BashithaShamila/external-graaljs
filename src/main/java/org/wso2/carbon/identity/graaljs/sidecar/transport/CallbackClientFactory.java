@@ -74,10 +74,13 @@ public class CallbackClientFactory {
                 String socketPath = callbackAddress.replace("file://", "");
                 return new UdsCallbackClient(sessionId, socketPath);
 
+            // STALE - OLD UNIDIRECTIONAL 2-CHANNEL CALLBACK (GrpcCallbackClient commented out)
+            // case "GRPC":
+            //     String grpcTarget = callbackAddress.replace("grpc://", "");
+            //     return new GrpcCallbackClient(grpcTarget);
             case "GRPC":
-                // gRPC address: grpc://localhost:50052 or localhost:50052
-                String grpcTarget = callbackAddress.replace("grpc://", "");
-                return new GrpcCallbackClient(grpcTarget);
+                throw new IOException("gRPC unidirectional callback client is deprecated. " +
+                        "Use bidirectional streaming transport (GrpcStreamingServerTransport) instead.");
 
             case "HTTP":
                 // HTTP address: http://localhost:8080/callback

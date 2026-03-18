@@ -18,6 +18,22 @@
 
 package org.wso2.carbon.identity.graaljs.sidecar.transport;
 
+// ============================================================================
+// STALE CODE - OLD UNIDIRECTIONAL 2-CHANNEL gRPC APPROACH
+// ============================================================================
+// This class was the sidecar-side gRPC server using unary RPCs for
+// evaluate() and executeCallback(). It required a SEPARATE callback channel
+// (GrpcCallbackClient → IS port 50052) for host function invocations.
+//
+// Replaced by: GrpcStreamingServerTransport (single bidirectional stream on
+// port 50051). The streaming approach handles both requests and callbacks
+// on the same stream, eliminating the separate callback connection.
+//
+// Not used: Main.java uses GrpcStreamingServerTransport (line 146).
+// TODO: Remove entirely during transport layer refactoring.
+// ============================================================================
+
+/*
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
@@ -33,10 +49,6 @@ import org.wso2.carbon.identity.graaljs.sidecar.JsEngineServiceImpl;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-/**
- * gRPC implementation of ServerTransport.
- * Runs a gRPC server for remote JavaScript engine evaluation.
- */
 public class GrpcServerTransport implements ServerTransport {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcServerTransport.class);
@@ -45,12 +57,6 @@ public class GrpcServerTransport implements ServerTransport {
     private final JsEngineServiceImpl engineService;
     private Server server;
 
-    /**
-     * Create a new gRPC server transport.
-     *
-     * @param port          Port to bind (0 for automatic selection).
-     * @param engineService JavaScript engine service implementation.
-     */
     public GrpcServerTransport(int port, JsEngineServiceImpl engineService) {
         this.port = port;
         this.engineService = engineService;
@@ -72,7 +78,6 @@ public class GrpcServerTransport implements ServerTransport {
             log.debug("[gRPC-Server] Started on port: " + server.getPort());
         }
 
-        // Add shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (log.isDebugEnabled()) {
                 log.debug("[gRPC-Server] Shutting down via shutdown hook");
@@ -117,9 +122,6 @@ public class GrpcServerTransport implements ServerTransport {
         return "localhost:" + port;
     }
 
-    /**
-     * gRPC service implementation for JavaScript engine.
-     */
     private class JsEngineServiceGrpcImpl extends JsEngineServiceGrpc.JsEngineServiceImplBase {
 
         @Override
@@ -162,7 +164,6 @@ public class GrpcServerTransport implements ServerTransport {
 
             long startTime = System.currentTimeMillis();
             try {
-                // Serialize request and delegate to engine service
                 if (log.isDebugEnabled()) {
                     log.debug("[gRPC-Server] Serializing request to bytes...");
                 }
@@ -253,7 +254,6 @@ public class GrpcServerTransport implements ServerTransport {
 
             long startTime = System.currentTimeMillis();
             try {
-                // Serialize request and delegate to engine service
                 if (log.isDebugEnabled()) {
                     log.debug("[gRPC-Server] Serializing request to bytes...");
                 }
@@ -312,3 +312,4 @@ public class GrpcServerTransport implements ServerTransport {
         }
     }
 }
+*/

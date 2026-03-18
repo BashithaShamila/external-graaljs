@@ -18,6 +18,25 @@
 
 package org.wso2.carbon.identity.graaljs.sidecar.transport;
 
+// ============================================================================
+// STALE CODE - OLD UNIDIRECTIONAL 2-CHANNEL gRPC APPROACH
+// ============================================================================
+// This class was the sidecar-side gRPC callback client that connected BACK to
+// the IS callback server (port 50052) via a SEPARATE channel to invoke host
+// functions using unary RPCs (HostCallbackService).
+//
+// In the old approach:
+//   IS → Sidecar: unary RPCs on port 50051
+//   Sidecar → IS: this GrpcCallbackClient → IS port 50052 (separate connection)
+//
+// Replaced by: StreamingCallbackClient which sends callbacks on the SAME
+// bidirectional stream (no separate channel needed).
+//
+// Not used: GrpcStreamingServerTransport creates StreamingCallbackClient directly.
+// TODO: Remove entirely during transport layer refactoring.
+// ============================================================================
+
+/*
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -34,11 +53,6 @@ import org.wso2.carbon.identity.graaljs.proto.grpc.HostCallbackServiceGrpc;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-/**
- * gRPC implementation of CallbackClient.
- * Connects to the Identity Server's gRPC callback service to invoke host functions
- * and access context properties.
- */
 public class GrpcCallbackClient implements CallbackClient {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcCallbackClient.class);
@@ -47,11 +61,6 @@ public class GrpcCallbackClient implements CallbackClient {
     private ManagedChannel channel;
     private HostCallbackServiceGrpc.HostCallbackServiceBlockingStub blockingStub;
 
-    /**
-     * Create a new gRPC callback client.
-     *
-     * @param grpcTarget The gRPC target address (host:port).
-     */
     public GrpcCallbackClient(String grpcTarget) {
         this.grpcTarget = grpcTarget;
         if (log.isDebugEnabled()) {
@@ -294,9 +303,6 @@ public class GrpcCallbackClient implements CallbackClient {
         }
     }
 
-    /**
-     * Ensure the client is connected before making calls.
-     */
     private void ensureConnected() throws IOException {
         if (log.isDebugEnabled()) {
             log.debug("[gRPC-Callback] ensureConnected() - checking connection...");
@@ -313,3 +319,4 @@ public class GrpcCallbackClient implements CallbackClient {
         }
     }
 }
+*/
