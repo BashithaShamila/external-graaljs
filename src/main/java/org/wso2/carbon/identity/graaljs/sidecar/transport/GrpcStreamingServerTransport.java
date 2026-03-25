@@ -18,8 +18,11 @@
 
 package org.wso2.carbon.identity.graaljs.sidecar.transport;
 
+import io.grpc.Grpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerCredentials;
+import io.grpc.TlsServerCredentials;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +34,10 @@ import org.wso2.carbon.identity.graaljs.proto.StreamMessage;
 import org.wso2.carbon.identity.graaljs.proto.grpc.JsEngineStreamingServiceGrpc;
 import org.wso2.carbon.identity.graaljs.sidecar.HostCallbackClient;
 import org.wso2.carbon.identity.graaljs.sidecar.JsEngineServiceImpl;
+import org.wso2.carbon.identity.graaljs.sidecar.SidecarConstants;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -73,13 +78,45 @@ public class GrpcStreamingServerTransport implements ServerTransport {
             return;
         }
 
-        server = ServerBuilder.forPort(port)
-                .addService(new JsEngineStreamingServiceImpl())
-                .build()
-                .start();
+        if (SidecarConstants.MTLS_ENABLED) {
+            String certPath = "/certs/";
+            System.out.println("[gRPC-Streaming-Server] mTLS enabled - loading certs from classpath: " + certPath);
+
+            InputStream serverCertStream = getClass().getResourceAsStream(certPath + SidecarConstants.MTLS_SERVER_CERT);
+            InputStream serverKeyStream = getClass().getResourceAsStream(certPath + SidecarConstants.MTLS_SERVER_KEY);
+            InputStream caCertStream = getClass().getResourceAsStream(certPath + SidecarConstants.MTLS_CA_CERT);
+
+            if (serverCertStream == null || serverKeyStream == null || caCertStream == null) {
+                throw new IOException("[gRPC-Streaming-Server] mTLS cert resources not found in classpath. " +
+                        "Expected: " + certPath + SidecarConstants.MTLS_SERVER_CERT + ", " +
+                        certPath + SidecarConstants.MTLS_SERVER_KEY + ", " +
+                        certPath + SidecarConstants.MTLS_CA_CERT);
+            }
+
+            ServerCredentials credentials = TlsServerCredentials.newBuilder()
+                    .keyManager(serverCertStream, serverKeyStream)
+                    .trustManager(caCertStream)
+                    .clientAuth(TlsServerCredentials.ClientAuth.REQUIRE)
+                    .build();
+
+            server = Grpc.newServerBuilderForPort(port, credentials)
+                    .addService(new JsEngineStreamingServiceImpl())
+                    .build()
+                    .start();
+
+            System.out.println("[gRPC-Streaming-Server] mTLS server started on port: " + server.getPort());
+        } else {
+            server = ServerBuilder.forPort(port)
+                    .addService(new JsEngineStreamingServiceImpl())
+                    .build()
+                    .start();
+
+            System.out.println("[gRPC-Streaming-Server] Plaintext server started on port: " + server.getPort());
+        }
 
         if (log.isDebugEnabled()) {
-            log.debug("[gRPC-Streaming-Server] Started on port: " + server.getPort());
+            log.debug("[gRPC-Streaming-Server] Started on port: " + server.getPort() +
+                    ", mTLS: " + SidecarConstants.MTLS_ENABLED);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

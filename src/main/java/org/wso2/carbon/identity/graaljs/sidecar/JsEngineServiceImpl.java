@@ -163,7 +163,7 @@ public class JsEngineServiceImpl {
                     // causes a ProtobufSerializer toString() fallback with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
-                    if (!"context".equals(key) && !val.canExecute() && !isHostFunction(key)) {
+                    if (!SidecarConstants.CONTEXT_BINDING_KEY.equals(key) && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -340,7 +340,7 @@ public class JsEngineServiceImpl {
                                     request.getContextData().getUsername());
                         }
                         contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
-                        bindings.putMember("__callbackContext", contextProxy);
+                        bindings.putMember(SidecarConstants.CALLBACK_CONTEXT_KEY, contextProxy);
                     }
 
                     // Deserialize arguments.
@@ -352,7 +352,7 @@ public class JsEngineServiceImpl {
                         // Check if this argument is a context placeholder (string containing
                         // JsGraalAuthenticationContext).
                         if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
-                                sv.getStringValue().contains("JsGraalAuthenticationContext") &&
+                                sv.getStringValue().contains(SidecarConstants.CONTEXT_PLACEHOLDER) &&
                                 contextProxy != null) {
                             // Replace with the actual context proxy.
                             if (log.isDebugEnabled()) {
@@ -412,7 +412,7 @@ public class JsEngineServiceImpl {
                     // causes a ProtobufSerializer toString() fallback with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
-                    if (!"context".equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
+                    if (!SidecarConstants.CONTEXT_BINDING_KEY.equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -585,7 +585,7 @@ public class JsEngineServiceImpl {
                     // causes a ProtobufSerializer toString() fallback with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
-                    if (!"context".equals(key) && !val.canExecute() && !isHostFunction(key)) {
+                    if (!SidecarConstants.CONTEXT_BINDING_KEY.equals(key) && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -704,14 +704,14 @@ public class JsEngineServiceImpl {
                     // Phase D: Proxy create + argument deserialization
                     if (request.hasContextData()) {
                         contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
-                        bindings.putMember("__callbackContext", contextProxy);
+                        bindings.putMember(SidecarConstants.CALLBACK_CONTEXT_KEY, contextProxy);
                     }
 
                     // Deserialize arguments
                     for (int i = 0; i < args.length; i++) {
                         SerializedValue sv = request.getArguments(i);
                         if (sv.getValueCase() == SerializedValue.ValueCase.STRING_VALUE &&
-                                sv.getStringValue().contains("JsGraalAuthenticationContext") &&
+                                sv.getStringValue().contains(SidecarConstants.CONTEXT_PLACEHOLDER) &&
                                 contextProxy != null) {
                             args[i] = contextProxy;
                         } else {
@@ -747,7 +747,7 @@ public class JsEngineServiceImpl {
                     // causes a ProtobufSerializer toString() fallback with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
-                    if (!"context".equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
+                    if (!SidecarConstants.CONTEXT_BINDING_KEY.equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
                         updatedBindings.put(key, serializeValue(val));
                     }
                 }
@@ -871,22 +871,6 @@ public class JsEngineServiceImpl {
     private static final ThreadLocal<java.util.Set<String>> currentRegisteredFunctions = ThreadLocal
             .withInitial(java.util.HashSet::new);
 
-    private void registerHostFunctionStubs(Value bindings, HostCallbackClient callbackClient) {
-        // Legacy method for evaluate requests - register default set
-        java.util.Set<String> defaultFunctions = new java.util.HashSet<>();
-        String[] defaultFuncNames = { "executeStep", "sendError", "fail", "showPrompt",
-                "loadLocalLibrary", "getSecretByName", "selectAcrFrom" };
-
-        for (String funcName : defaultFuncNames) {
-            bindings.putMember(funcName, new HostFunctionStub(funcName, callbackClient));
-            defaultFunctions.add(funcName);
-        }
-        bindings.putMember("Log", new LoggerProxy());
-        defaultFunctions.add("Log");
-
-        currentRegisteredFunctions.set(defaultFunctions);
-    }
-
     private boolean isHostFunction(String name) {
         java.util.Set<String> registered = currentRegisteredFunctions.get();
         return registered != null && registered.contains(name);
@@ -963,11 +947,11 @@ public class JsEngineServiceImpl {
             if (proxyObj instanceof DynamicContextProxy) {
                 DynamicContextProxy proxy = (DynamicContextProxy) proxyObj;
                 SerializedMap.Builder marker = SerializedMap.newBuilder();
-                marker.putEntries("__isContextProxy",
+                marker.putEntries(SidecarConstants.IS_CONTEXT_PROXY,
                         SerializedValue.newBuilder().setBoolValue(true).build());
-                marker.putEntries("__proxyType",
+                marker.putEntries(SidecarConstants.PROXY_TYPE_FIELD,
                         SerializedValue.newBuilder().setStringValue(proxy.getProxyType()).build());
-                marker.putEntries("__basePath",
+                marker.putEntries(SidecarConstants.BASE_PATH_FIELD,
                         SerializedValue.newBuilder().setStringValue(proxy.getBasePath()).build());
                 return SerializedValue.newBuilder().setMapValue(marker).build();
             }
@@ -1027,7 +1011,7 @@ public class JsEngineServiceImpl {
                 }
 
                 // Use __proxyref__ prefix to distinguish from context proxies (__hostref__ pattern)
-                String basePath = "__proxyref__::" + referenceId;
+                String basePath = SidecarConstants.PROXY_REF_PREFIX + referenceId;
 
                 // Get callback client from ThreadLocal (set by calling methods)
                 HostCallbackClient callbackClient = currentCallbackClient.get();
@@ -1108,12 +1092,11 @@ public class JsEngineServiceImpl {
                 if (result instanceof Map) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> resultMap = (Map<String, Object>) result;
-                    if (Boolean.TRUE.equals(resultMap.get("__isHostRef"))) {
-                        String proxyType = (String) resultMap.get("__proxyType");
-                        String referenceId = (String) resultMap.get("__referenceId");
+                    if (Boolean.TRUE.equals(resultMap.get(SidecarConstants.IS_HOST_REF))) {
+                        String proxyType = (String) resultMap.get(SidecarConstants.PROXY_TYPE_FIELD);
+                        String referenceId = (String) resultMap.get(SidecarConstants.REFERENCE_ID_FIELD);
                         // "pojo" type uses proxyObjectCache (__proxyref__), others use hostRefCache (__hostref__)
-                        String prefix = "pojo".equals(proxyType) ? "__proxyref__" : "__hostref__";
-                        String basePath = prefix + "::" + referenceId;
+                        String basePath = (SidecarConstants.PROXY_TYPE_POJO.equals(proxyType) ? SidecarConstants.PROXY_REF_PREFIX : SidecarConstants.HOST_REF_PREFIX) + referenceId;
                         if (log.isDebugEnabled()) {
                             log.debug("[Sidecar-Stub] Creating DynamicContextProxy for host function return: " +
                                     "type={}, refId={}, basePath={}", proxyType, referenceId, basePath);
@@ -1136,10 +1119,10 @@ public class JsEngineServiceImpl {
                         if (element instanceof Map) {
                             @SuppressWarnings("unchecked")
                             Map<String, Object> elementMap = (Map<String, Object>) element;
-                            if (Boolean.TRUE.equals(elementMap.get("__isHostRef"))) {
-                                String proxyType = (String) elementMap.get("__proxyType");
-                                String referenceId = (String) elementMap.get("__referenceId");
-                                String basePath = "__proxyref__::" + referenceId;
+                            if (Boolean.TRUE.equals(elementMap.get(SidecarConstants.IS_HOST_REF))) {
+                                String proxyType = (String) elementMap.get(SidecarConstants.PROXY_TYPE_FIELD);
+                                String referenceId = (String) elementMap.get(SidecarConstants.REFERENCE_ID_FIELD);
+                                String basePath = SidecarConstants.PROXY_REF_PREFIX + referenceId;
                                 elements[i] = new DynamicContextProxy(
                                         callbackClient.getSessionId(), callbackClient, proxyType, basePath);
                                 hasProxyElements = true;
@@ -1235,9 +1218,9 @@ public class JsEngineServiceImpl {
                 if (proxyObj instanceof DynamicContextProxy) {
                     DynamicContextProxy proxy = (DynamicContextProxy) proxyObj;
                     Map<String, Object> marker = new HashMap<>();
-                    marker.put("__isContextProxy", true);
-                    marker.put("__proxyType", proxy.getProxyType());
-                    marker.put("__basePath", proxy.getBasePath());
+                    marker.put(SidecarConstants.IS_CONTEXT_PROXY, true);
+                    marker.put(SidecarConstants.PROXY_TYPE_FIELD, proxy.getProxyType());
+                    marker.put(SidecarConstants.BASE_PATH_FIELD, proxy.getBasePath());
                     System.out.println("[DEBUG-SIDECAR] Converting DynamicContextProxy to marker: type=" +
                             proxy.getProxyType() + ", basePath=" + proxy.getBasePath());
                     if (log.isDebugEnabled()) {
@@ -1463,7 +1446,7 @@ public class JsEngineServiceImpl {
 
             try {
                 // Get member keys from IS - use special path "__keys__"
-                String propertyPath = basePath.isEmpty() ? "__keys__" : basePath + "::__keys__";
+                String propertyPath = basePath.isEmpty() ? SidecarConstants.KEYS_PROPERTY : basePath + SidecarConstants.PATH_SEPARATOR + SidecarConstants.KEYS_PROPERTY;
                 ContextPropertyResponse response = callbackClient.getContextProperty(propertyPath, proxyType);
 
                 if (response.getSuccess() && response.getMemberKeysCount() > 0) {

@@ -31,8 +31,6 @@ import java.io.IOException;
  * Address format examples:
  * - UDS: "/tmp/callback.sock" or "file:///tmp/callback.sock"
  * - gRPC: "grpc://localhost:50052" or "localhost:50052"
- * - HTTP: "http://localhost:8080/callback"
- * - WebSocket: "ws://localhost:8080/callback"
  * <p>
  * Usage:
  * <pre>
@@ -74,27 +72,9 @@ public class CallbackClientFactory {
                 String socketPath = callbackAddress.replace("file://", "");
                 return new UdsCallbackClient(sessionId, socketPath);
 
-            // STALE - OLD UNIDIRECTIONAL 2-CHANNEL CALLBACK (GrpcCallbackClient commented out)
-            // case "GRPC":
-            //     String grpcTarget = callbackAddress.replace("grpc://", "");
-            //     return new GrpcCallbackClient(grpcTarget);
             case "GRPC":
-                throw new IOException("gRPC unidirectional callback client is deprecated. " +
+                throw new IOException("gRPC callback client is not supported in this context. " +
                         "Use bidirectional streaming transport (GrpcStreamingServerTransport) instead.");
-
-            case "HTTP":
-                // HTTP address: http://localhost:8080/callback
-                // TODO: Implement when HttpCallbackClient is available
-                throw new IOException("HTTP callback client not yet implemented. " +
-                        "To add HTTP support, implement HttpCallbackClient and uncomment the code here.");
-                // return new HttpCallbackClient(callbackAddress);
-
-            case "WEBSOCKET":
-                // WebSocket address: ws://localhost:8080/callback
-                // TODO: Implement when WebSocketCallbackClient is available
-                throw new IOException("WebSocket callback client not yet implemented. " +
-                        "To add WebSocket support, implement WebSocketCallbackClient and uncomment the code here.");
-                // return new WebSocketCallbackClient(callbackAddress);
 
             default:
                 throw new IOException("Unknown transport type '" + transportType +
@@ -107,13 +87,11 @@ public class CallbackClientFactory {
      * <p>
      * Detection logic:
      * - "grpc://" prefix or "host:port" format → GRPC
-     * - "http://" or "https://" prefix → HTTP
-     * - "ws://" or "wss://" prefix → WEBSOCKET
      * - Starts with "/" or "file://" → UDS
      * - Default → UDS (for backward compatibility)
      *
      * @param address Callback address.
-     * @return Transport type: "UDS", "GRPC", "HTTP", or "WEBSOCKET".
+     * @return Transport type: "UDS" or "GRPC".
      */
     private static String detectTransportType(String address) {
         if (address.startsWith("grpc://")) {
@@ -121,10 +99,6 @@ public class CallbackClientFactory {
         } else if (address.matches("^[a-zA-Z0-9.-]+:\\d+$")) {
             // Matches "host:port" format - assume gRPC
             return "GRPC";
-        } else if (address.startsWith("http://") || address.startsWith("https://")) {
-            return "HTTP";
-        } else if (address.startsWith("ws://") || address.startsWith("wss://")) {
-            return "WEBSOCKET";
         } else if (address.startsWith("/") || address.startsWith("file://")) {
             return "UDS";
         } else {

@@ -455,9 +455,9 @@ public class HostCallbackClient implements Closeable {
             case PROXY_OBJECT:
                 SerializedProxyObject proxy = sv.getProxyObject();
                 Map<String, Object> proxyMarker = new HashMap<>();
-                proxyMarker.put("__isHostRef", true);
-                proxyMarker.put("__proxyType", proxy.getType());
-                proxyMarker.put("__referenceId", proxy.getReferenceId());
+                proxyMarker.put(SidecarConstants.IS_HOST_REF, true);
+                proxyMarker.put(SidecarConstants.PROXY_TYPE_FIELD, proxy.getType());
+                proxyMarker.put(SidecarConstants.REFERENCE_ID_FIELD, proxy.getReferenceId());
                 if (log.isDebugEnabled()) {
                     log.debug("[HostCallbackClient] Deserialized proxy object: type={}, refId={}",
                             proxy.getType(), proxy.getReferenceId());
