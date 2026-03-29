@@ -96,6 +96,44 @@ public class StreamingCallbackClient implements CallbackClient {
         }
     }
 
+    /**
+     * Send a StreamMessage on the outbound stream and block until IS responds.
+     * Handles the CompletableFuture lifecycle, synchronized send, timeout,
+     * and compareAndSet cleanup to prevent clearing a future set by a subsequent callback.
+     *
+     * @param streamMsg The message to send.
+     * @return The response StreamMessage from IS.
+     * @throws IOException On timeout, interruption, or execution failure.
+     */
+    private StreamMessage sendAndAwait(StreamMessage streamMsg) throws IOException {
+        CompletableFuture<StreamMessage> future = new CompletableFuture<>();
+        pendingResponse.set(future);
+
+        try {
+            synchronized (streamLock) {
+                outbound.onNext(streamMsg);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Sent {} on stream", streamMsg.getPayloadCase());
+            }
+
+            return future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+
+        } catch (TimeoutException e) {
+            throw new IOException("Callback timed out after " + CALLBACK_TIMEOUT_SECONDS + "s", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Callback interrupted", e);
+        } catch (ExecutionException e) {
+            throw new IOException("Callback failed: " + e.getCause().getMessage(), e.getCause());
+        } finally {
+            // Use compareAndSet to only clear if it's still OUR future.
+            // Prevents clearing a future that was set by a subsequent callback
+            // in edge cases with out-of-order gRPC message delivery.
+            pendingResponse.compareAndSet(future, null);
+        }
+    }
+
     @Override
     public HostFunctionResponse invokeHostFunction(HostFunctionRequest request) throws IOException {
         if (log.isDebugEnabled()) {
@@ -107,75 +145,40 @@ public class StreamingCallbackClient implements CallbackClient {
                 request.getSessionId() + " function=" + request.getFunctionName() +
                 " startTs=" + t0);
 
-        CompletableFuture<StreamMessage> future = new CompletableFuture<>();
-        pendingResponse.set(future);
+        StreamMessage streamMsg = StreamMessage.newBuilder()
+                .setSessionId(request.getSessionId())
+                .setHostFunctionRequest(request)
+                .build();
 
+        StreamMessage response;
         try {
-            // Send host function request on the stream
-            StreamMessage streamMsg = StreamMessage.newBuilder()
-                    .setSessionId(request.getSessionId())
-                    .setHostFunctionRequest(request)
-                    .build();
-
-            synchronized (streamLock) {
-                outbound.onNext(streamMsg);
-            }
-            long t1 = System.currentTimeMillis();
-            System.out.println("[PERF] [" + t1 + "] SIDECAR HOST_FN_CALLBACK_SENT session=" +
-                    request.getSessionId() + " function=" + request.getFunctionName() +
-                    " startTs=" + t0 + " sentTs=" + t1 +
-                    " sendMs=" + (t1 - t0));
-            if (log.isDebugEnabled()) {
-                log.debug("[StreamingCallback] Sent HostFunctionRequest on stream");
-            }
-
-            // Block until IS responds
-            StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            long t2 = System.currentTimeMillis();
-
-            if (response.getPayloadCase() == StreamMessage.PayloadCase.HOST_FUNCTION_RESPONSE) {
-                HostFunctionResponse hfResponse = response.getHostFunctionResponse();
-                System.out.println("[PERF] [" + t2 + "] SIDECAR HOST_FN_CALLBACK_RESPONSE session=" +
-                        request.getSessionId() + " function=" + request.getFunctionName() +
-                        " success=" + hfResponse.getSuccess() +
-                        " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
-                        " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
-                if (log.isDebugEnabled()) {
-                    log.debug("[StreamingCallback] Received HostFunctionResponse, success: " +
-                            hfResponse.getSuccess());
-                }
-                return hfResponse;
-            } else {
-                throw new IOException("Unexpected response type: " + response.getPayloadCase());
-            }
-
-        } catch (TimeoutException e) {
-            long tErr = System.currentTimeMillis();
-            System.out.println("[PERF] [" + tErr +
-                    "] SIDECAR HOST_FN_CALLBACK_TIMEOUT session=" + request.getSessionId() +
-                    " function=" + request.getFunctionName() +
-                    " startTs=" + t0 + " timeoutTs=" + tErr +
-                    " timeoutMs=" + (tErr - t0));
-            throw new IOException("Host function callback timed out after " +
-                    CALLBACK_TIMEOUT_SECONDS + "s", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Host function callback interrupted", e);
-        } catch (ExecutionException e) {
+            response = sendAndAwait(streamMsg);
+        } catch (IOException e) {
             long tErr = System.currentTimeMillis();
             System.out.println("[PERF] [" + tErr +
                     "] SIDECAR HOST_FN_CALLBACK_ERROR session=" + request.getSessionId() +
                     " function=" + request.getFunctionName() +
-                    " error=" + e.getCause().getMessage() +
+                    " error=" + e.getMessage() +
                     " startTs=" + t0 + " errorTs=" + tErr +
                     " elapsedMs=" + (tErr - t0));
-            throw new IOException("Host function callback failed: " + e.getCause().getMessage(),
-                    e.getCause());
-        } finally {
-            // Use compareAndSet to only clear if it's still OUR future.
-            // Prevents clearing a future that was set by a subsequent callback
-            // in edge cases with out-of-order gRPC message delivery.
-            pendingResponse.compareAndSet(future, null);
+            throw e;
+        }
+        long t2 = System.currentTimeMillis();
+
+        if (response.getPayloadCase() == StreamMessage.PayloadCase.HOST_FUNCTION_RESPONSE) {
+            HostFunctionResponse hfResponse = response.getHostFunctionResponse();
+            System.out.println("[PERF] [" + t2 + "] SIDECAR HOST_FN_CALLBACK_RESPONSE session=" +
+                    request.getSessionId() + " function=" + request.getFunctionName() +
+                    " success=" + hfResponse.getSuccess() +
+                    " startTs=" + t0 + " responseTs=" + t2 +
+                    " totalRoundtripMs=" + (t2 - t0));
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Received HostFunctionResponse, success: " +
+                        hfResponse.getSuccess());
+            }
+            return hfResponse;
+        } else {
+            throw new IOException("Unexpected response type: " + response.getPayloadCase());
         }
     }
 
@@ -190,69 +193,40 @@ public class StreamingCallbackClient implements CallbackClient {
                 request.getSessionId() + " path=" + request.getPropertyPath() +
                 " startTs=" + t0);
 
-        CompletableFuture<StreamMessage> future = new CompletableFuture<>();
-        pendingResponse.set(future);
+        StreamMessage streamMsg = StreamMessage.newBuilder()
+                .setSessionId(request.getSessionId())
+                .setContextPropertyRequest(request)
+                .build();
 
+        StreamMessage response;
         try {
-            StreamMessage streamMsg = StreamMessage.newBuilder()
-                    .setSessionId(request.getSessionId())
-                    .setContextPropertyRequest(request)
-                    .build();
-
-            synchronized (streamLock) {
-                outbound.onNext(streamMsg);
-            }
-            long t1 = System.currentTimeMillis();
-            System.out.println("[PERF] [" + t1 + "] SIDECAR CTX_PROP_CALLBACK_SENT session=" +
-                    request.getSessionId() + " path=" + request.getPropertyPath() +
-                    " startTs=" + t0 + " sentTs=" + t1 +
-                    " sendMs=" + (t1 - t0));
-            if (log.isDebugEnabled()) {
-                log.debug("[StreamingCallback] Sent ContextPropertyRequest on stream");
-            }
-
-            StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            long t2 = System.currentTimeMillis();
-
-            if (response.getPayloadCase() == StreamMessage.PayloadCase.CONTEXT_PROPERTY_RESPONSE) {
-                ContextPropertyResponse cpResponse = response.getContextPropertyResponse();
-                System.out.println("[PERF] [" + t2 + "] SIDECAR CTX_PROP_CALLBACK_RESPONSE session=" +
-                        request.getSessionId() + " path=" + request.getPropertyPath() +
-                        " success=" + cpResponse.getSuccess() +
-                        " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
-                        " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
-                if (log.isDebugEnabled()) {
-                    log.debug("[StreamingCallback] Received ContextPropertyResponse, success: " +
-                            cpResponse.getSuccess());
-                }
-                return cpResponse;
-            } else {
-                throw new IOException("Unexpected response type: " + response.getPayloadCase());
-            }
-
-        } catch (TimeoutException e) {
-            long tErr = System.currentTimeMillis();
-            System.out.println("[PERF] [" + tErr +
-                    "] SIDECAR CTX_PROP_CALLBACK_TIMEOUT session=" + request.getSessionId() +
-                    " path=" + request.getPropertyPath() +
-                    " startTs=" + t0 + " timeoutTs=" + tErr +
-                    " timeoutMs=" + (tErr - t0));
-            throw new IOException("Context property callback timed out", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Context property callback interrupted", e);
-        } catch (ExecutionException e) {
+            response = sendAndAwait(streamMsg);
+        } catch (IOException e) {
             long tErr = System.currentTimeMillis();
             System.out.println("[PERF] [" + tErr +
                     "] SIDECAR CTX_PROP_CALLBACK_ERROR session=" + request.getSessionId() +
                     " path=" + request.getPropertyPath() +
-                    " error=" + e.getCause().getMessage() +
+                    " error=" + e.getMessage() +
                     " startTs=" + t0 + " errorTs=" + tErr +
                     " elapsedMs=" + (tErr - t0));
-            throw new IOException("Context property callback failed: " + e.getCause().getMessage(),
-                    e.getCause());
-        } finally {
-            pendingResponse.compareAndSet(future, null);
+            throw e;
+        }
+        long t2 = System.currentTimeMillis();
+
+        if (response.getPayloadCase() == StreamMessage.PayloadCase.CONTEXT_PROPERTY_RESPONSE) {
+            ContextPropertyResponse cpResponse = response.getContextPropertyResponse();
+            System.out.println("[PERF] [" + t2 + "] SIDECAR CTX_PROP_CALLBACK_RESPONSE session=" +
+                    request.getSessionId() + " path=" + request.getPropertyPath() +
+                    " success=" + cpResponse.getSuccess() +
+                    " startTs=" + t0 + " responseTs=" + t2 +
+                    " totalRoundtripMs=" + (t2 - t0));
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Received ContextPropertyResponse, success: " +
+                        cpResponse.getSuccess());
+            }
+            return cpResponse;
+        } else {
+            throw new IOException("Unexpected response type: " + response.getPayloadCase());
         }
     }
 
@@ -267,69 +241,40 @@ public class StreamingCallbackClient implements CallbackClient {
                 request.getSessionId() + " path=" + request.getPropertyPath() +
                 " startTs=" + t0);
 
-        CompletableFuture<StreamMessage> future = new CompletableFuture<>();
-        pendingResponse.set(future);
+        StreamMessage streamMsg = StreamMessage.newBuilder()
+                .setSessionId(request.getSessionId())
+                .setContextPropertySetRequest(request)
+                .build();
 
+        StreamMessage response;
         try {
-            StreamMessage streamMsg = StreamMessage.newBuilder()
-                    .setSessionId(request.getSessionId())
-                    .setContextPropertySetRequest(request)
-                    .build();
-
-            synchronized (streamLock) {
-                outbound.onNext(streamMsg);
-            }
-            long t1 = System.currentTimeMillis();
-            System.out.println("[PERF] [" + t1 + "] SIDECAR CTX_PROP_SET_CALLBACK_SENT session=" +
-                    request.getSessionId() + " path=" + request.getPropertyPath() +
-                    " startTs=" + t0 + " sentTs=" + t1 +
-                    " sendMs=" + (t1 - t0));
-            if (log.isDebugEnabled()) {
-                log.debug("[StreamingCallback] Sent ContextPropertySetRequest on stream");
-            }
-
-            StreamMessage response = future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            long t2 = System.currentTimeMillis();
-
-            if (response.getPayloadCase() == StreamMessage.PayloadCase.CONTEXT_PROPERTY_SET_RESPONSE) {
-                ContextPropertySetResponse cpsResponse = response.getContextPropertySetResponse();
-                System.out.println("[PERF] [" + t2 + "] SIDECAR CTX_PROP_SET_CALLBACK_RESPONSE session=" +
-                        request.getSessionId() + " path=" + request.getPropertyPath() +
-                        " success=" + cpsResponse.getSuccess() +
-                        " startTs=" + t0 + " sentTs=" + t1 + " responseTs=" + t2 +
-                        " waitMs=" + (t2 - t1) + " totalRoundtripMs=" + (t2 - t0));
-                if (log.isDebugEnabled()) {
-                    log.debug("[StreamingCallback] Received ContextPropertySetResponse, success: " +
-                            cpsResponse.getSuccess());
-                }
-                return cpsResponse;
-            } else {
-                throw new IOException("Unexpected response type: " + response.getPayloadCase());
-            }
-
-        } catch (TimeoutException e) {
-            long tErr = System.currentTimeMillis();
-            System.out.println("[PERF] [" + tErr +
-                    "] SIDECAR CTX_PROP_SET_CALLBACK_TIMEOUT session=" + request.getSessionId() +
-                    " path=" + request.getPropertyPath() +
-                    " startTs=" + t0 + " timeoutTs=" + tErr +
-                    " timeoutMs=" + (tErr - t0));
-            throw new IOException("Context property set callback timed out", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Context property set callback interrupted", e);
-        } catch (ExecutionException e) {
+            response = sendAndAwait(streamMsg);
+        } catch (IOException e) {
             long tErr = System.currentTimeMillis();
             System.out.println("[PERF] [" + tErr +
                     "] SIDECAR CTX_PROP_SET_CALLBACK_ERROR session=" + request.getSessionId() +
                     " path=" + request.getPropertyPath() +
-                    " error=" + e.getCause().getMessage() +
+                    " error=" + e.getMessage() +
                     " startTs=" + t0 + " errorTs=" + tErr +
                     " elapsedMs=" + (tErr - t0));
-            throw new IOException("Context property set callback failed: " +
-                    e.getCause().getMessage(), e.getCause());
-        } finally {
-            pendingResponse.compareAndSet(future, null);
+            throw e;
+        }
+        long t2 = System.currentTimeMillis();
+
+        if (response.getPayloadCase() == StreamMessage.PayloadCase.CONTEXT_PROPERTY_SET_RESPONSE) {
+            ContextPropertySetResponse cpsResponse = response.getContextPropertySetResponse();
+            System.out.println("[PERF] [" + t2 + "] SIDECAR CTX_PROP_SET_CALLBACK_RESPONSE session=" +
+                    request.getSessionId() + " path=" + request.getPropertyPath() +
+                    " success=" + cpsResponse.getSuccess() +
+                    " startTs=" + t0 + " responseTs=" + t2 +
+                    " totalRoundtripMs=" + (t2 - t0));
+            if (log.isDebugEnabled()) {
+                log.debug("[StreamingCallback] Received ContextPropertySetResponse, success: " +
+                        cpsResponse.getSuccess());
+            }
+            return cpsResponse;
+        } else {
+            throw new IOException("Unexpected response type: " + response.getPayloadCase());
         }
     }
 

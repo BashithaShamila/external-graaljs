@@ -32,6 +32,7 @@ org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$MethodHandlers.c
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngineStreamingServiceStub.class
 org/wso2/carbon/identity/graaljs/proto/SerializedValue$2.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngineStreamingServiceFileDescriptorSupplier.class
+org/wso2/carbon/identity/graaljs/sidecar/DynamicContextProxy$1.class
 org/wso2/carbon/identity/graaljs/proto/grpc/HostCallbackServiceGrpc$HostCallbackServiceMethodDescriptorSupplier.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$3.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$2.class
