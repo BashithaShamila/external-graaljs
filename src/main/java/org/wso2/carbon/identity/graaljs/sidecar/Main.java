@@ -22,33 +22,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.graaljs.sidecar.transport.GrpcStreamingServerTransport;
 import org.wso2.carbon.identity.graaljs.sidecar.transport.ServerTransport;
-import org.wso2.carbon.identity.graaljs.sidecar.transport.UdsServerTransport;
 
 import java.io.IOException;
 
 /**
  * Main entry point for the GraalJS sidecar server.
- * Supports both UDS and gRPC transports via command-line arguments.
+ * Uses gRPC bidirectional streaming transport.
  *
  * <p>Usage:</p>
  * <pre>
- * UDS mode:  java -jar sidecar.jar uds [socketPath] [statementLimit] [threadPoolSize]
- * gRPC mode: java -jar sidecar.jar grpc [port] [statementLimit] [threadPoolSize]
+ * java -jar sidecar.jar [port] [statementLimit] [threadPoolSize]
  * </pre>
  *
  * <p>Examples:</p>
  * <pre>
- * java -jar sidecar.jar uds /tmp/graaljs.sock 5000 10
- * java -jar sidecar.jar grpc 50051 5000 10
+ * java -jar sidecar.jar 50051 5000 10
  * </pre>
  */
 public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
-    // Default values
-    private static final String DEFAULT_TRANSPORT = "uds";
-    private static final String DEFAULT_SOCKET_PATH = "/tmp/graaljs-sidecar.sock";
+    // Default values.
     private static final int DEFAULT_GRPC_PORT = 50051;
     private static final int DEFAULT_STATEMENT_LIMIT = 5000;
     private static final int DEFAULT_THREAD_POOL_SIZE = 10;
@@ -72,60 +67,23 @@ public class Main {
     }
 
     /**
-     * Parse command-line arguments and start the appropriate transport.
+     * Parse command-line arguments and start the gRPC transport.
+     * Accepts optional "grpc" keyword as first argument for backward compatibility.
      *
-     * @param args Command-line arguments.
+     * @param args Command-line arguments: [grpc] [port] [statementLimit] [threadPoolSize].
      */
     private void parseArgsAndStart(String[] args) throws IOException {
-        String transport = DEFAULT_TRANSPORT;
-        int statementLimit = DEFAULT_STATEMENT_LIMIT;
-        int threadPoolSize = DEFAULT_THREAD_POOL_SIZE;
-
-        // Parse transport type (first argument)
-        if (args.length > 0) {
-            transport = args[0].toLowerCase();
+        // Skip "grpc" keyword if present (backward compatibility).
+        int offset = 0;
+        if (args.length > 0 && "grpc".equalsIgnoreCase(args[0])) {
+            offset = 1;
         }
 
-        if ("uds".equals(transport)) {
-            // UDS mode: uds [socketPath] [statementLimit] [threadPoolSize]
-            String socketPath = args.length > 1 ? args[1] : DEFAULT_SOCKET_PATH;
-            statementLimit = args.length > 2 ? Integer.parseInt(args[2]) : DEFAULT_STATEMENT_LIMIT;
-            threadPoolSize = args.length > 3 ? Integer.parseInt(args[3]) : DEFAULT_THREAD_POOL_SIZE;
+        int port = args.length > offset ? Integer.parseInt(args[offset]) : DEFAULT_GRPC_PORT;
+        int statementLimit = args.length > offset + 1 ? Integer.parseInt(args[offset + 1]) : DEFAULT_STATEMENT_LIMIT;
+        int threadPoolSize = args.length > offset + 2 ? Integer.parseInt(args[offset + 2]) : DEFAULT_THREAD_POOL_SIZE;
 
-            startUds(socketPath, statementLimit, threadPoolSize);
-
-        } else if ("grpc".equals(transport)) {
-            // gRPC mode: grpc [port] [statementLimit] [threadPoolSize]
-            int port = args.length > 1 ? Integer.parseInt(args[1]) : DEFAULT_GRPC_PORT;
-            statementLimit = args.length > 2 ? Integer.parseInt(args[2]) : DEFAULT_STATEMENT_LIMIT;
-            threadPoolSize = args.length > 3 ? Integer.parseInt(args[3]) : DEFAULT_THREAD_POOL_SIZE;
-
-            startGrpc(port, statementLimit, threadPoolSize);
-
-        } else {
-            printUsageAndExit();
-        }
-    }
-
-    /**
-     * Start the sidecar in UDS mode.
-     */
-    private void startUds(String socketPath, int statementLimit, int threadPoolSize) throws IOException {
-        log.info("[Main] Starting sidecar in UDS mode");
-        System.out.println("[SIDECAR-STARTUP] Starting GraalJS Sidecar in UDS mode");
-        System.out.println("[SIDECAR-STARTUP] Socket path: " + socketPath);
-        System.out.println("[SIDECAR-STARTUP] Statement limit: " + statementLimit
-                + ", Thread pool size: " + threadPoolSize);
-        System.out.flush();
-
-        // Create engine service
-        engineService = new JsEngineServiceImpl(statementLimit);
-
-        // Create UDS transport
-        serverTransport = new UdsServerTransport(socketPath, engineService, threadPoolSize);
-
-        // Start server
-        startServer();
+        startGrpc(port, statementLimit, threadPoolSize);
     }
 
     /**
@@ -202,27 +160,4 @@ public class Main {
         }
     }
 
-    /**
-     * Print usage information and exit.
-     */
-    private static void printUsageAndExit() {
-        System.err.println("Usage:");
-        System.err.println("  UDS mode:  java -jar sidecar.jar uds [socketPath] [statementLimit] [threadPoolSize]");
-        System.err.println("  gRPC mode: java -jar sidecar.jar grpc [port] [statementLimit] [threadPoolSize]");
-        System.err.println();
-        System.err.println("Defaults:");
-        System.err.println("  Socket path:      " + DEFAULT_SOCKET_PATH);
-        System.err.println("  gRPC port:        " + DEFAULT_GRPC_PORT);
-        System.err.println("  Statement limit:  " + DEFAULT_STATEMENT_LIMIT);
-        System.err.println("  Thread pool size: " + DEFAULT_THREAD_POOL_SIZE);
-        System.err.println();
-        System.err.println("Examples:");
-        System.err.println("  java -jar sidecar.jar uds");
-        System.err.println("  java -jar sidecar.jar uds /tmp/custom.sock");
-        System.err.println("  java -jar sidecar.jar uds /tmp/custom.sock 10000 20");
-        System.err.println("  java -jar sidecar.jar grpc");
-        System.err.println("  java -jar sidecar.jar grpc 50052");
-        System.err.println("  java -jar sidecar.jar grpc 50052 10000 20");
-        System.exit(1);
-    }
 }

@@ -160,45 +160,7 @@ class HostFunctionStub implements ProxyExecutable {
         // IMPORTANT: Check canExecute() BEFORE hasMembers() because JS functions also
         // have members.
         if (val.canExecute()) {
-            String source = null;
-            // First try getSourceLocation() - works for top-level named functions.
-            try {
-                if (val.getSourceLocation() != null &&
-                        val.getSourceLocation().getCharacters() != null) {
-                    source = val.getSourceLocation().getCharacters().toString();
-                }
-            } catch (Exception e) {
-                log.debug("[Sidecar-Stub] Could not get source location for function: {}", e.getMessage());
-            }
-            // If getSourceLocation() failed, use toString() which calls
-            // Function.prototype.toString().
-            // For GraalJS, this returns the full function definition including body.
-            if (source == null || source.isEmpty()) {
-                try {
-                    source = val.toString();
-                    // val.toString() for functions returns the full source like:
-                    // "function(context) { ... }" or "(context) => { ... }"
-                    if (log.isDebugEnabled()) {
-                        log.debug("[Sidecar-Stub] Using toString() for function, got: {}...",
-                                source.substring(0, Math.min(80, source.length())));
-                    }
-                } catch (Exception e) {
-                    log.warn("[Sidecar-Stub] Could not get function toString(): {}", e.getMessage());
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("[Sidecar-Stub] Extracted function source via getSourceLocation: {}...",
-                            source.substring(0, Math.min(80, source.length())));
-                }
-            }
-            if (source != null && !source.isEmpty() &&
-                    (source.contains("function") || source.contains("=>"))) {
-                return source;
-            } else {
-                log.error("[Sidecar-Stub] Could not extract valid function source. Got: {}", source);
-                // Return whatever we have, even if it's not ideal.
-                return source != null ? source : "function(){}";
-            }
+            return ValueSerializationUtils.extractFunctionSource(val);
         }
         if (val.hasArrayElements()) {
             Object[] arr = new Object[(int) val.getArraySize()];

@@ -152,14 +152,14 @@ message StreamMessage {
     string session_id = 1;
 
     oneof payload {
-        // IS → Sidecar
+        // IS → External
         EvaluateRequest evaluate_request = 2;
         ExecuteCallbackRequest execute_callback_request = 3;
         HostFunctionResponse host_function_response = 4;
         ContextPropertyResponse context_property_response = 5;
         ContextPropertySetResponse context_property_set_response = 6;
 
-        // Sidecar → IS
+        // External → IS
         EvaluateResponse evaluate_response = 10;
         ExecuteCallbackResponse execute_callback_response = 11;
         HostFunctionRequest host_function_request = 12;

@@ -143,7 +143,7 @@ private static final long serialVersionUID = 0L;
   public static final int EVALUATE_REQUEST_FIELD_NUMBER = 2;
   /**
    * <pre>
-   * IS → Sidecar
+   * IS → External
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -155,7 +155,7 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * IS → Sidecar
+   * IS → External
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -170,7 +170,7 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * IS → Sidecar
+   * IS → External
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -310,7 +310,7 @@ private static final long serialVersionUID = 0L;
   public static final int EVALUATE_RESPONSE_FIELD_NUMBER = 10;
   /**
    * <pre>
-   * Sidecar → IS
+   * External → IS
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -322,7 +322,7 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * Sidecar → IS
+   * External → IS
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -337,7 +337,7 @@ private static final long serialVersionUID = 0L;
   }
   /**
    * <pre>
-   * Sidecar → IS
+   * External → IS
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -1241,7 +1241,7 @@ private static final long serialVersionUID = 0L;
         org.wso2.carbon.identity.graaljs.proto.EvaluateRequest, org.wso2.carbon.identity.graaljs.proto.EvaluateRequest.Builder, org.wso2.carbon.identity.graaljs.proto.EvaluateRequestOrBuilder> evaluateRequestBuilder_;
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1253,7 +1253,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1275,7 +1275,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1295,7 +1295,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1313,7 +1313,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1340,7 +1340,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1363,7 +1363,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1373,7 +1373,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1391,7 +1391,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * IS → Sidecar
+     * IS → External
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -1987,7 +1987,7 @@ private static final long serialVersionUID = 0L;
         org.wso2.carbon.identity.graaljs.proto.EvaluateResponse, org.wso2.carbon.identity.graaljs.proto.EvaluateResponse.Builder, org.wso2.carbon.identity.graaljs.proto.EvaluateResponseOrBuilder> evaluateResponseBuilder_;
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -1999,7 +1999,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2021,7 +2021,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2041,7 +2041,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2059,7 +2059,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2086,7 +2086,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2109,7 +2109,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2119,7 +2119,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -2137,7 +2137,7 @@ private static final long serialVersionUID = 0L;
     }
     /**
      * <pre>
-     * Sidecar → IS
+     * External → IS
      * </pre>
      *
      * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>

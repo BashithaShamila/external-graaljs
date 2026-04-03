@@ -21,7 +21,7 @@ public interface StreamMessageOrBuilder extends
 
   /**
    * <pre>
-   * IS → Sidecar
+   * IS → External
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -30,7 +30,7 @@ public interface StreamMessageOrBuilder extends
   boolean hasEvaluateRequest();
   /**
    * <pre>
-   * IS → Sidecar
+   * IS → External
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -39,7 +39,7 @@ public interface StreamMessageOrBuilder extends
   org.wso2.carbon.identity.graaljs.proto.EvaluateRequest getEvaluateRequest();
   /**
    * <pre>
-   * IS → Sidecar
+   * IS → External
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateRequest evaluate_request = 2;</code>
@@ -108,7 +108,7 @@ public interface StreamMessageOrBuilder extends
 
   /**
    * <pre>
-   * Sidecar → IS
+   * External → IS
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -117,7 +117,7 @@ public interface StreamMessageOrBuilder extends
   boolean hasEvaluateResponse();
   /**
    * <pre>
-   * Sidecar → IS
+   * External → IS
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>
@@ -126,7 +126,7 @@ public interface StreamMessageOrBuilder extends
   org.wso2.carbon.identity.graaljs.proto.EvaluateResponse getEvaluateResponse();
   /**
    * <pre>
-   * Sidecar → IS
+   * External → IS
    * </pre>
    *
    * <code>.org.wso2.carbon.identity.graaljs.engine.proto.EvaluateResponse evaluate_response = 10;</code>

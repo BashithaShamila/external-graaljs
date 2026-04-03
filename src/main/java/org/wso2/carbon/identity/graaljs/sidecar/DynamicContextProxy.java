@@ -125,7 +125,7 @@ class DynamicContextProxy implements ProxyObject {
                         response.getProxyType(), propertyPath, proxyMemberKeys);
             } else {
                 // Deserialize the value
-                value = deserializeValue(response.getValue());
+                value = ValueSerializationUtils.deserialize(response.getValue());
                 if (log.isDebugEnabled()) {
                     log.debug("[DynamicContextProxy] Deserialized '{}' = {}", key,
                             value != null ? value.getClass().getSimpleName() : "null");
@@ -199,7 +199,7 @@ class DynamicContextProxy implements ProxyObject {
             }
 
             // Serialize the value
-            SerializedValue serializedValue = serializeGraalValue(value);
+            SerializedValue serializedValue = ValueSerializationUtils.serializeGraalValue(value);
 
             // Send write request to IS
             ContextPropertySetResponse response = callbackClient.setContextProperty(
@@ -207,7 +207,7 @@ class DynamicContextProxy implements ProxyObject {
 
             if (response.getSuccess()) {
                 // ONLY update cache after confirmed success (cache consistency)
-                cache.put(key, convertGraalValue(value));
+                cache.put(key, ValueSerializationUtils.toJavaPrimitive(value));
                 log.debug("[DynamicContextProxy] Successfully set '{}' and updated cache", key);
             } else {
                 log.error("[DynamicContextProxy] Failed to set '{}': {}",
@@ -215,92 +215,6 @@ class DynamicContextProxy implements ProxyObject {
             }
         } catch (java.io.IOException e) {
             log.error("[DynamicContextProxy] Error setting property '{}': {}", key, e.getMessage());
-        }
-    }
-
-    /**
-     * Convert a GraalVM Value to a Java object for caching.
-     */
-    private Object convertGraalValue(Value value) {
-        if (value == null || value.isNull()) {
-            return null;
-        } else if (value.isString()) {
-            return value.asString();
-        } else if (value.isNumber()) {
-            if (value.fitsInLong()) {
-                return value.asLong();
-            }
-            return value.asDouble();
-        } else if (value.isBoolean()) {
-            return value.asBoolean();
-        }
-        return value.toString();
-    }
-
-    /**
-     * Serialize a GraalVM Value to protobuf SerializedValue.
-     */
-    private SerializedValue serializeGraalValue(Value val) {
-        if (val == null || val.isNull()) {
-            return SerializedValue.newBuilder()
-                    .setNullValue(com.google.protobuf.ByteString.EMPTY)
-                    .build();
-        } else if (val.isString()) {
-            return SerializedValue.newBuilder()
-                    .setStringValue(val.asString())
-                    .build();
-        } else if (val.isNumber()) {
-            if (val.fitsInLong()) {
-                return SerializedValue.newBuilder()
-                        .setIntValue(val.asLong())
-                        .build();
-            }
-            return SerializedValue.newBuilder()
-                    .setDoubleValue(val.asDouble())
-                    .build();
-        } else if (val.isBoolean()) {
-            return SerializedValue.newBuilder()
-                    .setBoolValue(val.asBoolean())
-                    .build();
-        }
-        // Default to string representation
-        return SerializedValue.newBuilder()
-                .setStringValue(val.toString())
-                .build();
-    }
-
-    /**
-     * Deserialize a SerializedValue from protobuf.
-     */
-    private Object deserializeValue(SerializedValue sv) {
-        if (sv == null) {
-            return null;
-        }
-        switch (sv.getValueCase()) {
-            case STRING_VALUE:
-                return sv.getStringValue();
-            case INT_VALUE:
-                return sv.getIntValue();
-            case DOUBLE_VALUE:
-                return sv.getDoubleValue();
-            case BOOL_VALUE:
-                return sv.getBoolValue();
-            case NULL_VALUE:
-                return null;
-            case ARRAY_VALUE:
-                java.util.List<Object> list = new java.util.ArrayList<>();
-                for (SerializedValue element : sv.getArrayValue().getElementsList()) {
-                    list.add(deserializeValue(element));
-                }
-                return list;
-            case MAP_VALUE:
-                Map<String, Object> map = new HashMap<>();
-                for (Map.Entry<String, SerializedValue> entry : sv.getMapValue().getEntriesMap().entrySet()) {
-                    map.put(entry.getKey(), deserializeValue(entry.getValue()));
-                }
-                return map;
-            default:
-                return null;
         }
     }
 }

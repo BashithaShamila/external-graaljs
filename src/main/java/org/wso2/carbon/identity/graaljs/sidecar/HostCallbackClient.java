@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.graaljs.proto.*;
 import org.wso2.carbon.identity.graaljs.sidecar.transport.CallbackClient;
-import org.wso2.carbon.identity.graaljs.sidecar.transport.CallbackClientFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -35,24 +34,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Convenience wrapper for callback clients that provides a simple API.
- * Mirrors the IS framework pattern where UdsCallbackServerImpl wraps
- * HostCallbackServer.
+ * Convenience wrapper for callback clients that provides a simple API
+ * for JsEngineServiceImpl to invoke host functions and access context
+ * properties on the Identity Server.
  * <p>
- * This class uses CallbackClientFactory internally to create the appropriate
- * transport
- * implementation (UDS or gRPC), then adapts the CallbackClient interface to
- * provide
- * a simpler API for JsEngineServiceImpl.
- * <p>
- * Transport Selection:
- * - Uses CallbackClientFactory to auto-detect transport type from address
- * format
- * - UDS: /path/to/socket or file:///path/to/socket
- * - gRPC: localhost:port or grpc://localhost:port
- * <p>
- * This mirrors the IS pattern where UdsCallbackServerImpl adapts CallbackServer
- * interface to the HostCallbackServer singleton implementation.
+ * Wraps a {@link CallbackClient} delegate (typically a
+ * {@code StreamingCallbackClient} that sends callbacks over the
+ * bidirectional gRPC stream) and adds protobuf serialization and
+ * callback time tracking.
  */
 public class HostCallbackClient implements Closeable {
 
@@ -67,28 +56,6 @@ public class HostCallbackClient implements Closeable {
     // This allows the sidecar to decompose total elapsed into pure-JS vs
     // callback-roundtrip time.
     private final AtomicLong totalCallbackTimeMs = new AtomicLong(0);
-
-    /**
-     * Create a new callback client using factory pattern.
-     *
-     * @param callbackAddress Address where IS callback server is listening (UDS
-     *                        path or gRPC address).
-     * @param sessionId       Session identifier.
-     * @throws IOException if address format is invalid or transport is not
-     *                     supported.
-     */
-    public HostCallbackClient(String callbackAddress, String sessionId) throws IOException {
-        this.callbackAddress = callbackAddress;
-        this.sessionId = sessionId;
-
-        // Use factory to create appropriate callback client based on address format
-        this.delegate = CallbackClientFactory.createClient(callbackAddress, sessionId);
-
-        if (log.isDebugEnabled()) {
-            log.debug("[HostCallbackClient] Created callback client for address: {}, session: {}",
-                    callbackAddress, sessionId);
-        }
-    }
 
     /**
      * Create a new callback client using an externally provided delegate.
@@ -162,7 +129,7 @@ public class HostCallbackClient implements Closeable {
         for (int i = 0; i < arguments.length; i++) {
             log.debug("[HostCallbackClient] Serializing arg[{}]: {}", i,
                     arguments[i] != null ? arguments[i].getClass().getSimpleName() : "null");
-            requestBuilder.addArguments(serializeValue(arguments[i]));
+            requestBuilder.addArguments(ValueSerializationUtils.serialize(arguments[i]));
         }
 
         HostFunctionRequest request = requestBuilder.build();
@@ -181,7 +148,7 @@ public class HostCallbackClient implements Closeable {
             throw new IOException("Host function failed: " + response.getErrorMessage());
         }
 
-        Object result = deserializeValue(response.getResult());
+        Object result = ValueSerializationUtils.deserialize(response.getResult());
         if (log.isDebugEnabled()) {
             log.debug("[HostCallbackClient] Returning result: {}",
                     result != null ? result.getClass().getSimpleName() : "null");
@@ -279,192 +246,6 @@ public class HostCallbackClient implements Closeable {
     private void ensureConnected() throws IOException {
         if (!isConnected()) {
             connect();
-        }
-    }
-
-    // ============ Serialization Helpers ============
-
-    private SerializedValue serializeValue(Object val) {
-        if (val == null) {
-            return SerializedValue.newBuilder()
-                    .setNullValue(com.google.protobuf.ByteString.EMPTY)
-                    .build();
-        }
-
-        // Handle GraalVM Value objects (JavaScript values).
-        if (val instanceof Value) {
-            return serializeGraalValue((Value) val);
-        }
-
-        if (val instanceof String) {
-            return SerializedValue.newBuilder().setStringValue((String) val).build();
-        }
-        if (val instanceof Integer) {
-            return SerializedValue.newBuilder().setIntValue(((Integer) val).longValue()).build();
-        }
-        if (val instanceof Long) {
-            return SerializedValue.newBuilder().setIntValue((Long) val).build();
-        }
-        if (val instanceof Double) {
-            return SerializedValue.newBuilder().setDoubleValue((Double) val).build();
-        }
-        if (val instanceof Float) {
-            return SerializedValue.newBuilder().setDoubleValue(((Float) val).doubleValue()).build();
-        }
-        if (val instanceof Boolean) {
-            return SerializedValue.newBuilder().setBoolValue((Boolean) val).build();
-        }
-        // Handle arrays.
-        if (val instanceof Object[]) {
-            SerializedArray.Builder arrayBuilder = SerializedArray.newBuilder();
-            for (Object element : (Object[]) val) {
-                arrayBuilder.addElements(serializeValue(element));
-            }
-            return SerializedValue.newBuilder().setArrayValue(arrayBuilder.build()).build();
-        }
-        // Handle lists.
-        if (val instanceof List) {
-            SerializedArray.Builder arrayBuilder = SerializedArray.newBuilder();
-            for (Object element : (List<?>) val) {
-                arrayBuilder.addElements(serializeValue(element));
-            }
-            return SerializedValue.newBuilder().setArrayValue(arrayBuilder.build()).build();
-        }
-        // Handle maps.
-        if (val instanceof Map) {
-            SerializedMap.Builder mapBuilder = SerializedMap.newBuilder();
-            @SuppressWarnings("unchecked")
-            Map<String, Object> mapVal = (Map<String, Object>) val;
-            for (Map.Entry<String, Object> entry : mapVal.entrySet()) {
-                mapBuilder.putEntries(entry.getKey(), serializeValue(entry.getValue()));
-            }
-            return SerializedValue.newBuilder().setMapValue(mapBuilder.build()).build();
-        }
-        // Default to string representation for unknown types.
-        log.warn("[HostCallbackClient] Unknown type for serialization: {}, using toString()",
-                val.getClass().getName());
-        return SerializedValue.newBuilder().setStringValue(val.toString()).build();
-    }
-
-    /**
-     * Serializes a GraalVM Value object to protobuf.
-     * Handles JavaScript functions by extracting their source code.
-     */
-    private SerializedValue serializeGraalValue(Value val) {
-        if (val.isNull()) {
-            return SerializedValue.newBuilder()
-                    .setNullValue(com.google.protobuf.ByteString.EMPTY)
-                    .build();
-        }
-        if (val.isString()) {
-            return SerializedValue.newBuilder().setStringValue(val.asString()).build();
-        }
-        if (val.isNumber()) {
-            if (val.fitsInInt()) {
-                return SerializedValue.newBuilder().setIntValue(val.asInt()).build();
-            } else if (val.fitsInLong()) {
-                return SerializedValue.newBuilder().setIntValue(val.asLong()).build();
-            } else {
-                return SerializedValue.newBuilder().setDoubleValue(val.asDouble()).build();
-            }
-        }
-        if (val.isBoolean()) {
-            return SerializedValue.newBuilder().setBoolValue(val.asBoolean()).build();
-        }
-        // Handle JavaScript functions - extract source code.
-        if (val.canExecute()) {
-            String source = null;
-            // First try getSourceLocation() - works for top-level named functions.
-            try {
-                if (val.getSourceLocation() != null &&
-                        val.getSourceLocation().getCharacters() != null) {
-                    source = val.getSourceLocation().getCharacters().toString();
-                    log.debug("[HostCallbackClient] Extracted function source via getSourceLocation");
-                }
-            } catch (Exception e) {
-                log.debug("[HostCallbackClient] Could not get source location for function: {}", e.getMessage());
-            }
-            // If getSourceLocation() failed, use toString().
-            if (source == null || source.isEmpty()) {
-                try {
-                    source = val.toString();
-                    log.debug("[HostCallbackClient] Using toString() for function");
-                } catch (Exception e) {
-                    log.warn("[HostCallbackClient] Could not get function toString(): {}", e.getMessage());
-                }
-            }
-            if (source != null && !source.isEmpty() &&
-                    (source.contains("function") || source.contains("=>"))) {
-                // Return function source as a string - the IS side expects this.
-                return SerializedValue.newBuilder().setStringValue(source).build();
-            } else {
-                log.error("[HostCallbackClient] Could not extract valid function source");
-                return SerializedValue.newBuilder().setStringValue(source != null ? source : "function(){}").build();
-            }
-        }
-        // Handle JavaScript arrays.
-        if (val.hasArrayElements()) {
-            SerializedArray.Builder arrayBuilder = SerializedArray.newBuilder();
-            long size = val.getArraySize();
-            for (long i = 0; i < size; i++) {
-                arrayBuilder.addElements(serializeGraalValue(val.getArrayElement(i)));
-            }
-            return SerializedValue.newBuilder().setArrayValue(arrayBuilder.build()).build();
-        }
-        // Handle JavaScript objects (maps).
-        if (val.hasMembers()) {
-            SerializedMap.Builder mapBuilder = SerializedMap.newBuilder();
-            for (String key : val.getMemberKeys()) {
-                Value memberVal = val.getMember(key);
-                mapBuilder.putEntries(key, serializeGraalValue(memberVal));
-            }
-            return SerializedValue.newBuilder().setMapValue(mapBuilder.build()).build();
-        }
-        // Default - try to convert to string.
-        log.warn("[HostCallbackClient] Unknown GraalVM Value type, using toString()");
-        return SerializedValue.newBuilder().setStringValue(val.toString()).build();
-    }
-
-    private Object deserializeValue(SerializedValue sv) {
-        if (sv == null) {
-            return null;
-        }
-        switch (sv.getValueCase()) {
-            case STRING_VALUE:
-                return sv.getStringValue();
-            case INT_VALUE:
-                return sv.getIntValue();
-            case DOUBLE_VALUE:
-                return sv.getDoubleValue();
-            case BOOL_VALUE:
-                return sv.getBoolValue();
-            case NULL_VALUE:
-                return null;
-            case ARRAY_VALUE:
-                List<Object> list = new ArrayList<>();
-                for (SerializedValue element : sv.getArrayValue().getElementsList()) {
-                    list.add(deserializeValue(element));
-                }
-                return list;
-            case MAP_VALUE:
-                Map<String, Object> map = new HashMap<>();
-                for (Map.Entry<String, SerializedValue> entry : sv.getMapValue().getEntriesMap().entrySet()) {
-                    map.put(entry.getKey(), deserializeValue(entry.getValue()));
-                }
-                return map;
-            case PROXY_OBJECT:
-                SerializedProxyObject proxy = sv.getProxyObject();
-                Map<String, Object> proxyMarker = new HashMap<>();
-                proxyMarker.put(SidecarConstants.IS_HOST_REF, true);
-                proxyMarker.put(SidecarConstants.PROXY_TYPE_FIELD, proxy.getType());
-                proxyMarker.put(SidecarConstants.REFERENCE_ID_FIELD, proxy.getReferenceId());
-                if (log.isDebugEnabled()) {
-                    log.debug("[HostCallbackClient] Deserialized proxy object: type={}, refId={}",
-                            proxy.getType(), proxy.getReferenceId());
-                }
-                return proxyMarker;
-            default:
-                return null;
         }
     }
 }
