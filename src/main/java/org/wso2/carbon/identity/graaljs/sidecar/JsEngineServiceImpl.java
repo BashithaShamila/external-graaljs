@@ -32,18 +32,19 @@ import java.util.Map;
 
 /**
  * JavaScript engine service implementation for the sidecar.
- * Handles evaluate and callback execution requests via protobuf messages.
- * Host function calls are forwarded back to IS via HostCallbackClient.
+ * Orchestrates evaluate and callback execution requests: context creation,
+ * host function registration, binding restore, JS evaluation, and response building.
+ * <p>
+ * Value serialization (GraalVM Value ↔ protobuf) is delegated to {@link EngineValueSerializer}.
+ * Host function calls are forwarded back to IS via {@link HostCallbackClient}.
  */
 public class JsEngineServiceImpl {
 
     private static final Logger log = LoggerFactory.getLogger(JsEngineServiceImpl.class);
     private static final String JS_LANG = "js";
 
-    // ThreadLocal to store the current callback client for proxy object deserialization
-    private static final ThreadLocal<HostCallbackClient> currentCallbackClient = new ThreadLocal<>();
-
     private final int defaultStatementLimit;
+    private final EngineValueSerializer valueSerializer = new EngineValueSerializer();
 
     public JsEngineServiceImpl(int defaultStatementLimit) {
         this.defaultStatementLimit = defaultStatementLimit;
@@ -95,13 +96,13 @@ public class JsEngineServiceImpl {
                 long tContextSetup = System.currentTimeMillis();
 
                 // Phase C: Binding restore
-                currentCallbackClient.set(callbackClient);
+                valueSerializer.setCallbackClient(callbackClient);
                 try {
                     for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
-                        bindings.putMember(entry.getKey(), deserializeValue(entry.getValue(), context));
+                        bindings.putMember(entry.getKey(), valueSerializer.deserializeValue(entry.getValue(), context));
                     }
                 } finally {
-                    currentCallbackClient.remove();
+                    valueSerializer.clearCallbackClient();
                 }
                 long tBindingsRestored = System.currentTimeMillis();
 
@@ -141,7 +142,7 @@ public class JsEngineServiceImpl {
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
                     if (!SidecarConstants.CONTEXT_BINDING_KEY.equals(key) && !val.canExecute() && !isHostFunction(key)) {
-                        updatedBindings.put(key, serializeValue(val));
+                        updatedBindings.put(key, valueSerializer.serializeValue(val));
                     }
                 }
                 long tBindingsExtracted = System.currentTimeMillis();
@@ -153,7 +154,7 @@ public class JsEngineServiceImpl {
                 byte[] responseBytes = EvaluateResponse.newBuilder()
                         .setSuccess(true)
                         .setElapsedMs(elapsed)
-                        .setResult(serializeValue(result))
+                        .setResult(valueSerializer.serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
@@ -249,10 +250,10 @@ public class JsEngineServiceImpl {
                 Object[] args = new Object[request.getArgumentsCount()];
 
                 // Phase C: Binding restore
-                currentCallbackClient.set(callbackClient);
+                valueSerializer.setCallbackClient(callbackClient);
                 try {
                     for (Map.Entry<String, SerializedValue> entry : request.getBindingsMap().entrySet()) {
-                        Object deserialized = deserializeValue(entry.getValue(), context);
+                        Object deserialized = valueSerializer.deserializeValue(entry.getValue(), context);
                         bindings.putMember(entry.getKey(), deserialized);
                     }
 
@@ -270,11 +271,11 @@ public class JsEngineServiceImpl {
                                 contextProxy != null) {
                             args[i] = contextProxy;
                         } else {
-                            args[i] = deserializeValue(sv, context);
+                            args[i] = valueSerializer.deserializeValue(sv, context);
                         }
                     }
                 } finally {
-                    currentCallbackClient.remove();
+                    valueSerializer.clearCallbackClient();
                 }
                 long tBindingsRestored = System.currentTimeMillis();
                 long tProxyAndArgsReady = System.currentTimeMillis();
@@ -303,7 +304,7 @@ public class JsEngineServiceImpl {
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
                     if (!SidecarConstants.CONTEXT_BINDING_KEY.equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
-                        updatedBindings.put(key, serializeValue(val));
+                        updatedBindings.put(key, valueSerializer.serializeValue(val));
                     }
                 }
                 long tBindingsExtracted = System.currentTimeMillis();
@@ -315,7 +316,7 @@ public class JsEngineServiceImpl {
                 byte[] responseBytes = ExecuteCallbackResponse.newBuilder()
                         .setSuccess(true)
                         .setElapsedMs(elapsed)
-                        .setResult(serializeValue(result))
+                        .setResult(valueSerializer.serializeValue(result))
                         .putAllUpdatedBindings(updatedBindings)
                         .build()
                         .toByteArray();
@@ -459,133 +460,6 @@ public class JsEngineServiceImpl {
 
         return context.asValue(dynamicProxy);
     }
-    // ============ Serialization Helpers ============
-
-    private SerializedValue serializeValue(Value val) {
-        if (val == null || val.isNull()) {
-            return SerializedValue.newBuilder()
-                    .setNullValue(com.google.protobuf.ByteString.EMPTY)
-                    .build();
-        }
-        if (val.isString()) {
-            return SerializedValue.newBuilder().setStringValue(val.asString()).build();
-        }
-        if (val.isNumber()) {
-            if (val.fitsInLong()) {
-                return SerializedValue.newBuilder().setIntValue(val.asLong()).build();
-            }
-            return SerializedValue.newBuilder().setDoubleValue(val.asDouble()).build();
-        }
-        if (val.isBoolean()) {
-            return SerializedValue.newBuilder().setBoolValue(val.asBoolean()).build();
-        }
-        if (val.hasArrayElements()) {
-            SerializedArray.Builder arr = SerializedArray.newBuilder();
-            for (long i = 0; i < val.getArraySize(); i++) {
-                arr.addElements(serializeValue(val.getArrayElement(i)));
-            }
-            return SerializedValue.newBuilder().setArrayValue(arr).build();
-        }
-        if (val.canExecute()) {
-            String source = val.getSourceLocation() != null
-                    ? val.getSourceLocation().getCharacters().toString()
-                    : val.toString();
-            return SerializedValue.newBuilder()
-                    .setFunctionValue(SerializedFunction.newBuilder().setSource(source))
-                    .build();
-        }
-        // DynamicContextProxy is a lazy proxy backed by IS-side data.
-        // Do NOT iterate its members (each triggers a gRPC callback to IS).
-        // Send a marker so IS can reconstruct the reference from stored context.
-        if (val.isProxyObject()) {
-            Object proxyObj = val.asProxyObject();
-            if (proxyObj instanceof DynamicContextProxy) {
-                DynamicContextProxy proxy = (DynamicContextProxy) proxyObj;
-                SerializedMap.Builder marker = SerializedMap.newBuilder();
-                marker.putEntries(SidecarConstants.IS_CONTEXT_PROXY,
-                        SerializedValue.newBuilder().setBoolValue(true).build());
-                marker.putEntries(SidecarConstants.PROXY_TYPE_FIELD,
-                        SerializedValue.newBuilder().setStringValue(proxy.getProxyType()).build());
-                marker.putEntries(SidecarConstants.BASE_PATH_FIELD,
-                        SerializedValue.newBuilder().setStringValue(proxy.getBasePath()).build());
-                return SerializedValue.newBuilder().setMapValue(marker).build();
-            }
-        }
-        if (val.hasMembers()) {
-            SerializedMap.Builder map = SerializedMap.newBuilder();
-            for (String key : val.getMemberKeys()) {
-                map.putEntries(key, serializeValue(val.getMember(key)));
-            }
-            return SerializedValue.newBuilder().setMapValue(map).build();
-        }
-        return SerializedValue.newBuilder().setStringValue(val.toString()).build();
-    }
-
-    private Object deserializeValue(SerializedValue sv, Context context) {
-        switch (sv.getValueCase()) {
-            case STRING_VALUE:
-                return sv.getStringValue();
-            case INT_VALUE:
-                return context.eval(JS_LANG, String.valueOf(sv.getIntValue()));
-            case DOUBLE_VALUE:
-                return context.eval(JS_LANG, String.valueOf(sv.getDoubleValue()));
-            case BOOL_VALUE:
-                return context.eval(JS_LANG, String.valueOf(sv.getBoolValue()));
-            case NULL_VALUE:
-                return null;
-            case ARRAY_VALUE:
-                // Create a proper JavaScript array instead of Java array.
-                Value jsArray = context.eval(JS_LANG, "[]");
-                int arraySize = sv.getArrayValue().getElementsCount();
-                for (int i = 0; i < arraySize; i++) {
-                    Object element = deserializeValue(sv.getArrayValue().getElements(i), context);
-                    jsArray.setArrayElement(i, element);
-                }
-                return jsArray;
-            case MAP_VALUE:
-                // Create a proper JavaScript object instead of Java map.
-                Value jsObject = context.eval(JS_LANG, "({})");
-                for (Map.Entry<String, SerializedValue> e : sv.getMapValue().getEntriesMap().entrySet()) {
-                    Object val = deserializeValue(e.getValue(), context);
-                    jsObject.putMember(e.getKey(), val);
-                }
-                return jsObject;
-            case FUNCTION_VALUE:
-                return context.eval(JS_LANG, "(" + sv.getFunctionValue().getSource() + ")");
-            case PROXY_OBJECT:
-                // Handle proxy object markers - create a DynamicContextProxy that lazily fetches properties
-                // This is CRITICAL for arrays of complex objects (e.g., getUsersWithClaimValues returning
-                // 100 User objects). Instead of eagerly serializing all properties (causing timeouts),
-                // we create a proxy that fetches properties on-demand when accessed.
-                org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject proxyObj = sv.getProxyObject();
-                String proxyType = proxyObj.getType();
-                String referenceId = proxyObj.getReferenceId();
-
-                if (log.isDebugEnabled()) {
-                    log.debug("[Sidecar] Creating proxy for POJO: type={}, refId={}", proxyType, referenceId);
-                }
-
-                // Use __proxyref__ prefix to distinguish from context proxies (__hostref__ pattern)
-                String basePath = SidecarConstants.PROXY_REF_PREFIX + referenceId;
-
-                // Get callback client from ThreadLocal (set by calling methods)
-                HostCallbackClient callbackClient = currentCallbackClient.get();
-                if (callbackClient == null) {
-                    log.warn("[Sidecar] No callback client available for proxy object, returning null");
-                    return null;
-                }
-
-                return new DynamicContextProxy(
-                        callbackClient.getSessionId(),
-                        callbackClient,
-                        proxyType, // "pojo" or specific type
-                        basePath
-                );
-            default:
-                return null;
-        }
-    }
-
     /**
      * Handle a host function request (placeholder implementation).
      * These requests are typically handled by the callback mechanism.

@@ -11,7 +11,6 @@ org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngin
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngineStreamingServiceFutureStub.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngineStreamingServiceImplBase.class
 org/wso2/carbon/identity/graaljs/proto/grpc/HostCallbackServiceGrpc$HostCallbackServiceBlockingStub.class
-org/wso2/carbon/identity/graaljs/sidecar/JsEngineServiceImpl$1.class
 org/wso2/carbon/identity/graaljs/proto/grpc/HostCallbackServiceGrpc$HostCallbackServiceFutureStub.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$JsEngineServiceFileDescriptorSupplier.class
@@ -37,6 +36,7 @@ org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$3.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$2.class
 org/wso2/carbon/identity/graaljs/proto/grpc/HostCallbackServiceGrpc$HostCallbackServiceStub.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$1.class
+org/wso2/carbon/identity/graaljs/sidecar/EngineValueSerializer$1.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineStreamingServiceGrpc$JsEngineStreamingServiceBlockingStub.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$JsEngineServiceBaseDescriptorSupplier.class
 org/wso2/carbon/identity/graaljs/proto/grpc/JsEngineServiceGrpc$2.class
