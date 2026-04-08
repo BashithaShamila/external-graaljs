@@ -6,7 +6,7 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
  * <pre>
  **
  * HostCallbackService - Callback service for host function invocations
- * Used by sidecar to call back to IS for host functions (executeStep, sendError, etc.)
+ * Used by External to call back to IS for host functions (executeStep, sendError, etc.)
  * </pre>
  */
 @javax.annotation.Generated(
@@ -161,7 +161,7 @@ public final class HostCallbackServiceGrpc {
    * <pre>
    **
    * HostCallbackService - Callback service for host function invocations
-   * Used by sidecar to call back to IS for host functions (executeStep, sendError, etc.)
+   * Used by External to call back to IS for host functions (executeStep, sendError, etc.)
    * </pre>
    */
   public static abstract class HostCallbackServiceImplBase implements io.grpc.BindableService {
@@ -188,7 +188,7 @@ public final class HostCallbackServiceGrpc {
 
     /**
      * <pre>
-     * Set a context property value (write-back from sidecar)
+     * Set a context property value (write-back from External)
      * </pre>
      */
     public void setContextProperty(org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest request,
@@ -227,7 +227,7 @@ public final class HostCallbackServiceGrpc {
    * <pre>
    **
    * HostCallbackService - Callback service for host function invocations
-   * Used by sidecar to call back to IS for host functions (executeStep, sendError, etc.)
+   * Used by External to call back to IS for host functions (executeStep, sendError, etc.)
    * </pre>
    */
   public static final class HostCallbackServiceStub extends io.grpc.stub.AbstractAsyncStub<HostCallbackServiceStub> {
@@ -266,7 +266,7 @@ public final class HostCallbackServiceGrpc {
 
     /**
      * <pre>
-     * Set a context property value (write-back from sidecar)
+     * Set a context property value (write-back from External)
      * </pre>
      */
     public void setContextProperty(org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest request,
@@ -280,7 +280,7 @@ public final class HostCallbackServiceGrpc {
    * <pre>
    **
    * HostCallbackService - Callback service for host function invocations
-   * Used by sidecar to call back to IS for host functions (executeStep, sendError, etc.)
+   * Used by External to call back to IS for host functions (executeStep, sendError, etc.)
    * </pre>
    */
   public static final class HostCallbackServiceBlockingStub extends io.grpc.stub.AbstractBlockingStub<HostCallbackServiceBlockingStub> {
@@ -317,7 +317,7 @@ public final class HostCallbackServiceGrpc {
 
     /**
      * <pre>
-     * Set a context property value (write-back from sidecar)
+     * Set a context property value (write-back from External)
      * </pre>
      */
     public org.wso2.carbon.identity.graaljs.proto.ContextPropertySetResponse setContextProperty(org.wso2.carbon.identity.graaljs.proto.ContextPropertySetRequest request) {
@@ -330,7 +330,7 @@ public final class HostCallbackServiceGrpc {
    * <pre>
    **
    * HostCallbackService - Callback service for host function invocations
-   * Used by sidecar to call back to IS for host functions (executeStep, sendError, etc.)
+   * Used by External to call back to IS for host functions (executeStep, sendError, etc.)
    * </pre>
    */
   public static final class HostCallbackServiceFutureStub extends io.grpc.stub.AbstractFutureStub<HostCallbackServiceFutureStub> {
@@ -369,7 +369,7 @@ public final class HostCallbackServiceGrpc {
 
     /**
      * <pre>
-     * Set a context property value (write-back from sidecar)
+     * Set a context property value (write-back from External)
      * </pre>
      */
     public com.google.common.util.concurrent.ListenableFuture<org.wso2.carbon.identity.graaljs.proto.ContextPropertySetResponse> setContextProperty(

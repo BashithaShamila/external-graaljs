@@ -145,7 +145,7 @@ message ContextData {
 }
 
 // ============ Bidirectional Streaming ============
-// Unified message for bidirectional streaming between IS and Sidecar.
+// Unified message for bidirectional streaming between IS and External.
 // Eliminates the need for a separate callback connection.
 
 message StreamMessage {

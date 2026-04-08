@@ -24,7 +24,7 @@ service JsEngineService {
 
 /**
  * HostCallbackService - Callback service for host function invocations
- * Used by sidecar to call back to IS for host functions (executeStep, sendError, etc.)
+ * Used by External to call back to IS for host functions (executeStep, sendError, etc.)
  */
 service HostCallbackService {
     // Invoke a host function from JavaScript
@@ -33,7 +33,7 @@ service HostCallbackService {
     // Get a context property value (for dynamic context proxy)
     rpc GetContextProperty(ContextPropertyRequest) returns (ContextPropertyResponse) {}
 
-    // Set a context property value (write-back from sidecar)
+    // Set a context property value (write-back from External)
     rpc SetContextProperty(ContextPropertySetRequest) returns (ContextPropertySetResponse) {}
 }
 

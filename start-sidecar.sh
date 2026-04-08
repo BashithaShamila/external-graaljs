@@ -1,20 +1,20 @@
 #!/bin/bash
 
 # =============================================================================
-# Start IS with GraalJS Sidecar
+# Start IS with GraalJS External
 # =============================================================================
-# This script starts the GraalJS sidecar and then the Identity Server.
-# The sidecar must be running before IS starts for gRPC communication to work.
+# This script starts the GraalJS External and then the Identity Server.
+# The External must be running before IS starts for gRPC communication to work.
 # =============================================================================
 
 set -e
 
 # Configuration
-SIDECAR_DIR="/Users/bashitha/Downloads/product/external-graaljs"
-SIDECAR_JAR="$SIDECAR_DIR/target/graaljs-sidecar-1.0.0-SNAPSHOT.jar"
+External_DIR="/Users/bashitha/Downloads/product/external-graaljs"
+External_JAR="$External_DIR/target/graaljs-External-1.0.0-SNAPSHOT.jar"
 SOCKET_PATH="/tmp/graaljs.sock"
 STATEMENT_LIMIT="5000"
-SIDECAR_LOG="$SIDECAR_DIR/sidecar.log"
+External_LOG="$External_DIR/External.log"
 
 # Colors for output
 RED='\033[0;31m'
@@ -36,9 +36,9 @@ print_error() {
 }
 
 cleanup() {
-    if [ ! -z "$SIDECAR_PID" ]; then
-        print_info "Stopping GraalJS Sidecar (PID: $SIDECAR_PID)..."
-        kill $SIDECAR_PID 2>/dev/null || true
+    if [ ! -z "$External_PID" ]; then
+        print_info "Stopping GraalJS External (PID: $External_PID)..."
+        kill $External_PID 2>/dev/null || true
     fi
     
     if [ -S "$SOCKET_PATH" ]; then
@@ -50,14 +50,14 @@ cleanup() {
 # Trap cleanup on exit
 trap cleanup EXIT INT TERM
 
-# Validate sidecar JAR exists
-if [ ! -f "$SIDECAR_JAR" ]; then
-    print_error "Sidecar JAR not found at: $SIDECAR_JAR"
-    print_info "Building sidecar..."
-    cd "$SIDECAR_DIR"
+# Validate External JAR exists
+if [ ! -f "$External_JAR" ]; then
+    print_error "External JAR not found at: $External_JAR"
+    print_info "Building External..."
+    cd "$External_DIR"
     mvn clean package -DskipTests
     if [ $? -ne 0 ]; then
-        print_error "Failed to build sidecar"
+        print_error "Failed to build External"
         exit 1
     fi
 fi
@@ -68,17 +68,17 @@ if [ -S "$SOCKET_PATH" ]; then
     rm -f "$SOCKET_PATH"
 fi
 
-# Start GraalJS Sidecar
-print_info "Starting GraalJS Sidecar..."
+# Start GraalJS External
+print_info "Starting GraalJS External..."
 print_info "Socket path: $SOCKET_PATH"
 print_info "Statement limit: $STATEMENT_LIMIT"
-print_info "Log file: $SIDECAR_LOG"
+print_info "Log file: $External_LOG"
 
-cd "$SIDECAR_DIR"
-java -jar "$SIDECAR_JAR" "$SOCKET_PATH" "$STATEMENT_LIMIT" > "$SIDECAR_LOG" 2>&1 &
-SIDECAR_PID=$!
+cd "$External_DIR"
+java -jar "$External_JAR" "$SOCKET_PATH" "$STATEMENT_LIMIT" > "$External_LOG" 2>&1 &
+External_PID=$!
 
-print_info "Sidecar started with PID: $SIDECAR_PID"
+print_info "External started with PID: $External_PID"
 
 # Wait for socket to be created
 print_info "Waiting for socket creation..."
@@ -91,11 +91,11 @@ while [ $SOCKET_WAIT -lt $MAX_WAIT ]; do
         break
     fi
     
-    # Check if sidecar process is still running
-    if ! kill -0 $SIDECAR_PID 2>/dev/null; then
-        print_error "Sidecar process died unexpectedly"
-        print_error "Check logs at: $SIDECAR_LOG"
-        tail -n 20 "$SIDECAR_LOG"
+    # Check if External process is still running
+    if ! kill -0 $External_PID 2>/dev/null; then
+        print_error "External process died unexpectedly"
+        print_error "Check logs at: $External_LOG"
+        tail -n 20 "$External_LOG"
         exit 1
     fi
     
@@ -105,8 +105,8 @@ done
 
 if [ ! -S "$SOCKET_PATH" ]; then
     print_error "Socket not created after ${MAX_WAIT}s"
-    print_error "Check logs at: $SIDECAR_LOG"
-    tail -n 20 "$SIDECAR_LOG"
+    print_error "Check logs at: $External_LOG"
+    tail -n 20 "$External_LOG"
     exit 1
 fi
 
@@ -115,7 +115,7 @@ print_info "Socket permissions: $(ls -la $SOCKET_PATH)"
 
 print_info ""
 print_info "=========================================="
-print_info "GraalJS Sidecar is ready!"
+print_info "GraalJS External is ready!"
 print_info "=========================================="
 print_info ""
 print_info "You can now start the Identity Server."
@@ -124,11 +124,11 @@ print_info "To start IS manually:"
 print_info "  cd <IS_PACK_HOME>/bin"
 print_info "  sh wso2server.sh -Dosgi.clean=true"
 print_info ""
-print_info "To monitor sidecar logs:"
-print_info "  tail -f $SIDECAR_LOG"
+print_info "To monitor External logs:"
+print_info "  tail -f $External_LOG"
 print_info ""
-print_info "Press Ctrl+C to stop the sidecar"
+print_info "Press Ctrl+C to stop the External"
 print_info "=========================================="
 
 # Keep script running and show logs
-tail -f "$SIDECAR_LOG"
+tail -f "$External_LOG"
