@@ -23,6 +23,7 @@ import org.graalvm.polyglot.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.identity.graaljs.proto.SerializedArray;
+import org.wso2.carbon.identity.graaljs.proto.SerializedFunction;
 import org.wso2.carbon.identity.graaljs.proto.SerializedMap;
 import org.wso2.carbon.identity.graaljs.proto.SerializedProxyObject;
 import org.wso2.carbon.identity.graaljs.proto.SerializedValue;
@@ -201,6 +202,24 @@ public final class ValueSerializationUtils {
             return SerializedValue.newBuilder()
                     .setArrayValue(ab.build()).build();
         }
+        // DynamicContextProxy guard: if the Value wraps a DynamicContextProxy,
+        // emit a marker map instead of iterating members (which would trigger
+        // cascading gRPC callbacks back to IS for every property).
+        // Same pattern as EngineValueSerializer lines 128-141.
+        if (val.isProxyObject()) {
+            Object proxyObj = val.asProxyObject();
+            if (proxyObj instanceof DynamicContextProxy) {
+                DynamicContextProxy proxy = (DynamicContextProxy) proxyObj;
+                SerializedMap.Builder marker = SerializedMap.newBuilder();
+                marker.putEntries(ExternalConstants.IS_CONTEXT_PROXY,
+                        SerializedValue.newBuilder().setBoolValue(true).build());
+                marker.putEntries(ExternalConstants.PROXY_TYPE_FIELD,
+                        SerializedValue.newBuilder().setStringValue(proxy.getProxyType()).build());
+                marker.putEntries(ExternalConstants.BASE_PATH_FIELD,
+                        SerializedValue.newBuilder().setStringValue(proxy.getBasePath()).build());
+                return SerializedValue.newBuilder().setMapValue(marker).build();
+            }
+        }
         if (val.hasMembers()) {
             SerializedMap.Builder mb = SerializedMap.newBuilder();
             for (String key : val.getMemberKeys()) {
@@ -294,11 +313,14 @@ public final class ValueSerializationUtils {
 
     /**
      * Serialize a GraalVM function value by extracting its source.
+     * Uses FUNCTION_VALUE protobuf oneof case (matching EngineValueSerializer)
+     * so IS-side Serializer.fromProto() correctly reconstructs a GraalSerializableJsFunction.
      */
     private static SerializedValue serializeFunction(Value val) {
         String source = extractFunctionSource(val);
         return SerializedValue.newBuilder()
-                .setStringValue(source).build();
+                .setFunctionValue(SerializedFunction.newBuilder().setSource(source))
+                .build();
     }
 
     /**

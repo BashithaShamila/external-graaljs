@@ -26,6 +26,8 @@ import org.wso2.carbon.identity.graaljs.proto.ContextPropertyResponse;
 import org.wso2.carbon.identity.graaljs.proto.ContextPropertySetResponse;
 import org.wso2.carbon.identity.graaljs.proto.SerializedValue;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,9 +141,10 @@ class DynamicContextProxy implements ProxyObject {
             }
             return value;
 
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             log.error("[DynamicContextProxy] Error getting property '{}': {}", key, e.getMessage());
-            return null;
+            throw new UncheckedIOException(
+                    "[DynamicContextProxy] Failed to get property '" + key + "' from IS", e);
         }
     }
 
@@ -168,8 +171,10 @@ class DynamicContextProxy implements ProxyObject {
                 }
                 return memberKeys;
             }
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             log.error("[DynamicContextProxy] Error getting member keys: {}", e.getMessage());
+            throw new UncheckedIOException(
+                    "[DynamicContextProxy] Failed to get member keys for path '" + basePath + "' from IS", e);
         }
 
         // Return empty array if we can't get keys
@@ -213,8 +218,10 @@ class DynamicContextProxy implements ProxyObject {
                 log.error("[DynamicContextProxy] Failed to set '{}': {}",
                         key, response.getErrorMessage());
             }
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             log.error("[DynamicContextProxy] Error setting property '{}': {}", key, e.getMessage());
+            throw new UncheckedIOException(
+                    "[DynamicContextProxy] Failed to set property '" + key + "' on IS", e);
         }
     }
 }
