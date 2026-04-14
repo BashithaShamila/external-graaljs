@@ -2,3 +2,4 @@ org/wso2/carbon/identity/graaljs/External/ValueSerializationUtils$1.class
 org/wso2/carbon/identity/graaljs/External/EngineValueSerializer$1.class
 org/wso2/carbon/identity/graaljs/proto/StreamMessage$2.class
 org/wso2/carbon/identity/graaljs/External/transport/GrpcStreamingServerTransport$1.class
+org/wso2/carbon/identity/graaljs/proto/SerializedValue$2.class

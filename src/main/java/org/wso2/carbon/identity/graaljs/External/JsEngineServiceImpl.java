@@ -141,7 +141,7 @@ public class JsEngineServiceImpl {
                     // causes a Serializer toString() fallback with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
-                    if (!ExternalConstants.CONTEXT_BINDING_KEY.equals(key) && !val.canExecute() && !isHostFunction(key)) {
+                    if (!ExternalConstants.CONTEXT_BINDING_KEY.equals(key) && !isHostFunction(key)) {
                         updatedBindings.put(key, valueSerializer.serializeValue(val));
                     }
                 }
@@ -303,7 +303,7 @@ public class JsEngineServiceImpl {
                     // causes a Serializer toString() fallback with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
-                    if (!ExternalConstants.CONTEXT_BINDING_KEY.equals(key) && !key.startsWith("__") && !val.canExecute() && !isHostFunction(key)) {
+                    if (!ExternalConstants.CONTEXT_BINDING_KEY.equals(key) && !key.startsWith("__") && !isHostFunction(key)) {
                         updatedBindings.put(key, valueSerializer.serializeValue(val));
                     }
                 }
