@@ -32,8 +32,6 @@ import org.wso2.carbon.identity.graaljs.proto.StreamMessage;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -54,7 +52,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class StreamingCallbackClient implements CallbackClient {
 
     private static final Logger log = LoggerFactory.getLogger(StreamingCallbackClient.class);
-    private static final long CALLBACK_TIMEOUT_SECONDS = 5;
 
     private final StreamObserver<StreamMessage> outbound;
     private final Object streamLock;
@@ -97,13 +94,39 @@ public class StreamingCallbackClient implements CallbackClient {
     }
 
     /**
+     * Called when IS closes its half of the bidirectional stream (onCompleted).
+     * If a callback is pending (JS thread blocked on future.get()), this means IS
+     * will not send any more messages — the pending callback will never get a response.
+     * Complete the future exceptionally so the JS thread unblocks.
+     * <p>
+     * This is the primary mechanism that replaces the old per-callback timeout:
+     * IS owns the deadline (processMessageLoop's deadlineNanos). When IS times out,
+     * it closes the stream, which flows here and terminates the External's wait.
+     */
+    public void onStreamCompleted() {
+        CompletableFuture<StreamMessage> future = pendingResponse.get();
+        if (future != null) {
+            future.completeExceptionally(
+                    new IOException("Stream closed by IS — no response will arrive for pending callback"));
+        }
+    }
+
+    /**
      * Send a StreamMessage on the outbound stream and block until IS responds.
-     * Handles the CompletableFuture lifecycle, synchronized send, timeout,
-     * and compareAndSet cleanup to prevent clearing a future set by a subsequent callback.
+     * Handles the CompletableFuture lifecycle, synchronized send, and compareAndSet
+     * cleanup to prevent clearing a future set by a subsequent callback.
+     * <p>
+     * No timeout is applied here — timeout ownership belongs to IS, which enforces
+     * the overall request deadline via processMessageLoop's deadlineNanos. When IS
+     * times out or closes the stream, the gRPC onError()/onCompleted() callback
+     * completes this future exceptionally via {@link #onStreamError(Throwable)},
+     * unblocking the JS thread. This avoids a split-brain where the External
+     * times out independently while IS is still processing (e.g., registering
+     * async events for httpPost), which would cause stale callbacks to fire later.
      *
      * @param streamMsg The message to send.
      * @return The response StreamMessage from IS.
-     * @throws IOException On timeout, interruption, or execution failure.
+     * @throws IOException On interruption, stream error, or execution failure.
      */
     private StreamMessage sendAndAwait(StreamMessage streamMsg) throws IOException {
         CompletableFuture<StreamMessage> future = new CompletableFuture<>();
@@ -117,10 +140,8 @@ public class StreamingCallbackClient implements CallbackClient {
                 log.debug("[StreamingCallback] Sent {} on stream", streamMsg.getPayloadCase());
             }
 
-            return future.get(CALLBACK_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            return future.get();
 
-        } catch (TimeoutException e) {
-            throw new IOException("Callback timed out after " + CALLBACK_TIMEOUT_SECONDS + "s", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IOException("Callback interrupted", e);

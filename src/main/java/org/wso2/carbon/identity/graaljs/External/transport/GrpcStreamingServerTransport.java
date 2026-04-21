@@ -280,6 +280,14 @@ public class GrpcStreamingServerTransport implements ServerTransport {
                     if (log.isDebugEnabled()) {
                         log.debug("[gRPC-Streaming-Server] Stream completed by client");
                     }
+                    // IS closed its half of the stream. If the JS thread is blocked
+                    // waiting for a callback response (e.g., IS timed out via
+                    // processMessageLoop's deadline), unblock it so the error
+                    // propagates through GraalVM to the script.
+                    StreamingCallbackClient client = streamingCallbackClientRef.get();
+                    if (client != null) {
+                        client.onStreamCompleted();
+                    }
                 }
             };
         }
