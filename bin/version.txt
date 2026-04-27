@@ -1,0 +1,1 @@
+WSO2 Identity Server - GraalJS Runtime ${project.version}

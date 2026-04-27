@@ -15,8 +15,6 @@ message EvaluateRequest {
     int32 statement_limit = 4;
     map<string, SerializedValue> bindings = 5;
     repeated HostFunctionDefinition host_functions = 6;
-    string callback_socket_path = 7;
-    ContextData context_data = 8;
 }
 
 message EvaluateResponse {
@@ -35,8 +33,6 @@ message ExecuteCallbackRequest {
     string function_source = 2;
     repeated SerializedValue arguments = 3;
     map<string, SerializedValue> bindings = 4;
-    ContextData context_data = 5;
-    string callback_socket_path = 6;
     repeated HostFunctionDefinition host_functions = 7;
 }
 
@@ -64,7 +60,6 @@ message HostFunctionResponse {
 
 message HostFunctionDefinition {
     string name = 1;
-    string description = 2;
 }
 
 // ============ Context Property Access ============
@@ -122,26 +117,12 @@ message SerializedArray {
 
 message SerializedFunction {
     string source = 1;
-    string name = 2;
 }
 
 // For proxy objects that need to call back to IS
 message SerializedProxyObject {
     string type = 1;
     string reference_id = 2;
-    map<string, SerializedValue> cached_properties = 3;
-}
-
-// ============ Context Data ============
-
-message ContextData {
-    string session_context_key = 1;
-    int32 current_step = 2;
-    string username = 3;
-    string user_store_domain = 4;
-    string tenant_domain = 5;
-    repeated string roles = 6;
-    map<string, string> claims = 7;
 }
 
 // ============ Bidirectional Streaming ============

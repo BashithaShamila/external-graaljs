@@ -20,7 +20,6 @@ private static final long serialVersionUID = 0L;
     script_ = "";
     sourceIdentifier_ = "";
     hostFunctions_ = java.util.Collections.emptyList();
-    callbackSocketPath_ = "";
   }
 
   @java.lang.Override
@@ -308,71 +307,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     return hostFunctions_.get(index);
   }
 
-  public static final int CALLBACK_SOCKET_PATH_FIELD_NUMBER = 7;
-  @SuppressWarnings("serial")
-  private volatile java.lang.Object callbackSocketPath_ = "";
-  /**
-   * <code>string callback_socket_path = 7;</code>
-   * @return The callbackSocketPath.
-   */
-  @java.lang.Override
-  public java.lang.String getCallbackSocketPath() {
-    java.lang.Object ref = callbackSocketPath_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      callbackSocketPath_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string callback_socket_path = 7;</code>
-   * @return The bytes for callbackSocketPath.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString
-      getCallbackSocketPathBytes() {
-    java.lang.Object ref = callbackSocketPath_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      callbackSocketPath_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int CONTEXT_DATA_FIELD_NUMBER = 8;
-  private org.wso2.carbon.identity.graaljs.proto.ContextData contextData_;
-  /**
-   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-   * @return Whether the contextData field is set.
-   */
-  @java.lang.Override
-  public boolean hasContextData() {
-    return contextData_ != null;
-  }
-  /**
-   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-   * @return The contextData.
-   */
-  @java.lang.Override
-  public org.wso2.carbon.identity.graaljs.proto.ContextData getContextData() {
-    return contextData_ == null ? org.wso2.carbon.identity.graaljs.proto.ContextData.getDefaultInstance() : contextData_;
-  }
-  /**
-   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-   */
-  @java.lang.Override
-  public org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder getContextDataOrBuilder() {
-    return contextData_ == null ? org.wso2.carbon.identity.graaljs.proto.ContextData.getDefaultInstance() : contextData_;
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -407,12 +341,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         5);
     for (int i = 0; i < hostFunctions_.size(); i++) {
       output.writeMessage(6, hostFunctions_.get(i));
-    }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(callbackSocketPath_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 7, callbackSocketPath_);
-    }
-    if (contextData_ != null) {
-      output.writeMessage(8, getContextData());
     }
     getUnknownFields().writeTo(output);
   }
@@ -450,13 +378,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(6, hostFunctions_.get(i));
     }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(callbackSocketPath_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, callbackSocketPath_);
-    }
-    if (contextData_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(8, getContextData());
-    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -484,13 +405,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         other.internalGetBindings())) return false;
     if (!getHostFunctionsList()
         .equals(other.getHostFunctionsList())) return false;
-    if (!getCallbackSocketPath()
-        .equals(other.getCallbackSocketPath())) return false;
-    if (hasContextData() != other.hasContextData()) return false;
-    if (hasContextData()) {
-      if (!getContextData()
-          .equals(other.getContextData())) return false;
-    }
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -517,12 +431,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     if (getHostFunctionsCount() > 0) {
       hash = (37 * hash) + HOST_FUNCTIONS_FIELD_NUMBER;
       hash = (53 * hash) + getHostFunctionsList().hashCode();
-    }
-    hash = (37 * hash) + CALLBACK_SOCKET_PATH_FIELD_NUMBER;
-    hash = (53 * hash) + getCallbackSocketPath().hashCode();
-    if (hasContextData()) {
-      hash = (37 * hash) + CONTEXT_DATA_FIELD_NUMBER;
-      hash = (53 * hash) + getContextData().hashCode();
     }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
@@ -687,12 +595,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         hostFunctionsBuilder_.clear();
       }
       bitField0_ = (bitField0_ & ~0x00000020);
-      callbackSocketPath_ = "";
-      contextData_ = null;
-      if (contextDataBuilder_ != null) {
-        contextDataBuilder_.dispose();
-        contextDataBuilder_ = null;
-      }
       return this;
     }
 
@@ -754,14 +656,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       if (((from_bitField0_ & 0x00000010) != 0)) {
         result.bindings_ = internalGetBindings();
         result.bindings_.makeImmutable();
-      }
-      if (((from_bitField0_ & 0x00000040) != 0)) {
-        result.callbackSocketPath_ = callbackSocketPath_;
-      }
-      if (((from_bitField0_ & 0x00000080) != 0)) {
-        result.contextData_ = contextDataBuilder_ == null
-            ? contextData_
-            : contextDataBuilder_.build();
       }
     }
 
@@ -856,14 +750,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
           }
         }
       }
-      if (!other.getCallbackSocketPath().isEmpty()) {
-        callbackSocketPath_ = other.callbackSocketPath_;
-        bitField0_ |= 0x00000040;
-        onChanged();
-      }
-      if (other.hasContextData()) {
-        mergeContextData(other.getContextData());
-      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -932,18 +818,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
               }
               break;
             } // case 50
-            case 58: {
-              callbackSocketPath_ = input.readStringRequireUtf8();
-              bitField0_ |= 0x00000040;
-              break;
-            } // case 58
-            case 66: {
-              input.readMessage(
-                  getContextDataFieldBuilder().getBuilder(),
-                  extensionRegistry);
-              bitField0_ |= 0x00000080;
-              break;
-            } // case 66
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -1574,197 +1448,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         hostFunctions_ = null;
       }
       return hostFunctionsBuilder_;
-    }
-
-    private java.lang.Object callbackSocketPath_ = "";
-    /**
-     * <code>string callback_socket_path = 7;</code>
-     * @return The callbackSocketPath.
-     */
-    public java.lang.String getCallbackSocketPath() {
-      java.lang.Object ref = callbackSocketPath_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        callbackSocketPath_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string callback_socket_path = 7;</code>
-     * @return The bytes for callbackSocketPath.
-     */
-    public com.google.protobuf.ByteString
-        getCallbackSocketPathBytes() {
-      java.lang.Object ref = callbackSocketPath_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        callbackSocketPath_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string callback_socket_path = 7;</code>
-     * @param value The callbackSocketPath to set.
-     * @return This builder for chaining.
-     */
-    public Builder setCallbackSocketPath(
-        java.lang.String value) {
-      if (value == null) { throw new NullPointerException(); }
-      callbackSocketPath_ = value;
-      bitField0_ |= 0x00000040;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string callback_socket_path = 7;</code>
-     * @return This builder for chaining.
-     */
-    public Builder clearCallbackSocketPath() {
-      callbackSocketPath_ = getDefaultInstance().getCallbackSocketPath();
-      bitField0_ = (bitField0_ & ~0x00000040);
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string callback_socket_path = 7;</code>
-     * @param value The bytes for callbackSocketPath to set.
-     * @return This builder for chaining.
-     */
-    public Builder setCallbackSocketPathBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) { throw new NullPointerException(); }
-      checkByteStringIsUtf8(value);
-      callbackSocketPath_ = value;
-      bitField0_ |= 0x00000040;
-      onChanged();
-      return this;
-    }
-
-    private org.wso2.carbon.identity.graaljs.proto.ContextData contextData_;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        org.wso2.carbon.identity.graaljs.proto.ContextData, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder, org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder> contextDataBuilder_;
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     * @return Whether the contextData field is set.
-     */
-    public boolean hasContextData() {
-      return ((bitField0_ & 0x00000080) != 0);
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     * @return The contextData.
-     */
-    public org.wso2.carbon.identity.graaljs.proto.ContextData getContextData() {
-      if (contextDataBuilder_ == null) {
-        return contextData_ == null ? org.wso2.carbon.identity.graaljs.proto.ContextData.getDefaultInstance() : contextData_;
-      } else {
-        return contextDataBuilder_.getMessage();
-      }
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    public Builder setContextData(org.wso2.carbon.identity.graaljs.proto.ContextData value) {
-      if (contextDataBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        contextData_ = value;
-      } else {
-        contextDataBuilder_.setMessage(value);
-      }
-      bitField0_ |= 0x00000080;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    public Builder setContextData(
-        org.wso2.carbon.identity.graaljs.proto.ContextData.Builder builderForValue) {
-      if (contextDataBuilder_ == null) {
-        contextData_ = builderForValue.build();
-      } else {
-        contextDataBuilder_.setMessage(builderForValue.build());
-      }
-      bitField0_ |= 0x00000080;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    public Builder mergeContextData(org.wso2.carbon.identity.graaljs.proto.ContextData value) {
-      if (contextDataBuilder_ == null) {
-        if (((bitField0_ & 0x00000080) != 0) &&
-          contextData_ != null &&
-          contextData_ != org.wso2.carbon.identity.graaljs.proto.ContextData.getDefaultInstance()) {
-          getContextDataBuilder().mergeFrom(value);
-        } else {
-          contextData_ = value;
-        }
-      } else {
-        contextDataBuilder_.mergeFrom(value);
-      }
-      bitField0_ |= 0x00000080;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    public Builder clearContextData() {
-      bitField0_ = (bitField0_ & ~0x00000080);
-      contextData_ = null;
-      if (contextDataBuilder_ != null) {
-        contextDataBuilder_.dispose();
-        contextDataBuilder_ = null;
-      }
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    public org.wso2.carbon.identity.graaljs.proto.ContextData.Builder getContextDataBuilder() {
-      bitField0_ |= 0x00000080;
-      onChanged();
-      return getContextDataFieldBuilder().getBuilder();
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    public org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder getContextDataOrBuilder() {
-      if (contextDataBuilder_ != null) {
-        return contextDataBuilder_.getMessageOrBuilder();
-      } else {
-        return contextData_ == null ?
-            org.wso2.carbon.identity.graaljs.proto.ContextData.getDefaultInstance() : contextData_;
-      }
-    }
-    /**
-     * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 8;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        org.wso2.carbon.identity.graaljs.proto.ContextData, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder, org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder> 
-        getContextDataFieldBuilder() {
-      if (contextDataBuilder_ == null) {
-        contextDataBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            org.wso2.carbon.identity.graaljs.proto.ContextData, org.wso2.carbon.identity.graaljs.proto.ContextData.Builder, org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder>(
-                getContextData(),
-                getParentForChildren(),
-                isClean());
-        contextData_ = null;
-      }
-      return contextDataBuilder_;
     }
     @java.lang.Override
     public final Builder setUnknownFields(

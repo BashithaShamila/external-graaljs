@@ -14,6 +14,7 @@
 /Users/bashitha/Downloads/product/external-graaljs/src/main/java/org/wso2/carbon/identity/graaljs/External/LoggerProxy.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/SerializedArrayOrBuilder.java
 /Users/bashitha/Downloads/product/external-graaljs/src/main/java/org/wso2/carbon/identity/graaljs/External/transport/GrpcStreamingServerTransport.java
+/Users/bashitha/Downloads/product/external-graaljs/src/main/java/org/wso2/carbon/identity/graaljs/External/RuntimeConfig.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/ContextPropertySetResponseOrBuilder.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/HostFunctionRequestOrBuilder.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/SerializedValueOrBuilder.java
@@ -35,8 +36,6 @@
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/ContextPropertySetRequest.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/SerializedMapOrBuilder.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/JsEngineProtos.java
-/Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/ContextData.java
-/Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/ContextDataOrBuilder.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/HostFunctionResponse.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/grpc-java/org/wso2/carbon/identity/graaljs/proto/grpc/HostCallbackServiceGrpc.java
 /Users/bashitha/Downloads/product/external-graaljs/target/generated-sources/protobuf/java/org/wso2/carbon/identity/graaljs/proto/ContextPropertyResponseOrBuilder.java

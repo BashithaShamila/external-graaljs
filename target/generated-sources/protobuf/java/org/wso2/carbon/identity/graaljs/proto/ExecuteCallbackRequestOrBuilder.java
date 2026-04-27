@@ -90,33 +90,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue);
       java.lang.String key);
 
   /**
-   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 5;</code>
-   * @return Whether the contextData field is set.
-   */
-  boolean hasContextData();
-  /**
-   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 5;</code>
-   * @return The contextData.
-   */
-  org.wso2.carbon.identity.graaljs.proto.ContextData getContextData();
-  /**
-   * <code>.org.wso2.carbon.identity.graaljs.engine.proto.ContextData context_data = 5;</code>
-   */
-  org.wso2.carbon.identity.graaljs.proto.ContextDataOrBuilder getContextDataOrBuilder();
-
-  /**
-   * <code>string callback_socket_path = 6;</code>
-   * @return The callbackSocketPath.
-   */
-  java.lang.String getCallbackSocketPath();
-  /**
-   * <code>string callback_socket_path = 6;</code>
-   * @return The bytes for callbackSocketPath.
-   */
-  com.google.protobuf.ByteString
-      getCallbackSocketPathBytes();
-
-  /**
    * <code>repeated .org.wso2.carbon.identity.graaljs.engine.proto.HostFunctionDefinition host_functions = 7;</code>
    */
   java.util.List<org.wso2.carbon.identity.graaljs.proto.HostFunctionDefinition> 

@@ -18,16 +18,4 @@ public interface HostFunctionDefinitionOrBuilder extends
    */
   com.google.protobuf.ByteString
       getNameBytes();
-
-  /**
-   * <code>string description = 2;</code>
-   * @return The description.
-   */
-  java.lang.String getDescription();
-  /**
-   * <code>string description = 2;</code>
-   * @return The bytes for description.
-   */
-  com.google.protobuf.ByteString
-      getDescriptionBytes();
 }

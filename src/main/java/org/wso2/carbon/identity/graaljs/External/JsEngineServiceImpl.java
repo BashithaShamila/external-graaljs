@@ -107,17 +107,12 @@ public class JsEngineServiceImpl {
                 long tBindingsRestored = System.currentTimeMillis();
 
                 // Phase D: Proxy create
-                if (request.hasContextData()) {
-                    Value contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
+                if (callbackClient != null) {
+                    Value contextProxy = createContextProxy(context, callbackClient);
                     bindings.putMember("context", contextProxy);
                     if (log.isDebugEnabled()) {
                         log.debug("[External] Bound DYNAMIC context proxy for session: {}", request.getSessionId());
                     }
-                } else {
-                    Value emptyContext = context.eval(JS_LANG, "({})");
-                    bindings.putMember("context", emptyContext);
-                    log.warn("[External] No ContextData provided, binding empty context for session: {}",
-                            request.getSessionId());
                 }
                 long tProxyCreated = System.currentTimeMillis();
 
@@ -136,9 +131,9 @@ public class JsEngineServiceImpl {
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
                     // Skip "context" -- it is an unserializable JsGraalAuthenticationContext proxy.
-                    // Context mutations are handled via live DynamicContextProxy callbacks,
-                    // and structured ContextData is sent separately. Serializing it here
-                    // causes a Serializer toString() fallback with WARN log.
+                    // Context state is read live via DynamicContextProxy callbacks, so there is
+                    // nothing meaningful to ship back. Serializing the proxy here would fall
+                    // back to a Serializer toString() with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
                     if (!ExternalConstants.CONTEXT_BINDING_KEY.equals(key) && !isHostFunction(key)) {
@@ -258,8 +253,8 @@ public class JsEngineServiceImpl {
                     }
 
                     // Phase D: Proxy create + argument deserialization
-                    if (request.hasContextData()) {
-                        contextProxy = createContextProxy(context, request.getContextData(), callbackClient);
+                    if (callbackClient != null) {
+                        contextProxy = createContextProxy(context, callbackClient);
                         bindings.putMember(ExternalConstants.CALLBACK_CONTEXT_KEY, contextProxy);
                     }
 
@@ -298,9 +293,9 @@ public class JsEngineServiceImpl {
                 for (String key : bindings.getMemberKeys()) {
                     Value val = bindings.getMember(key);
                     // Skip "context" -- it is an unserializable JsGraalAuthenticationContext proxy.
-                    // Context mutations are handled via live DynamicContextProxy callbacks,
-                    // and structured ContextData is sent separately. Serializing it here
-                    // causes a Serializer toString() fallback with WARN log.
+                    // Context state is read live via DynamicContextProxy callbacks, so there is
+                    // nothing meaningful to ship back. Serializing the proxy here would fall
+                    // back to a Serializer toString() with WARN log.
                     // If context binding is ever needed here, implement a proper toProto()
                     // conversion for JsGraalAuthenticationContext first.
                     if (!ExternalConstants.CONTEXT_BINDING_KEY.equals(key) && !key.startsWith("__") && !isHostFunction(key)) {
@@ -434,25 +429,26 @@ public class JsEngineServiceImpl {
 
     /**
      * Create a JavaScript proxy object representing the authentication context.
-     * This version supports callbacks to the host for dynamic property access.
+     * Every property access on the proxy triggers a callback to IS, so context
+     * state is always read live. The proxy is attached when a callback channel
+     * exists ({@code callbackClient != null}); otherwise the binding is left
+     * unset and the script will fail loudly if it touches {@code context}.
      *
      * @param context        The GraalJS context.
-     * @param data           The context data from the request.
      * @param callbackClient The callback client for host function calls.
      * @return A JavaScript Value representing the context proxy.
      */
-    private Value createContextProxy(Context context, ContextData data, HostCallbackClient callbackClient) {
+    private Value createContextProxy(Context context, HostCallbackClient callbackClient) {
+        String sessionId = callbackClient != null ? callbackClient.getSessionId() : "unknown";
         if (log.isDebugEnabled()) {
-            log.debug(
-                    "[External] Creating DYNAMIC context proxy with data: username={}, userStoreDomain={}, tenantDomain={}, step={}",
-                    data.getUsername(), data.getUserStoreDomain(), data.getTenantDomain(), data.getCurrentStep());
+            log.debug("[External] Creating DYNAMIC context proxy for session: {}", sessionId);
         }
 
         // Use DynamicContextProxy which calls back to IS for every property access
         // This ensures the External context behaves identically to the local
         // JsGraalAuthenticationContext
         DynamicContextProxy dynamicProxy = new DynamicContextProxy(
-                callbackClient != null ? data.getSessionContextKey() : "unknown",
+                sessionId,
                 callbackClient,
                 "context", // Root proxy type
                 "" // Empty base path (root level)

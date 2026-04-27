@@ -92,23 +92,32 @@ public final class ExternalConstants {
     public static final String PROXY_TYPE_POJO = "pojo";
 
     // ============ mTLS Configuration ============
-    // Toggle mTLS for gRPC communication with IS.
-    // When true, certs are loaded from ./MTLS_CERT_DIR (relative to working directory).
-    // When false, plaintext gRPC is used (current dev behavior).
-    // Any change here MUST be mirrored in the IS side's RemoteEngineConstants.java.
+    // mTLS is mandatory on the gRPC server. The stream carries the full
+    // JsAuthenticationContext (username, tenant, userstore domain, claims,
+    // session id) plus host-function payloads, so plaintext on a non-loopback
+    // target is a confidentiality defect. The previous MTLS_ENABLED toggle and
+    // the feature-local PEM bundle (server.pem / server-key.pem / ca.pem) have
+    // been removed; the server now requires a PKCS#12 keystore + truststore and
+    // refuses to start otherwise. See GrpcStreamingServerTransport#buildMtlsCredentials.
+    //
+    // Defaults are the bundled wso2carbon.p12 and client-truststore.p12 (same
+    // material IS ships). Operator overrides via the system properties below.
 
-    /** Master toggle for mTLS on the External gRPC server. */
-    public static final boolean MTLS_ENABLED = true;
+    public static final String MTLS_KEYSTORE_PATH_PROP = "mtls.keystore.path";
+    public static final String MTLS_KEYSTORE_PASSWORD_PROP = "mtls.keystore.password";
+    public static final String MTLS_KEYSTORE_KEY_PASSWORD_PROP = "mtls.keystore.key.password";
+    public static final String MTLS_TRUSTSTORE_PATH_PROP = "mtls.truststore.path";
+    public static final String MTLS_TRUSTSTORE_PASSWORD_PROP = "mtls.truststore.password";
 
-    /** Cert directory relative to working directory. */
-    public static final String MTLS_CERT_DIR = "certs";
+    /** Default PKCS#12 keystore (classpath resource path). Same file IS ships. */
+    public static final String DEFAULT_KEYSTORE_RESOURCE = "/certs/wso2carbon.p12";
 
-    /** Server certificate filename (PEM). */
-    public static final String MTLS_SERVER_CERT = "server.pem";
+    /** Default PKCS#12 truststore (classpath resource path). Same file IS ships. */
+    public static final String DEFAULT_TRUSTSTORE_RESOURCE = "/certs/client-truststore.p12";
 
-    /** Server private key filename (PKCS#8 PEM). */
-    public static final String MTLS_SERVER_KEY = "server-key.pem";
+    /** Default password matching the IS pack. */
+    public static final String DEFAULT_KEYSTORE_PASSWORD = "wso2carbon";
 
-    /** CA certificate filename (PEM) — used to verify IS client cert. */
-    public static final String MTLS_CA_CERT = "ca.pem";
+    /** Default keystore type (matches Carbon configuration). */
+    public static final String DEFAULT_KEYSTORE_TYPE = "PKCS12";
 }

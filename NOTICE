@@ -1,0 +1,27 @@
+WSO2 Identity Server - GraalJS Runtime
+Copyright (c) 2026 WSO2 LLC. (http://www.wso2.com)
+
+This product is licensed under the Apache License, Version 2.0; see LICENSE.txt
+for the full text.
+
+This product bundles or depends on third-party software:
+
+  * GraalVM JavaScript (org.graalvm.js:js, js-scriptengine)
+      Licensed under the Universal Permissive License (UPL) v1.0.
+      https://www.graalvm.org/
+
+  * gRPC (io.grpc:grpc-*)
+      Licensed under the Apache License, Version 2.0.
+      https://grpc.io/
+
+  * Protocol Buffers (com.google.protobuf:protobuf-java)
+      Licensed under the BSD 3-Clause License.
+      https://developers.google.com/protocol-buffers
+
+  * junixsocket (com.kohlschutter.junixsocket)
+      Licensed under the Apache License, Version 2.0.
+      https://github.com/kohlschutter/junixsocket
+
+  * SLF4J (org.slf4j:slf4j-api, slf4j-simple)
+      Licensed under the MIT License.
+      https://www.slf4j.org/

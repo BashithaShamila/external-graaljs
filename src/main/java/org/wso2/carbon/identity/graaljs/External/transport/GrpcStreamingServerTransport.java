@@ -20,7 +20,6 @@ package org.wso2.carbon.identity.graaljs.External.transport;
 
 import io.grpc.Grpc;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.ServerCredentials;
 import io.grpc.TlsServerCredentials;
 import io.grpc.stub.StreamObserver;
@@ -31,8 +30,16 @@ import org.wso2.carbon.identity.graaljs.proto.grpc.JsEngineStreamingServiceGrpc;
 import org.wso2.carbon.identity.graaljs.External.JsEngineServiceImpl;
 import org.wso2.carbon.identity.graaljs.External.ExternalConstants;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -80,45 +87,20 @@ public class GrpcStreamingServerTransport implements ServerTransport {
             return;
         }
 
-        if (ExternalConstants.MTLS_ENABLED) {
-            String certPath = "/certs/";
-            System.out.println("[gRPC-Streaming-Server] mTLS enabled - loading certs from classpath: " + certPath);
+        // mTLS is mandatory: the stream carries the full JsAuthenticationContext
+        // and host-function payloads. The previous plaintext branch was removed
+        // to make sure a misconfiguration cannot silently expose that data.
+        ServerCredentials credentials = buildMtlsCredentials();
 
-            InputStream serverCertStream = getClass().getResourceAsStream(certPath + ExternalConstants.MTLS_SERVER_CERT);
-            InputStream serverKeyStream = getClass().getResourceAsStream(certPath + ExternalConstants.MTLS_SERVER_KEY);
-            InputStream caCertStream = getClass().getResourceAsStream(certPath + ExternalConstants.MTLS_CA_CERT);
+        server = Grpc.newServerBuilderForPort(port, credentials)
+                .addService(new JsEngineStreamingServiceImpl())
+                .build()
+                .start();
 
-            if (serverCertStream == null || serverKeyStream == null || caCertStream == null) {
-                throw new IOException("[gRPC-Streaming-Server] mTLS cert resources not found in classpath. " +
-                        "Expected: " + certPath + ExternalConstants.MTLS_SERVER_CERT + ", " +
-                        certPath + ExternalConstants.MTLS_SERVER_KEY + ", " +
-                        certPath + ExternalConstants.MTLS_CA_CERT);
-            }
-
-            ServerCredentials credentials = TlsServerCredentials.newBuilder()
-                    .keyManager(serverCertStream, serverKeyStream)
-                    .trustManager(caCertStream)
-                    .clientAuth(TlsServerCredentials.ClientAuth.REQUIRE)
-                    .build();
-
-            server = Grpc.newServerBuilderForPort(port, credentials)
-                    .addService(new JsEngineStreamingServiceImpl())
-                    .build()
-                    .start();
-
-            System.out.println("[gRPC-Streaming-Server] mTLS server started on port: " + server.getPort());
-        } else {
-            server = ServerBuilder.forPort(port)
-                    .addService(new JsEngineStreamingServiceImpl())
-                    .build()
-                    .start();
-
-            System.out.println("[gRPC-Streaming-Server] Plaintext server started on port: " + server.getPort());
-        }
+        System.out.println("[gRPC-Streaming-Server] mTLS server started on port: " + server.getPort());
 
         if (log.isDebugEnabled()) {
-            log.debug("[gRPC-Streaming-Server] Started on port: " + server.getPort() +
-                    ", mTLS: " + ExternalConstants.MTLS_ENABLED);
+            log.debug("[gRPC-Streaming-Server] Started on port: " + server.getPort());
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -166,6 +148,94 @@ public class GrpcStreamingServerTransport implements ServerTransport {
         return "localhost:" + port;
     }
 
+    // ============ mTLS Credential Building ============
+
+    /**
+     * Build TLS server credentials from a PKCS#12 keystore + truststore.
+     * <p>
+     * The bundled defaults are {@code /certs/wso2carbon.p12} and
+     * {@code /certs/client-truststore.p12} on the classpath — identical to the files
+     * shipped in the IS pack. Operator can override paths via the
+     * {@code mtls.keystore.path} / {@code mtls.truststore.path} system properties to
+     * point at the IS pack directly when co-located. Failures surface immediately.
+     */
+    private ServerCredentials buildMtlsCredentials() throws IOException {
+
+        String ksPath = System.getProperty(ExternalConstants.MTLS_KEYSTORE_PATH_PROP);
+        String ksPassword = System.getProperty(
+                ExternalConstants.MTLS_KEYSTORE_PASSWORD_PROP, ExternalConstants.DEFAULT_KEYSTORE_PASSWORD);
+        String ksKeyPassword = System.getProperty(
+                ExternalConstants.MTLS_KEYSTORE_KEY_PASSWORD_PROP, ksPassword);
+        String tsPath = System.getProperty(ExternalConstants.MTLS_TRUSTSTORE_PATH_PROP);
+        String tsPassword = System.getProperty(
+                ExternalConstants.MTLS_TRUSTSTORE_PASSWORD_PROP, ExternalConstants.DEFAULT_KEYSTORE_PASSWORD);
+
+        System.out.println("[gRPC-Streaming-Server] mTLS PKCS#12 — keystore: " +
+                (ksPath != null ? ksPath : "classpath:" + ExternalConstants.DEFAULT_KEYSTORE_RESOURCE) +
+                ", truststore: " +
+                (tsPath != null ? tsPath : "classpath:" + ExternalConstants.DEFAULT_TRUSTSTORE_RESOURCE));
+
+        try {
+            KeyManager[] keyManagers = loadKeyManagers(ksPath,
+                    ExternalConstants.DEFAULT_KEYSTORE_RESOURCE, ksPassword, ksKeyPassword);
+            TrustManager[] trustManagers = loadTrustManagers(tsPath,
+                    ExternalConstants.DEFAULT_TRUSTSTORE_RESOURCE, tsPassword);
+
+            return TlsServerCredentials.newBuilder()
+                    .keyManager(keyManagers)
+                    .trustManager(trustManagers)
+                    .clientAuth(TlsServerCredentials.ClientAuth.REQUIRE)
+                    .build();
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException("Failed to build mTLS credentials from PKCS#12 keystore: " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private KeyManager[] loadKeyManagers(String overridePath, String classpathDefault,
+                                         String storePassword, String keyPassword) throws Exception {
+
+        KeyStore ks = KeyStore.getInstance(ExternalConstants.DEFAULT_KEYSTORE_TYPE);
+        try (InputStream in = openStore(overridePath, classpathDefault)) {
+            ks.load(in, storePassword.toCharArray());
+        }
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(ks, keyPassword.toCharArray());
+        return kmf.getKeyManagers();
+    }
+
+    private TrustManager[] loadTrustManagers(String overridePath, String classpathDefault,
+                                             String password) throws Exception {
+
+        KeyStore ts = KeyStore.getInstance(ExternalConstants.DEFAULT_KEYSTORE_TYPE);
+        try (InputStream in = openStore(overridePath, classpathDefault)) {
+            ts.load(in, password.toCharArray());
+        }
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(ts);
+        return tmf.getTrustManagers();
+    }
+
+    /**
+     * Open the keystore stream — operator override path first, classpath default second.
+     */
+    private InputStream openStore(String overridePath, String classpathDefault) throws IOException {
+
+        if (overridePath != null && !overridePath.isEmpty()) {
+            if (!Files.isRegularFile(Paths.get(overridePath))) {
+                throw new IOException("Configured keystore path does not exist: " + overridePath);
+            }
+            return new FileInputStream(overridePath);
+        }
+        InputStream cp = getClass().getResourceAsStream(classpathDefault);
+        if (cp == null) {
+            throw new IOException("Bundled keystore resource not found on classpath: " + classpathDefault);
+        }
+        return cp;
+    }
+
     // ============ gRPC Service — Message Routing ============
 
     /**
@@ -205,7 +275,7 @@ public class GrpcStreamingServerTransport implements ServerTransport {
 
                     switch (message.getPayloadCase()) {
                         case EVALUATE_REQUEST:
-                            System.out.println("[PERF] [" + now + "] External EVALUATE_REQUEST_RECEIVED session=" +
+                            log.debug("[PERF] [" + now + "] External EVALUATE_REQUEST_RECEIVED session=" +
                                     sessionId + " streamOpenTs=" + streamOpenTime +
                                     " receivedTs=" + now +
                                     " sinceStreamOpenMs=" + (now - streamOpenTime));

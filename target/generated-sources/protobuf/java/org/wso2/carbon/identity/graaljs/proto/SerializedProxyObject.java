@@ -41,18 +41,6 @@ private static final long serialVersionUID = 0L;
     return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor;
   }
 
-  @SuppressWarnings({"rawtypes"})
-  @java.lang.Override
-  protected com.google.protobuf.MapField internalGetMapField(
-      int number) {
-    switch (number) {
-      case 3:
-        return internalGetCachedProperties();
-      default:
-        throw new RuntimeException(
-            "Invalid map field number: " + number);
-    }
-  }
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
@@ -139,85 +127,6 @@ private static final long serialVersionUID = 0L;
     }
   }
 
-  public static final int CACHED_PROPERTIES_FIELD_NUMBER = 3;
-  private static final class CachedPropertiesDefaultEntryHolder {
-    static final com.google.protobuf.MapEntry<
-        java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> defaultEntry =
-            com.google.protobuf.MapEntry
-            .<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>newDefaultInstance(
-                org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_descriptor, 
-                com.google.protobuf.WireFormat.FieldType.STRING,
-                "",
-                com.google.protobuf.WireFormat.FieldType.MESSAGE,
-                org.wso2.carbon.identity.graaljs.proto.SerializedValue.getDefaultInstance());
-  }
-  @SuppressWarnings("serial")
-  private com.google.protobuf.MapField<
-      java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> cachedProperties_;
-  private com.google.protobuf.MapField<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
-  internalGetCachedProperties() {
-    if (cachedProperties_ == null) {
-      return com.google.protobuf.MapField.emptyMapField(
-          CachedPropertiesDefaultEntryHolder.defaultEntry);
-    }
-    return cachedProperties_;
-  }
-  public int getCachedPropertiesCount() {
-    return internalGetCachedProperties().getMap().size();
-  }
-  /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-   */
-  @java.lang.Override
-  public boolean containsCachedProperties(
-      java.lang.String key) {
-    if (key == null) { throw new NullPointerException("map key"); }
-    return internalGetCachedProperties().getMap().containsKey(key);
-  }
-  /**
-   * Use {@link #getCachedPropertiesMap()} instead.
-   */
-  @java.lang.Override
-  @java.lang.Deprecated
-  public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getCachedProperties() {
-    return getCachedPropertiesMap();
-  }
-  /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-   */
-  @java.lang.Override
-  public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getCachedPropertiesMap() {
-    return internalGetCachedProperties().getMap();
-  }
-  /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-   */
-  @java.lang.Override
-  public /* nullable */
-org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrDefault(
-      java.lang.String key,
-      /* nullable */
-org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
-    if (key == null) { throw new NullPointerException("map key"); }
-    java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> map =
-        internalGetCachedProperties().getMap();
-    return map.containsKey(key) ? map.get(key) : defaultValue;
-  }
-  /**
-   * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-   */
-  @java.lang.Override
-  public org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrThrow(
-      java.lang.String key) {
-    if (key == null) { throw new NullPointerException("map key"); }
-    java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> map =
-        internalGetCachedProperties().getMap();
-    if (!map.containsKey(key)) {
-      throw new java.lang.IllegalArgumentException();
-    }
-    return map.get(key);
-  }
-
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
@@ -238,12 +147,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(referenceId_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 2, referenceId_);
     }
-    com.google.protobuf.GeneratedMessageV3
-      .serializeStringMapTo(
-        output,
-        internalGetCachedProperties(),
-        CachedPropertiesDefaultEntryHolder.defaultEntry,
-        3);
     getUnknownFields().writeTo(output);
   }
 
@@ -258,16 +161,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(referenceId_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, referenceId_);
-    }
-    for (java.util.Map.Entry<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> entry
-         : internalGetCachedProperties().getMap().entrySet()) {
-      com.google.protobuf.MapEntry<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
-      cachedProperties__ = CachedPropertiesDefaultEntryHolder.defaultEntry.newBuilderForType()
-          .setKey(entry.getKey())
-          .setValue(entry.getValue())
-          .build();
-      size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(3, cachedProperties__);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -288,8 +181,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         .equals(other.getType())) return false;
     if (!getReferenceId()
         .equals(other.getReferenceId())) return false;
-    if (!internalGetCachedProperties().equals(
-        other.internalGetCachedProperties())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -305,10 +196,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
     hash = (53 * hash) + getType().hashCode();
     hash = (37 * hash) + REFERENCE_ID_FIELD_NUMBER;
     hash = (53 * hash) + getReferenceId().hashCode();
-    if (!internalGetCachedProperties().getMap().isEmpty()) {
-      hash = (37 * hash) + CACHED_PROPERTIES_FIELD_NUMBER;
-      hash = (53 * hash) + internalGetCachedProperties().hashCode();
-    }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -420,28 +307,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       return org.wso2.carbon.identity.graaljs.proto.JsEngineProtos.internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor;
     }
 
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMapField(
-        int number) {
-      switch (number) {
-        case 3:
-          return internalGetCachedProperties();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
-    @SuppressWarnings({"rawtypes"})
-    protected com.google.protobuf.MapField internalGetMutableMapField(
-        int number) {
-      switch (number) {
-        case 3:
-          return internalGetMutableCachedProperties();
-        default:
-          throw new RuntimeException(
-              "Invalid map field number: " + number);
-      }
-    }
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
@@ -466,7 +331,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       bitField0_ = 0;
       type_ = "";
       referenceId_ = "";
-      internalGetMutableCachedProperties().clear();
       return this;
     }
 
@@ -505,10 +369,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       }
       if (((from_bitField0_ & 0x00000002) != 0)) {
         result.referenceId_ = referenceId_;
-      }
-      if (((from_bitField0_ & 0x00000004) != 0)) {
-        result.cachedProperties_ = internalGetCachedProperties();
-        result.cachedProperties_.makeImmutable();
       }
     }
 
@@ -566,9 +426,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
         bitField0_ |= 0x00000002;
         onChanged();
       }
-      internalGetMutableCachedProperties().mergeFrom(
-          other.internalGetCachedProperties());
-      bitField0_ |= 0x00000004;
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -605,15 +462,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
               bitField0_ |= 0x00000002;
               break;
             } // case 18
-            case 26: {
-              com.google.protobuf.MapEntry<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
-              cachedProperties__ = input.readMessage(
-                  CachedPropertiesDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              internalGetMutableCachedProperties().getMutableMap().put(
-                  cachedProperties__.getKey(), cachedProperties__.getValue());
-              bitField0_ |= 0x00000004;
-              break;
-            } // case 26
             default: {
               if (!super.parseUnknownField(input, extensionRegistry, tag)) {
                 done = true; // was an endgroup tag
@@ -772,133 +620,6 @@ org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
       referenceId_ = value;
       bitField0_ |= 0x00000002;
       onChanged();
-      return this;
-    }
-
-    private com.google.protobuf.MapField<
-        java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> cachedProperties_;
-    private com.google.protobuf.MapField<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
-        internalGetCachedProperties() {
-      if (cachedProperties_ == null) {
-        return com.google.protobuf.MapField.emptyMapField(
-            CachedPropertiesDefaultEntryHolder.defaultEntry);
-      }
-      return cachedProperties_;
-    }
-    private com.google.protobuf.MapField<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
-        internalGetMutableCachedProperties() {
-      if (cachedProperties_ == null) {
-        cachedProperties_ = com.google.protobuf.MapField.newMapField(
-            CachedPropertiesDefaultEntryHolder.defaultEntry);
-      }
-      if (!cachedProperties_.isMutable()) {
-        cachedProperties_ = cachedProperties_.copy();
-      }
-      bitField0_ |= 0x00000004;
-      onChanged();
-      return cachedProperties_;
-    }
-    public int getCachedPropertiesCount() {
-      return internalGetCachedProperties().getMap().size();
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    @java.lang.Override
-    public boolean containsCachedProperties(
-        java.lang.String key) {
-      if (key == null) { throw new NullPointerException("map key"); }
-      return internalGetCachedProperties().getMap().containsKey(key);
-    }
-    /**
-     * Use {@link #getCachedPropertiesMap()} instead.
-     */
-    @java.lang.Override
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getCachedProperties() {
-      return getCachedPropertiesMap();
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    @java.lang.Override
-    public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> getCachedPropertiesMap() {
-      return internalGetCachedProperties().getMap();
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    @java.lang.Override
-    public /* nullable */
-org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrDefault(
-        java.lang.String key,
-        /* nullable */
-org.wso2.carbon.identity.graaljs.proto.SerializedValue defaultValue) {
-      if (key == null) { throw new NullPointerException("map key"); }
-      java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> map =
-          internalGetCachedProperties().getMap();
-      return map.containsKey(key) ? map.get(key) : defaultValue;
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    @java.lang.Override
-    public org.wso2.carbon.identity.graaljs.proto.SerializedValue getCachedPropertiesOrThrow(
-        java.lang.String key) {
-      if (key == null) { throw new NullPointerException("map key"); }
-      java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> map =
-          internalGetCachedProperties().getMap();
-      if (!map.containsKey(key)) {
-        throw new java.lang.IllegalArgumentException();
-      }
-      return map.get(key);
-    }
-    public Builder clearCachedProperties() {
-      bitField0_ = (bitField0_ & ~0x00000004);
-      internalGetMutableCachedProperties().getMutableMap()
-          .clear();
-      return this;
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    public Builder removeCachedProperties(
-        java.lang.String key) {
-      if (key == null) { throw new NullPointerException("map key"); }
-      internalGetMutableCachedProperties().getMutableMap()
-          .remove(key);
-      return this;
-    }
-    /**
-     * Use alternate mutation accessors instead.
-     */
-    @java.lang.Deprecated
-    public java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue>
-        getMutableCachedProperties() {
-      bitField0_ |= 0x00000004;
-      return internalGetMutableCachedProperties().getMutableMap();
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    public Builder putCachedProperties(
-        java.lang.String key,
-        org.wso2.carbon.identity.graaljs.proto.SerializedValue value) {
-      if (key == null) { throw new NullPointerException("map key"); }
-      if (value == null) { throw new NullPointerException("map value"); }
-      internalGetMutableCachedProperties().getMutableMap()
-          .put(key, value);
-      bitField0_ |= 0x00000004;
-      return this;
-    }
-    /**
-     * <code>map&lt;string, .org.wso2.carbon.identity.graaljs.engine.proto.SerializedValue&gt; cached_properties = 3;</code>
-     */
-    public Builder putAllCachedProperties(
-        java.util.Map<java.lang.String, org.wso2.carbon.identity.graaljs.proto.SerializedValue> values) {
-      internalGetMutableCachedProperties().getMutableMap()
-          .putAll(values);
-      bitField0_ |= 0x00000004;
       return this;
     }
     @java.lang.Override

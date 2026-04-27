@@ -26,27 +26,26 @@ import org.wso2.carbon.identity.graaljs.External.transport.ServerTransport;
 import java.io.IOException;
 
 /**
- * Main entry point for the GraalJS External server.
+ * Main entry point for the GraalJS runtime.
  * Uses gRPC bidirectional streaming transport.
  *
- * <p>Usage:</p>
- * <pre>
- * java -jar External.jar [port] [statementLimit] [threadPoolSize]
- * </pre>
+ * <p>Configuration precedence (highest first):</p>
+ * <ol>
+ *   <li>JVM system properties: {@code -Dserver.port}, {@code -Dscript.statement.limit},
+ *       {@code -Dserver.thread.pool.size}.</li>
+ *   <li>{@code conf/deployment.properties} under {@code -Dgraaljs.runtime.home}
+ *       (or {@code -Dconf.location}).</li>
+ *   <li>Positional CLI overrides: {@code [port] [statementLimit] [threadPoolSize]}.</li>
+ *   <li>Built-in defaults.</li>
+ * </ol>
  *
- * <p>Examples:</p>
- * <pre>
- * java -jar External.jar 50051 5000 10
- * </pre>
+ * <p>The {@code bin/runtime.sh} / {@code bin/runtime.bat} scripts shipped with the
+ * distribution provide the canonical invocation; raw {@code java -jar} usage is
+ * supported for development.</p>
  */
 public class Main {
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-
-    // Default values.
-    private static final int DEFAULT_GRPC_PORT = 50051;
-    private static final int DEFAULT_STATEMENT_LIMIT = 5000;
-    private static final int DEFAULT_THREAD_POOL_SIZE = 10;
 
     private ServerTransport serverTransport;
     private JsEngineServiceImpl engineService;
@@ -67,33 +66,42 @@ public class Main {
     }
 
     /**
-     * Parse command-line arguments and start the gRPC transport.
-     * Accepts optional "grpc" keyword as first argument for backward compatibility.
+     * Resolve runtime configuration and start the gRPC transport.
+     * Positional CLI args are accepted as overrides for backward compatibility:
+     * {@code [port] [statementLimit] [threadPoolSize]}. A leading {@code grpc}
+     * keyword (legacy invocation) is silently consumed so older operator scripts
+     * continue to work.
      *
-     * @param args Command-line arguments: [grpc] [port] [statementLimit] [threadPoolSize].
+     * @param args Command-line arguments.
      */
     private void parseArgsAndStart(String[] args) throws IOException {
-        // Skip "grpc" keyword if present (backward compatibility).
+
+        RuntimeConfig config = RuntimeConfig.load();
+
+        // Backward compatibility: drop a leading "grpc" keyword if present.
+        // Older operator scripts may still pass it; new bin/runtime.sh does not.
         int offset = 0;
         if (args.length > 0 && "grpc".equalsIgnoreCase(args[0])) {
             offset = 1;
         }
 
-        int port = args.length > offset ? Integer.parseInt(args[offset]) : DEFAULT_GRPC_PORT;
-        int statementLimit = args.length > offset + 1 ? Integer.parseInt(args[offset + 1]) : DEFAULT_STATEMENT_LIMIT;
-        int threadPoolSize = args.length > offset + 2 ? Integer.parseInt(args[offset + 2]) : DEFAULT_THREAD_POOL_SIZE;
+        int port = args.length > offset ? Integer.parseInt(args[offset]) : config.getPort();
+        int statementLimit = args.length > offset + 1
+                ? Integer.parseInt(args[offset + 1]) : config.getStatementLimit();
+        int threadPoolSize = args.length > offset + 2
+                ? Integer.parseInt(args[offset + 2]) : config.getThreadPoolSize();
 
         startGrpc(port, statementLimit, threadPoolSize);
     }
 
     /**
-     * Start the External in gRPC mode.
+     * Start the runtime in gRPC mode.
      */
     private void startGrpc(int port, int statementLimit, int threadPoolSize) throws IOException {
-        log.info("[Main] Starting External in gRPC mode");
-        System.out.println("[External-STARTUP] Starting GraalJS External in gRPC mode");
-        System.out.println("[External-STARTUP] Port: " + port);
-        System.out.println("[External-STARTUP] Statement limit: " + statementLimit
+        log.info("[Main] Starting GraalJS Runtime in gRPC mode");
+        System.out.println("[Runtime-STARTUP] Starting WSO2 Identity GraalJS Runtime in gRPC mode");
+        System.out.println("[Runtime-STARTUP] Port: " + port);
+        System.out.println("[Runtime-STARTUP] Statement limit: " + statementLimit
                 + ", Thread pool size: " + threadPoolSize);
         System.out.flush();
 
@@ -114,14 +122,14 @@ public class Main {
         // Start transport
         serverTransport.start();
 
-        log.info("[Main] External started on: " + serverTransport.getAddress());
-        System.out.println("[External-STARTUP] External listening on: " + serverTransport.getAddress());
+        log.info("[Main] GraalJS Runtime started on: " + serverTransport.getAddress());
+        System.out.println("[Runtime-STARTUP] GraalJS Runtime listening on: " + serverTransport.getAddress());
         System.out.flush();
 
         // Set up shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("[Main] Shutting down GraalJS External...");
-            System.out.println("[External-SHUTDOWN] Shutting down GraalJS External...");
+            log.info("[Main] Shutting down GraalJS Runtime...");
+            System.out.println("[Runtime-SHUTDOWN] Shutting down GraalJS Runtime...");
             System.out.flush();
             stop();
         }));
@@ -141,7 +149,7 @@ public class Main {
                 log.error("[Main] Error stopping server", e);
             }
         }
-        log.info("[Main] GraalJS External stopped");
+        log.info("[Main] GraalJS Runtime stopped");
     }
 
     /**

@@ -156,11 +156,15 @@ class HostFunctionStub implements ProxyExecutable {
             return val.fitsInLong() ? val.asLong() : val.asDouble();
         if (val.isBoolean())
             return val.asBoolean();
-        // Handle JavaScript functions - extract source code.
+        // Handle JavaScript functions - return the Polyglot Value as-is so the downstream
+        // serializer (ValueSerializationUtils.serialize) routes it through serializeGraalValue
+        // and emits FUNCTION_VALUE on the wire. Flattening to source string here would lose
+        // the typing and cause IS to receive STRING_VALUE for what is actually a function,
+        // breaking event-handler wiring (onSuccess/onFail).
         // IMPORTANT: Check canExecute() BEFORE hasMembers() because JS functions also
         // have members.
         if (val.canExecute()) {
-            return ValueSerializationUtils.extractFunctionSource(val);
+            return val;
         }
         if (val.hasArrayElements()) {
             Object[] arr = new Object[(int) val.getArraySize()];

@@ -120,21 +120,6 @@ public final class JsEngineProtos {
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_descriptor;
   static final 
     com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
@@ -149,7 +134,7 @@ public final class JsEngineProtos {
   static {
     java.lang.String[] descriptorData = {
       "\n\017js_engine.proto\022-org.wso2.carbon.ident" +
-      "ity.graaljs.engine.proto\"\211\004\n\017EvaluateReq" +
+      "ity.graaljs.engine.proto\"\231\003\n\017EvaluateReq" +
       "uest\022\022\n\nsession_id\030\001 \001(\t\022\016\n\006script\030\002 \001(\t" +
       "\022\031\n\021source_identifier\030\003 \001(\t\022\027\n\017statement" +
       "_limit\030\004 \001(\005\022^\n\010bindings\030\005 \003(\0132L.org.wso" +
@@ -157,135 +142,115 @@ public final class JsEngineProtos {
       "valuateRequest.BindingsEntry\022]\n\016host_fun" +
       "ctions\030\006 \003(\0132E.org.wso2.carbon.identity." +
       "graaljs.engine.proto.HostFunctionDefinit" +
-      "ion\022\034\n\024callback_socket_path\030\007 \001(\t\022P\n\014con" +
-      "text_data\030\010 \001(\0132:.org.wso2.carbon.identi" +
-      "ty.graaljs.engine.proto.ContextData\032o\n\rB" +
-      "indingsEntry\022\013\n\003key\030\001 \001(\t\022M\n\005value\030\002 \001(\013" +
-      "2>.org.wso2.carbon.identity.graaljs.engi" +
-      "ne.proto.SerializedValue:\0028\001\"\232\003\n\020Evaluat" +
-      "eResponse\022\017\n\007success\030\001 \001(\010\022\022\n\nelapsed_ms" +
-      "\030\002 \001(\003\022N\n\006result\030\003 \001(\0132>.org.wso2.carbon" +
-      ".identity.graaljs.engine.proto.Serialize" +
-      "dValue\022n\n\020updated_bindings\030\004 \003(\0132T.org.w" +
-      "so2.carbon.identity.graaljs.engine.proto" +
-      ".EvaluateResponse.UpdatedBindingsEntry\022\025" +
-      "\n\rerror_message\030\005 \001(\t\022\022\n\nerror_type\030\006 \001(" +
-      "\t\032v\n\024UpdatedBindingsEntry\022\013\n\003key\030\001 \001(\t\022M" +
-      "\n\005value\030\002 \001(\0132>.org.wso2.carbon.identity" +
-      ".graaljs.engine.proto.SerializedValue:\0028" +
-      "\001\"\277\004\n\026ExecuteCallbackRequest\022\022\n\nsession_" +
-      "id\030\001 \001(\t\022\027\n\017function_source\030\002 \001(\t\022Q\n\targ" +
-      "uments\030\003 \003(\0132>.org.wso2.carbon.identity." +
-      "graaljs.engine.proto.SerializedValue\022e\n\010" +
-      "bindings\030\004 \003(\0132S.org.wso2.carbon.identit" +
-      "y.graaljs.engine.proto.ExecuteCallbackRe" +
-      "quest.BindingsEntry\022P\n\014context_data\030\005 \001(" +
-      "\0132:.org.wso2.carbon.identity.graaljs.eng" +
-      "ine.proto.ContextData\022\034\n\024callback_socket" +
-      "_path\030\006 \001(\t\022]\n\016host_functions\030\007 \003(\0132E.or" +
-      "g.wso2.carbon.identity.graaljs.engine.pr" +
-      "oto.HostFunctionDefinition\032o\n\rBindingsEn" +
-      "try\022\013\n\003key\030\001 \001(\t\022M\n\005value\030\002 \001(\0132>.org.ws" +
-      "o2.carbon.identity.graaljs.engine.proto." +
-      "SerializedValue:\0028\001\"\224\003\n\027ExecuteCallbackR" +
-      "esponse\022\017\n\007success\030\001 \001(\010\022\022\n\nelapsed_ms\030\002" +
-      " \001(\003\022N\n\006result\030\003 \001(\0132>.org.wso2.carbon.i" +
+      "ion\032o\n\rBindingsEntry\022\013\n\003key\030\001 \001(\t\022M\n\005val" +
+      "ue\030\002 \001(\0132>.org.wso2.carbon.identity.graa" +
+      "ljs.engine.proto.SerializedValue:\0028\001\"\232\003\n" +
+      "\020EvaluateResponse\022\017\n\007success\030\001 \001(\010\022\022\n\nel" +
+      "apsed_ms\030\002 \001(\003\022N\n\006result\030\003 \001(\0132>.org.wso" +
+      "2.carbon.identity.graaljs.engine.proto.S" +
+      "erializedValue\022n\n\020updated_bindings\030\004 \003(\013" +
+      "2T.org.wso2.carbon.identity.graaljs.engi" +
+      "ne.proto.EvaluateResponse.UpdatedBinding" +
+      "sEntry\022\025\n\rerror_message\030\005 \001(\t\022\022\n\nerror_t" +
+      "ype\030\006 \001(\t\032v\n\024UpdatedBindingsEntry\022\013\n\003key" +
+      "\030\001 \001(\t\022M\n\005value\030\002 \001(\0132>.org.wso2.carbon." +
+      "identity.graaljs.engine.proto.Serialized" +
+      "Value:\0028\001\"\317\003\n\026ExecuteCallbackRequest\022\022\n\n" +
+      "session_id\030\001 \001(\t\022\027\n\017function_source\030\002 \001(" +
+      "\t\022Q\n\targuments\030\003 \003(\0132>.org.wso2.carbon.i" +
       "dentity.graaljs.engine.proto.SerializedV" +
-      "alue\022u\n\020updated_bindings\030\004 \003(\0132[.org.wso" +
-      "2.carbon.identity.graaljs.engine.proto.E" +
-      "xecuteCallbackResponse.UpdatedBindingsEn" +
-      "try\022\025\n\rerror_message\030\005 \001(\t\032v\n\024UpdatedBin" +
-      "dingsEntry\022\013\n\003key\030\001 \001(\t\022M\n\005value\030\002 \001(\0132>" +
-      ".org.wso2.carbon.identity.graaljs.engine" +
-      ".proto.SerializedValue:\0028\001\"\223\001\n\023HostFunct" +
-      "ionRequest\022\022\n\nsession_id\030\001 \001(\t\022\025\n\rfuncti" +
-      "on_name\030\002 \001(\t\022Q\n\targuments\030\003 \003(\0132>.org.w" +
-      "so2.carbon.identity.graaljs.engine.proto" +
-      ".SerializedValue\"\216\001\n\024HostFunctionRespons" +
-      "e\022\017\n\007success\030\001 \001(\010\022N\n\006result\030\002 \001(\0132>.org" +
-      ".wso2.carbon.identity.graaljs.engine.pro" +
-      "to.SerializedValue\022\025\n\rerror_message\030\003 \001(" +
-      "\t\";\n\026HostFunctionDefinition\022\014\n\004name\030\001 \001(" +
-      "\t\022\023\n\013description\030\002 \001(\t\"W\n\026ContextPropert" +
-      "yRequest\022\022\n\nsession_id\030\001 \001(\t\022\025\n\rproperty" +
-      "_path\030\002 \001(\t\022\022\n\nproxy_type\030\003 \001(\t\"\313\001\n\027Cont" +
-      "extPropertyResponse\022\017\n\007success\030\001 \001(\010\022M\n\005" +
-      "value\030\002 \001(\0132>.org.wso2.carbon.identity.g" +
-      "raaljs.engine.proto.SerializedValue\022\025\n\re" +
-      "rror_message\030\003 \001(\t\022\020\n\010is_proxy\030\004 \001(\010\022\022\n\n" +
-      "proxy_type\030\005 \001(\t\022\023\n\013member_keys\030\006 \003(\t\"\225\001" +
-      "\n\031ContextPropertySetRequest\022\022\n\nsession_i" +
-      "d\030\001 \001(\t\022\025\n\rproperty_path\030\002 \001(\t\022M\n\005value\030" +
-      "\003 \001(\0132>.org.wso2.carbon.identity.graaljs" +
-      ".engine.proto.SerializedValue\"D\n\032Context" +
-      "PropertySetResponse\022\017\n\007success\030\001 \001(\010\022\025\n\r" +
-      "error_message\030\002 \001(\t\"\360\003\n\017SerializedValue\022" +
-      "\026\n\014string_value\030\001 \001(\tH\000\022\023\n\tint_value\030\002 \001" +
-      "(\003H\000\022\026\n\014double_value\030\003 \001(\001H\000\022\024\n\nbool_val" +
-      "ue\030\004 \001(\010H\000\022\024\n\nnull_value\030\005 \001(\014H\000\022Q\n\tmap_" +
-      "value\030\006 \001(\0132<.org.wso2.carbon.identity.g" +
-      "raaljs.engine.proto.SerializedMapH\000\022U\n\013a" +
-      "rray_value\030\007 \001(\0132>.org.wso2.carbon.ident" +
-      "ity.graaljs.engine.proto.SerializedArray" +
-      "H\000\022[\n\016function_value\030\010 \001(\0132A.org.wso2.ca" +
-      "rbon.identity.graaljs.engine.proto.Seria" +
-      "lizedFunctionH\000\022\\\n\014proxy_object\030\t \001(\0132D." +
-      "org.wso2.carbon.identity.graaljs.engine." +
-      "proto.SerializedProxyObjectH\000B\007\n\005value\"\333" +
-      "\001\n\rSerializedMap\022Z\n\007entries\030\001 \003(\0132I.org." +
-      "wso2.carbon.identity.graaljs.engine.prot" +
-      "o.SerializedMap.EntriesEntry\032n\n\014EntriesE" +
-      "ntry\022\013\n\003key\030\001 \001(\t\022M\n\005value\030\002 \001(\0132>.org.w" +
-      "so2.carbon.identity.graaljs.engine.proto" +
-      ".SerializedValue:\0028\001\"c\n\017SerializedArray\022" +
-      "P\n\010elements\030\001 \003(\0132>.org.wso2.carbon.iden" +
-      "tity.graaljs.engine.proto.SerializedValu" +
-      "e\"2\n\022SerializedFunction\022\016\n\006source\030\001 \001(\t\022" +
-      "\014\n\004name\030\002 \001(\t\"\253\002\n\025SerializedProxyObject\022" +
-      "\014\n\004type\030\001 \001(\t\022\024\n\014reference_id\030\002 \001(\t\022u\n\021c" +
-      "ached_properties\030\003 \003(\0132Z.org.wso2.carbon" +
-      ".identity.graaljs.engine.proto.Serialize" +
-      "dProxyObject.CachedPropertiesEntry\032w\n\025Ca" +
-      "chedPropertiesEntry\022\013\n\003key\030\001 \001(\t\022M\n\005valu" +
+      "alue\022e\n\010bindings\030\004 \003(\0132S.org.wso2.carbon" +
+      ".identity.graaljs.engine.proto.ExecuteCa" +
+      "llbackRequest.BindingsEntry\022]\n\016host_func" +
+      "tions\030\007 \003(\0132E.org.wso2.carbon.identity.g" +
+      "raaljs.engine.proto.HostFunctionDefiniti" +
+      "on\032o\n\rBindingsEntry\022\013\n\003key\030\001 \001(\t\022M\n\005valu" +
       "e\030\002 \001(\0132>.org.wso2.carbon.identity.graal" +
-      "js.engine.proto.SerializedValue:\0028\001\"\232\002\n\013" +
-      "ContextData\022\033\n\023session_context_key\030\001 \001(\t" +
-      "\022\024\n\014current_step\030\002 \001(\005\022\020\n\010username\030\003 \001(\t" +
-      "\022\031\n\021user_store_domain\030\004 \001(\t\022\025\n\rtenant_do" +
-      "main\030\005 \001(\t\022\r\n\005roles\030\006 \003(\t\022V\n\006claims\030\007 \003(" +
-      "\0132F.org.wso2.carbon.identity.graaljs.eng" +
-      "ine.proto.ContextData.ClaimsEntry\032-\n\013Cla" +
-      "imsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001" +
-      "\"\312\010\n\rStreamMessage\022\022\n\nsession_id\030\001 \001(\t\022Z" +
-      "\n\020evaluate_request\030\002 \001(\0132>.org.wso2.carb" +
-      "on.identity.graaljs.engine.proto.Evaluat" +
-      "eRequestH\000\022i\n\030execute_callback_request\030\003" +
-      " \001(\0132E.org.wso2.carbon.identity.graaljs." +
-      "engine.proto.ExecuteCallbackRequestH\000\022e\n" +
-      "\026host_function_response\030\004 \001(\0132C.org.wso2" +
-      ".carbon.identity.graaljs.engine.proto.Ho" +
-      "stFunctionResponseH\000\022k\n\031context_property" +
-      "_response\030\005 \001(\0132F.org.wso2.carbon.identi" +
-      "ty.graaljs.engine.proto.ContextPropertyR" +
-      "esponseH\000\022r\n\035context_property_set_respon" +
-      "se\030\006 \001(\0132I.org.wso2.carbon.identity.graa" +
-      "ljs.engine.proto.ContextPropertySetRespo" +
-      "nseH\000\022\\\n\021evaluate_response\030\n \001(\0132?.org.w" +
+      "js.engine.proto.SerializedValue:\0028\001\"\224\003\n\027" +
+      "ExecuteCallbackResponse\022\017\n\007success\030\001 \001(\010" +
+      "\022\022\n\nelapsed_ms\030\002 \001(\003\022N\n\006result\030\003 \001(\0132>.o" +
+      "rg.wso2.carbon.identity.graaljs.engine.p" +
+      "roto.SerializedValue\022u\n\020updated_bindings" +
+      "\030\004 \003(\0132[.org.wso2.carbon.identity.graalj" +
+      "s.engine.proto.ExecuteCallbackResponse.U" +
+      "pdatedBindingsEntry\022\025\n\rerror_message\030\005 \001" +
+      "(\t\032v\n\024UpdatedBindingsEntry\022\013\n\003key\030\001 \001(\t\022" +
+      "M\n\005value\030\002 \001(\0132>.org.wso2.carbon.identit" +
+      "y.graaljs.engine.proto.SerializedValue:\002" +
+      "8\001\"\223\001\n\023HostFunctionRequest\022\022\n\nsession_id" +
+      "\030\001 \001(\t\022\025\n\rfunction_name\030\002 \001(\t\022Q\n\targumen" +
+      "ts\030\003 \003(\0132>.org.wso2.carbon.identity.graa" +
+      "ljs.engine.proto.SerializedValue\"\216\001\n\024Hos" +
+      "tFunctionResponse\022\017\n\007success\030\001 \001(\010\022N\n\006re" +
+      "sult\030\002 \001(\0132>.org.wso2.carbon.identity.gr" +
+      "aaljs.engine.proto.SerializedValue\022\025\n\rer" +
+      "ror_message\030\003 \001(\t\"&\n\026HostFunctionDefinit" +
+      "ion\022\014\n\004name\030\001 \001(\t\"W\n\026ContextPropertyRequ" +
+      "est\022\022\n\nsession_id\030\001 \001(\t\022\025\n\rproperty_path" +
+      "\030\002 \001(\t\022\022\n\nproxy_type\030\003 \001(\t\"\313\001\n\027ContextPr" +
+      "opertyResponse\022\017\n\007success\030\001 \001(\010\022M\n\005value" +
+      "\030\002 \001(\0132>.org.wso2.carbon.identity.graalj" +
+      "s.engine.proto.SerializedValue\022\025\n\rerror_" +
+      "message\030\003 \001(\t\022\020\n\010is_proxy\030\004 \001(\010\022\022\n\nproxy" +
+      "_type\030\005 \001(\t\022\023\n\013member_keys\030\006 \003(\t\"\225\001\n\031Con" +
+      "textPropertySetRequest\022\022\n\nsession_id\030\001 \001" +
+      "(\t\022\025\n\rproperty_path\030\002 \001(\t\022M\n\005value\030\003 \001(\013" +
+      "2>.org.wso2.carbon.identity.graaljs.engi" +
+      "ne.proto.SerializedValue\"D\n\032ContextPrope" +
+      "rtySetResponse\022\017\n\007success\030\001 \001(\010\022\025\n\rerror" +
+      "_message\030\002 \001(\t\"\360\003\n\017SerializedValue\022\026\n\014st" +
+      "ring_value\030\001 \001(\tH\000\022\023\n\tint_value\030\002 \001(\003H\000\022" +
+      "\026\n\014double_value\030\003 \001(\001H\000\022\024\n\nbool_value\030\004 " +
+      "\001(\010H\000\022\024\n\nnull_value\030\005 \001(\014H\000\022Q\n\tmap_value" +
+      "\030\006 \001(\0132<.org.wso2.carbon.identity.graalj" +
+      "s.engine.proto.SerializedMapH\000\022U\n\013array_" +
+      "value\030\007 \001(\0132>.org.wso2.carbon.identity.g" +
+      "raaljs.engine.proto.SerializedArrayH\000\022[\n" +
+      "\016function_value\030\010 \001(\0132A.org.wso2.carbon." +
+      "identity.graaljs.engine.proto.Serialized" +
+      "FunctionH\000\022\\\n\014proxy_object\030\t \001(\0132D.org.w" +
       "so2.carbon.identity.graaljs.engine.proto" +
-      ".EvaluateResponseH\000\022k\n\031execute_callback_" +
-      "response\030\013 \001(\0132F.org.wso2.carbon.identit" +
-      "y.graaljs.engine.proto.ExecuteCallbackRe" +
-      "sponseH\000\022c\n\025host_function_request\030\014 \001(\0132" +
-      "B.org.wso2.carbon.identity.graaljs.engin" +
-      "e.proto.HostFunctionRequestH\000\022i\n\030context" +
-      "_property_request\030\r \001(\0132E.org.wso2.carbo" +
+      ".SerializedProxyObjectH\000B\007\n\005value\"\333\001\n\rSe" +
+      "rializedMap\022Z\n\007entries\030\001 \003(\0132I.org.wso2." +
+      "carbon.identity.graaljs.engine.proto.Ser" +
+      "ializedMap.EntriesEntry\032n\n\014EntriesEntry\022" +
+      "\013\n\003key\030\001 \001(\t\022M\n\005value\030\002 \001(\0132>.org.wso2.c" +
+      "arbon.identity.graaljs.engine.proto.Seri" +
+      "alizedValue:\0028\001\"c\n\017SerializedArray\022P\n\010el" +
+      "ements\030\001 \003(\0132>.org.wso2.carbon.identity." +
+      "graaljs.engine.proto.SerializedValue\"$\n\022" +
+      "SerializedFunction\022\016\n\006source\030\001 \001(\t\";\n\025Se" +
+      "rializedProxyObject\022\014\n\004type\030\001 \001(\t\022\024\n\014ref" +
+      "erence_id\030\002 \001(\t\"\312\010\n\rStreamMessage\022\022\n\nses" +
+      "sion_id\030\001 \001(\t\022Z\n\020evaluate_request\030\002 \001(\0132" +
+      ">.org.wso2.carbon.identity.graaljs.engin" +
+      "e.proto.EvaluateRequestH\000\022i\n\030execute_cal" +
+      "lback_request\030\003 \001(\0132E.org.wso2.carbon.id" +
+      "entity.graaljs.engine.proto.ExecuteCallb" +
+      "ackRequestH\000\022e\n\026host_function_response\030\004" +
+      " \001(\0132C.org.wso2.carbon.identity.graaljs." +
+      "engine.proto.HostFunctionResponseH\000\022k\n\031c" +
+      "ontext_property_response\030\005 \001(\0132F.org.wso" +
+      "2.carbon.identity.graaljs.engine.proto.C" +
+      "ontextPropertyResponseH\000\022r\n\035context_prop" +
+      "erty_set_response\030\006 \001(\0132I.org.wso2.carbo" +
       "n.identity.graaljs.engine.proto.ContextP" +
-      "ropertyRequestH\000\022p\n\034context_property_set" +
-      "_request\030\016 \001(\0132H.org.wso2.carbon.identit" +
-      "y.graaljs.engine.proto.ContextPropertySe" +
-      "tRequestH\000B\t\n\007payloadB:\n&org.wso2.carbon" +
-      ".identity.graaljs.protoB\016JsEngineProtosP" +
-      "\001b\006proto3"
+      "ropertySetResponseH\000\022\\\n\021evaluate_respons" +
+      "e\030\n \001(\0132?.org.wso2.carbon.identity.graal" +
+      "js.engine.proto.EvaluateResponseH\000\022k\n\031ex" +
+      "ecute_callback_response\030\013 \001(\0132F.org.wso2" +
+      ".carbon.identity.graaljs.engine.proto.Ex" +
+      "ecuteCallbackResponseH\000\022c\n\025host_function" +
+      "_request\030\014 \001(\0132B.org.wso2.carbon.identit" +
+      "y.graaljs.engine.proto.HostFunctionReque" +
+      "stH\000\022i\n\030context_property_request\030\r \001(\0132E" +
+      ".org.wso2.carbon.identity.graaljs.engine" +
+      ".proto.ContextPropertyRequestH\000\022p\n\034conte" +
+      "xt_property_set_request\030\016 \001(\0132H.org.wso2" +
+      ".carbon.identity.graaljs.engine.proto.Co" +
+      "ntextPropertySetRequestH\000B\t\n\007payloadB:\n&" +
+      "org.wso2.carbon.identity.graaljs.protoB\016" +
+      "JsEngineProtosP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -296,7 +261,7 @@ public final class JsEngineProtos {
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_descriptor,
-        new java.lang.String[] { "SessionId", "Script", "SourceIdentifier", "StatementLimit", "Bindings", "HostFunctions", "CallbackSocketPath", "ContextData", });
+        new java.lang.String[] { "SessionId", "Script", "SourceIdentifier", "StatementLimit", "Bindings", "HostFunctions", });
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_BindingsEntry_descriptor =
       internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_descriptor.getNestedTypes().get(0);
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_EvaluateRequest_BindingsEntry_fieldAccessorTable = new
@@ -320,7 +285,7 @@ public final class JsEngineProtos {
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ExecuteCallbackRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ExecuteCallbackRequest_descriptor,
-        new java.lang.String[] { "SessionId", "FunctionSource", "Arguments", "Bindings", "ContextData", "CallbackSocketPath", "HostFunctions", });
+        new java.lang.String[] { "SessionId", "FunctionSource", "Arguments", "Bindings", "HostFunctions", });
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ExecuteCallbackRequest_BindingsEntry_descriptor =
       internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ExecuteCallbackRequest_descriptor.getNestedTypes().get(0);
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ExecuteCallbackRequest_BindingsEntry_fieldAccessorTable = new
@@ -356,7 +321,7 @@ public final class JsEngineProtos {
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_HostFunctionDefinition_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_HostFunctionDefinition_descriptor,
-        new java.lang.String[] { "Name", "Description", });
+        new java.lang.String[] { "Name", });
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertyRequest_descriptor =
       getDescriptor().getMessageTypes().get(7);
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextPropertyRequest_fieldAccessorTable = new
@@ -410,33 +375,15 @@ public final class JsEngineProtos {
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedFunction_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedFunction_descriptor,
-        new java.lang.String[] { "Source", "Name", });
+        new java.lang.String[] { "Source", });
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor =
       getDescriptor().getMessageTypes().get(15);
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor,
-        new java.lang.String[] { "Type", "ReferenceId", "CachedProperties", });
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_descriptor =
-      internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_descriptor.getNestedTypes().get(0);
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_wso2_carbon_identity_graaljs_engine_proto_SerializedProxyObject_CachedPropertiesEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor =
-      getDescriptor().getMessageTypes().get(16);
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor,
-        new java.lang.String[] { "SessionContextKey", "CurrentStep", "Username", "UserStoreDomain", "TenantDomain", "Roles", "Claims", });
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_descriptor =
-      internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_descriptor.getNestedTypes().get(0);
-    internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_org_wso2_carbon_identity_graaljs_engine_proto_ContextData_ClaimsEntry_descriptor,
-        new java.lang.String[] { "Key", "Value", });
+        new java.lang.String[] { "Type", "ReferenceId", });
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_descriptor =
-      getDescriptor().getMessageTypes().get(17);
+      getDescriptor().getMessageTypes().get(16);
     internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_org_wso2_carbon_identity_graaljs_engine_proto_StreamMessage_descriptor,
