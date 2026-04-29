@@ -23,17 +23,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.identity.graaljs</groupId>
-    <artifactId>wso2is-graaljs-runtime</artifactId>
+    <artifactId>external-graaljs-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>WSO2 Identity Server - GraalJS Runtime</name>
+    <name>WSO2 Identity Server - External GraalJS Aggregator</name>
     <description>
-        Externalised GraalJS script execution runtime for WSO2 Identity Server adaptive
-        authentication. The runtime hosts the GraalJS polyglot context out-of-process and
-        communicates with the Identity Server over a mutually-authenticated gRPC channel.
+        Aggregator for the externalised GraalJS adaptive-authentication feature. Hosts three
+        independently buildable sub-projects:
+          * server                  — out-of-process GraalJS runtime exposed over gRPC.
+          * script.engine.mode      — OSGi bundle providing the default ScriptEngineModeResolver
+                                       (HYBRID per-request routing) for WSO2 Identity Server.
+          * script.remote.engine    — OSGi bundle providing the RemoteJsGraphBuilderProvider that
+                                       routes adaptive-script execution to the gRPC runtime.
+        Each module can be navigated and built independently (cd module &amp;&amp; mvn install) or all
+        together from this directory (mvn install).
     </description>
-    <url>http://wso2.com</url>
 
     <organization>
         <name>WSO2</name>
@@ -48,276 +53,157 @@
         </license>
     </licenses>
 
-    <scm>
-        <url>https://github.com/wso2/carbon-identity-framework.git</url>
-        <developerConnection>scm:git:https://github.com/wso2/carbon-identity-framework.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2/carbon-identity-framework.git</connection>
-    </scm>
+    <modules>
+        <module>server</module>
+        <module>org.wso2.carbon.identity.application.authentication.framework.script.remote.engine</module>
+        <module>org.wso2.carbon.identity.application.authentication.framework.script.engine.mode</module>
+    </modules>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <!-- GraalJS 22.3.x supports Java 11. -->
-        <graalvm.version>22.3.3</graalvm.version>
+        <!-- IS framework jar version the OSGi bundles compile against. -->
+        <framework.version>7.10.150-SNAPSHOT</framework.version>
 
-        <!-- Protocol Buffers. -->
-        <protobuf.version>3.21.12</protobuf.version>
-
-        <!-- gRPC. -->
-        <grpc.version>1.51.1</grpc.version>
-
-        <!-- junixsocket (kept for transports that may use UDS). -->
-        <junixsocket.version>2.9.1</junixsocket.version>
-
-        <!-- Logging. -->
-        <slf4j.version>1.7.36</slf4j.version>
-
-        <!-- Plugin versions. -->
-        <protobuf.plugin.version>0.6.1</protobuf.plugin.version>
-        <os.plugin.version>1.7.1</os.plugin.version>
-        <build.helper.plugin.version>3.4.0</build.helper.plugin.version>
+        <!-- Plugin versions (declared here so each bundle pom doesn't have to repeat them). -->
+        <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
         <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
-        <maven.jar.plugin.version>3.3.0</maven.jar.plugin.version>
-        <maven.dependency.plugin.version>3.6.1</maven.dependency.plugin.version>
-        <maven.assembly.plugin.version>3.6.0</maven.assembly.plugin.version>
-        <maven.resources.plugin.version>3.3.1</maven.resources.plugin.version>
+        <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
 
-        <!-- Distribution naming. -->
-        <distribution.name>${project.artifactId}-${project.version}</distribution.name>
+        <!-- Dependency versions for the OSGi bundles (mirrors carbon-identity-framework root). -->
+        <carbon.kernel.version>4.12.22</carbon.kernel.version>
+        <graalvm.wso2.version>25.0.2.wso2v1</graalvm.wso2.version>
+        <commons-collections.version>3.2.2.wso2v1</commons-collections.version>
+        <commons-lang.wso2.version>2.6.0.wso2v1</commons-lang.wso2.version>
+        <testng.version>7.10.1</testng.version>
+        <junit.version>4.13.1</junit.version>
+        <mockito.version>5.3.1</mockito.version>
+        <mockito-testng.version>0.5.2</mockito-testng.version>
     </properties>
 
-    <dependencies>
-        <!-- GraalJS Engine. -->
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js</artifactId>
-            <version>${graalvm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js-scriptengine</artifactId>
-            <version>${graalvm.version}</version>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Carbon kernel -->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <!-- GraalVM SDK -->
+            <dependency>
+                <groupId>org.wso2.orbit.graalvm.sdk</groupId>
+                <artifactId>graal-sdk</artifactId>
+                <version>${graalvm.wso2.version}</version>
+            </dependency>
+            <!-- Commons -->
+            <dependency>
+                <groupId>org.wso2.orbit.commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>${commons-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang.wso2</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang.wso2.version}</version>
+            </dependency>
+            <!-- Test -->
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-testng</artifactId>
+                <version>${mockito-testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-        <!-- junixsocket for UDS transports. -->
-        <dependency>
-            <groupId>com.kohlschutter.junixsocket</groupId>
-            <artifactId>junixsocket-core</artifactId>
-            <version>${junixsocket.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>com.kohlschutter.junixsocket</groupId>
-            <artifactId>junixsocket-common</artifactId>
-            <version>${junixsocket.version}</version>
-        </dependency>
+    <repositories>
+        <!-- WSO2 nexus — required for resolving identity-framework artefacts. -->
+        <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 Internal Repository</name>
+            <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.releases</id>
+            <name>WSO2 Releases Repository</name>
+            <url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.snapshots</id>
+            <name>WSO2 Snapshot Repository</name>
+            <url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
-        <!-- Protocol Buffers. -->
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>
-
-        <!-- gRPC. -->
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-protobuf</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-stub</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-services</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-        </dependency>
-
-        <!-- Logging. -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-    </dependencies>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>wso2-nexus</id>
+            <name>WSO2 Internal Repository</name>
+            <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
-        <finalName>${project.artifactId}-${project.version}</finalName>
-
-        <extensions>
-            <extension>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os.plugin.version}</version>
-            </extension>
-        </extensions>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
-            </plugin>
-
-            <!-- Protobuf code generation bound to the generate-sources phase so
-                 `mvn clean install` produces the wire stubs in one pass. -->
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>${protobuf.plugin.version}</version>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
-                    <protoSourceRoot>${project.basedir}/proto</protoSourceRoot>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>protobuf-compile</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Register protobuf generated sources for compilation. -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build.helper.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>add-protobuf-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources/protobuf/java</source>
-                                <source>${project.build.directory}/generated-sources/protobuf/grpc-java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Thin runtime jar — dependency jars live alongside in lib/.
-                 Class-Path attribute lets `java -jar` resolve them when run from lib/. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.wso2.carbon.identity.graaljs.External.Main</mainClass>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>./</classpathPrefix>
-                        </manifest>
-                        <manifestEntries>
-                            <Implementation-Title>${project.name}</Implementation-Title>
-                            <Implementation-Version>${project.version}</Implementation-Version>
-                            <Implementation-Vendor>WSO2</Implementation-Vendor>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <!-- Copy runtime dependencies to target/lib so the assembly can pick them up. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>${maven.dependency.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>copy-runtime-dependencies</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Filter the start scripts so they advertise the artifact name/version. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven.resources.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>filter-bin</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/dist-bin</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${project.basedir}/bin</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Distribution archive (zip + tar.gz) with WSO2-style layout. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven.assembly.plugin.version}</version>
-                <configuration>
-                    <descriptors>
-                        <descriptor>${project.basedir}/src/assembly/bin.xml</descriptor>
-                    </descriptors>
-                    <finalName>${distribution.name}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <tarLongFileMode>posix</tarLongFileMode>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>distribution</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>${maven.bundle.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
+
 </project>

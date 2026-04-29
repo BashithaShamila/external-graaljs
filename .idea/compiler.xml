@@ -6,9 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="wso2is-graaljs-runtime" />
-        <module name="graaljs-External" />
+        <module name="org.wso2.carbon.identity.application.authentication.framework.script.engine.mode" />
         <module name="graaljs-sidecar" />
+        <module name="wso2is-graaljs-runtime (1)" />
+        <module name="graaljs-External" />
+        <module name="org.wso2.carbon.identity.application.authentication.framework.script.remote.engine" />
       </profile>
     </annotationProcessing>
   </component>
