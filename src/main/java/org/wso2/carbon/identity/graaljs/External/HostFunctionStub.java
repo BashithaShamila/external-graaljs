@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.graaljs.External;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyArray;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
+import org.graalvm.polyglot.proxy.ProxyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,16 +29,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Stub for host functions that calls back to IS.
+ * <p>
+ * Implements both {@link ProxyExecutable} and {@link ProxyObject} so the same
+ * stub serves callable bindings (e.g. {@code executeStep(...)}) and namespaced
+ * bindings (e.g. {@code Log.info(...)}). Member access lazily produces a child
+ * stub whose function name is the parent's name plus {@code "." + memberName},
+ * so {@code Log.info(...)} reaches IS as a single host-function call named
+ * {@code Log.info}. IS's {@code HostFunctionRegistry} resolves the dotted name
+ * to the matching {@code @HostAccess.Export} method on the registered
+ * instance — there is no special-casing per function on the runtime side, and
+ * the runtime no longer carries a local logger.
+ * <p>
+ * Sub-stubs are cached so a hot loop calling {@code Log.info(...)} repeatedly
+ * does not allocate a new stub per iteration.
  */
-class HostFunctionStub implements ProxyExecutable {
+class HostFunctionStub implements ProxyExecutable, ProxyObject {
 
     private static final Logger log = LoggerFactory.getLogger(HostFunctionStub.class);
 
     private final String functionName;
     private final HostCallbackClient callbackClient;
+
+    /**
+     * Lazy cache of dotted child stubs (e.g. parent {@code "Log"} → child
+     * {@code "Log.info"}). Keyed by member name.
+     */
+    private final Map<String, HostFunctionStub> memberStubs = new ConcurrentHashMap<>();
 
     HostFunctionStub(String functionName, HostCallbackClient callbackClient) {
         this.functionName = functionName;
@@ -239,5 +260,40 @@ class HostFunctionStub implements ProxyExecutable {
             return map;
         }
         return val.toString();
+    }
+
+    // ============ ProxyObject — namespaced member access ============
+    //
+    // Allows scripts to write `Log.info(...)` against a stub registered under
+    // the bare name "Log". Each member access returns a cached child stub
+    // whose function name is "Log.info" — that child reaches IS through the
+    // same execute() path, and IS's HostFunctionRegistry resolves the dotted
+    // name to the matching @HostAccess.Export method on the registered
+    // instance (e.g. JsLogger#info).
+    //
+    // We cannot enumerate the available members from the runtime side (the
+    // proto only carries function names), so hasMember always returns true
+    // and getMemberKeys returns an empty array. Calls to nonexistent methods
+    // surface as a "Unknown host function" error from IS at dispatch time.
+
+    @Override
+    public Object getMember(String memberName) {
+        return memberStubs.computeIfAbsent(memberName,
+                m -> new HostFunctionStub(functionName + "." + m, callbackClient));
+    }
+
+    @Override
+    public boolean hasMember(String memberName) {
+        return true;
+    }
+
+    @Override
+    public Object getMemberKeys() {
+        return ProxyArray.fromArray();
+    }
+
+    @Override
+    public void putMember(String memberName, Value value) {
+        // Read-only — host functions cannot be mutated from JS.
     }
 }

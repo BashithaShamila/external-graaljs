@@ -385,22 +385,25 @@ public class JsEngineServiceImpl {
         // Track registered function names for isHostFunction check
         java.util.Set<String> registeredFunctions = new java.util.HashSet<>();
 
-        // Always register Log as a special case (local logging)
-        bindings.putMember("Log", new LoggerProxy());
-        registeredFunctions.add("Log");
-
-        // If the request did not include any host‑function definitions (older
-        // client), fall back to the legacy hard‑coded list so that basic
-        // functions like executeStep continue to work.
+        // Every entry from the request becomes a HostFunctionStub. The stub
+        // implements both ProxyExecutable (for direct calls like
+        // selectAcrFrom(...)) and ProxyObject (for namespaced calls like
+        // Log.info(...)) — member access on a stub yields a dotted sub-stub
+        // that reaches IS as a single host-function call (e.g. "Log.info"),
+        // where IS's HostFunctionRegistry routes to the matching
+        // @HostAccess.Export method on the registered instance. No special
+        // case for Log on this side; the runtime carries no logger of its own.
         if (hostFunctions == null || hostFunctions.isEmpty()) {
+            // Legacy fallback for older IS clients that did not send the
+            // host-function list. "Log" is included here so adaptive scripts
+            // calling Log.info(...) still work via the same dotted routing.
             String[] defaultFuncNames = { "executeStep", "sendError", "fail", "showPrompt",
-                    "loadLocalLibrary", "getSecretByName", "selectAcrFrom" };
+                    "loadLocalLibrary", "getSecretByName", "selectAcrFrom", "Log" };
             for (String funcName : defaultFuncNames) {
                 bindings.putMember(funcName, new HostFunctionStub(funcName, callbackClient));
                 registeredFunctions.add(funcName);
             }
         } else {
-            // Register stubs for all host functions from the request
             for (HostFunctionDefinition funcDef : hostFunctions) {
                 String funcName = funcDef.getName();
                 if (log.isDebugEnabled()) {
